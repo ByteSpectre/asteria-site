@@ -3,17 +3,17 @@
 import { useRef } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 
-/** Geometric star chart — brand signature for «Астерия». No glow, no particles. */
+/** Geometric star chart — brand signature for «Астерия». */
 const STARS = [
-  { x: 80, y: 150, r: 2.2, code: "α", name: "Суд" },
-  { x: 210, y: 70, r: 1.8, code: "β", name: "Сделки" },
-  { x: 340, y: 130, r: 2.6, code: "γ", name: "Активы" },
-  { x: 470, y: 55, r: 1.6, code: "δ", name: "Семья" },
-  { x: 590, y: 160, r: 2.4, code: "ε", name: "Бизнес" },
-  { x: 720, y: 85, r: 1.9, code: "ζ", name: "Земля" },
-  { x: 850, y: 145, r: 2.1, code: "η", name: "Труд" },
-  { x: 980, y: 60, r: 1.7, code: "θ", name: "Налоги" },
-  { x: 1100, y: 125, r: 2.8, code: "ι", name: "АЮР" },
+  { x: 70, y: 155, r: 3.2, code: "α", name: "Суд", lx: 8, ly: -18 },
+  { x: 200, y: 68, r: 2.8, code: "β", name: "Сделки", lx: 10, ly: -20 },
+  { x: 330, y: 140, r: 3.4, code: "γ", name: "Активы", lx: 10, ly: -20 },
+  { x: 460, y: 52, r: 2.6, code: "δ", name: "Семья", lx: 10, ly: -20 },
+  { x: 590, y: 168, r: 3.2, code: "ε", name: "Бизнес", lx: 10, ly: 28 },
+  { x: 720, y: 78, r: 2.8, code: "ζ", name: "Земля", lx: 10, ly: -20 },
+  { x: 850, y: 152, r: 3.0, code: "η", name: "Труд", lx: 10, ly: -20 },
+  { x: 980, y: 58, r: 2.6, code: "θ", name: "Налоги", lx: 10, ly: -20 },
+  { x: 1110, y: 132, r: 3.6, code: "ι", name: "АЮР", lx: -52, ly: -20 },
 ] as const;
 
 const EDGES: [number, number][] = [
@@ -142,17 +142,17 @@ export default function Constellation() {
       </div>
 
       <div className="relative z-10 pb-10 md:container-x md:mx-auto md:max-w-[1440px] md:pb-12">
-        {/* On mobile: keep chart large via horizontal scroll instead of squashing */}
         <div className="overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:overflow-visible">
           <div className="min-w-[920px] px-5 md:min-w-0 md:px-0">
             <svg
-              viewBox="0 0 1200 240"
-              className="h-[240px] w-full text-wine md:h-auto md:min-h-[180px]"
+              viewBox="0 0 1200 260"
+              className="h-[260px] w-full text-wine md:h-auto md:min-h-[200px]"
               role="img"
               aria-label="Созвездие практик Астерии"
               preserveAspectRatio="xMidYMid meet"
             >
               <g data-parallax>
+                {/* Lines under nodes so joins stay crisp */}
                 {EDGES.map(([a, b], i) => (
                   <line
                     key={`e-${i}`}
@@ -162,46 +162,53 @@ export default function Constellation() {
                     x2={STARS[b].x}
                     y2={STARS[b].y}
                     stroke="currentColor"
-                    strokeOpacity="0.55"
-                    strokeWidth="1.5"
-                    vectorEffect="non-scaling-stroke"
+                    strokeOpacity="0.7"
+                    strokeWidth="2"
+                    strokeLinecap="round"
                   />
                 ))}
 
                 {STARS.map((star, i) => (
                   <g key={star.code}>
                     <circle
+                      cx={star.x}
+                      cy={star.y}
+                      r={star.r + 5}
+                      fill="#fbf8f1"
+                    />
+                    <circle
                       data-star
                       cx={star.x}
                       cy={star.y}
-                      r={star.r * 1.6}
+                      r={star.r}
                       fill="currentColor"
                     />
                     <circle
                       cx={star.x}
                       cy={star.y}
-                      r={star.r * 1.6 + 7}
+                      r={star.r + 5}
                       fill="none"
                       stroke="currentColor"
-                      strokeOpacity="0.22"
-                      strokeWidth="1"
+                      strokeOpacity="0.35"
+                      strokeWidth="1.25"
                     />
                     <text
                       data-label
-                      x={star.x + 14}
-                      y={star.y - 14}
+                      x={star.x + star.lx}
+                      y={star.y + star.ly}
                       className="font-mono"
                       fill="currentColor"
-                      fillOpacity="0.78"
-                      fontSize="16"
-                      letterSpacing="0.05em"
+                      fillOpacity="0.85"
+                      fontSize="15"
+                      fontWeight="400"
+                      letterSpacing="0.04em"
                     >
                       {star.code} · {star.name}
                     </text>
                     <circle
                       cx={star.x}
                       cy={star.y}
-                      r={20}
+                      r={22}
                       fill="transparent"
                       data-star-hit={i}
                     />

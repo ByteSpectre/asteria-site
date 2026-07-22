@@ -145,7 +145,7 @@ export default function Hero() {
         >
           {HERO_STATS.map((stat) => (
             <li key={stat.label} data-hero-stat className="opacity-0">
-              <p className="type-hero-stat font-display font-medium text-ivory">
+              <p className="type-hero-stat font-display text-ivory">
                 {stat.value}
                 {stat.suffix}
               </p>

@@ -105,7 +105,7 @@ export default function Team() {
               <Star className="h-2.5 w-2.5" />
               Команда
             </p>
-            <h2 className="type-section-title font-display max-w-[16ch] font-semibold">
+            <h2 className="type-section-title font-display max-w-[16ch]">
               Эксперты, на которых можно положиться
             </h2>
           </Reveal>
@@ -132,7 +132,7 @@ export default function Team() {
           <Reveal delay={0.1} className="flex flex-col justify-between lg:col-span-7">
             <div>
               <p className="eyebrow text-ink/40">{FEATURED_PARTNER.role}</p>
-              <h3 className="type-feature-name font-display mt-3 font-semibold">
+              <h3 className="type-feature-name font-display mt-3">
                 {FEATURED_PARTNER.name}
               </h3>
               <p className="type-body mt-5 max-w-[40ch] text-ink/65">
@@ -149,7 +149,7 @@ export default function Team() {
                   } ${i === FEATURED_PARTNER.facts.length - 1 ? "bg-wine text-ivory" : ""}`}
                 >
                   <p
-                    className={`type-stat font-display font-semibold ${
+                    className={`type-stat font-display ${
                       i === FEATURED_PARTNER.facts.length - 1 ? "text-ivory" : "text-wine"
                     }`}
                   >

@@ -13,7 +13,7 @@ function SocialIcons({
   className?: string;
 }) {
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
+    <div className={`flex items-center gap-2 md:gap-4 ${className}`}>
       {SOCIAL_LINKS.map((social) => (
         <a
           key={social.label}
@@ -21,9 +21,7 @@ function SocialIcons({
           target={social.href.startsWith("http") ? "_blank" : undefined}
           rel={social.href.startsWith("http") ? "noopener noreferrer" : undefined}
           aria-label={social.label}
-          className={`flex h-11 w-11 items-center justify-center transition-opacity duration-300 hover:opacity-70 ${
-            light ? "text-ivory" : "text-ink"
-          }`}
+          className="inline-flex shrink-0 transition-opacity duration-300 hover:opacity-70"
         >
           <Image
             src={social.icon}
@@ -190,7 +188,7 @@ export default function Header() {
                 <Link
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="type-nav-mobile font-display block py-2.5 font-semibold text-ink"
+                  className="type-nav-mobile font-display block py-2.5 text-ink"
                 >
                   {link.label}
                 </Link>
@@ -198,9 +196,18 @@ export default function Header() {
             ))}
           </ul>
 
-          <div className="shrink-0 space-y-4 border-t border-ink/10 pt-6">
-            <p className="eyebrow text-ink/40">Мессенджеры</p>
-            <SocialIcons />
+          <div className="shrink-0 space-y-5 border-t border-ink/10 pt-6">
+            <div className="space-y-3">
+              <p className="eyebrow text-ink/40">Мессенджеры</p>
+              <SocialIcons />
+            </div>
+            <a
+              href="#contacts"
+              onClick={() => setOpen(false)}
+              className="type-label inline-flex h-12 cursor-pointer items-center bg-wine px-5 font-mono uppercase text-ivory"
+            >
+              Консультация
+            </a>
           </div>
         </nav>
       </div>

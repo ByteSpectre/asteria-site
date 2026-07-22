@@ -47,7 +47,7 @@ function StatValue({
 
   if (text) {
     return (
-      <span className="type-stat font-display font-semibold">
+      <span className="type-stat font-display">
         {text}
       </span>
     );
@@ -56,7 +56,7 @@ function StatValue({
   return (
     <span
       ref={ref}
-      className="type-stat font-display font-semibold"
+      className="type-stat font-display"
     >
       0{suffix}
     </span>
@@ -128,7 +128,7 @@ export default function About() {
               <Star className="h-2.5 w-2.5" />
               Расскажем
             </p>
-            <h2 className="type-section-title-lg font-display font-semibold">
+            <h2 className="type-section-title-lg font-display">
               О нас.
             </h2>
           </Reveal>

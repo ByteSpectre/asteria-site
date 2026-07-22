@@ -29,7 +29,7 @@ export default function Services() {
             <Star className="h-2.5 w-2.5" />
             Услуги
           </p>
-            <h2 className="type-section-title-lg font-display max-w-[14ch] font-semibold">
+            <h2 className="type-section-title-lg font-display max-w-[14ch]">
             16 практик.
             <br />
             <span className="italic">Одна команда.</span>

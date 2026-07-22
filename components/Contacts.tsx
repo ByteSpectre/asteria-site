@@ -57,7 +57,7 @@ function CopyRow({
       <dd className="mt-3">
         <a
           href={href}
-          className="link-underline font-display text-[clamp(1.125rem,2.4vw,1.5rem)] font-semibold tracking-tight whitespace-nowrap"
+          className="link-underline font-display text-[clamp(1.125rem,2.4vw,1.5rem)] tracking-tight whitespace-nowrap"
         >
           {display}
         </a>
@@ -78,7 +78,7 @@ export default function Contacts() {
               <Star className="h-2.5 w-2.5" />
               Контакты
             </p>
-            <h2 className="type-section-title-lg font-display max-w-[12ch] font-semibold">
+            <h2 className="type-section-title-lg font-display max-w-[12ch]">
               Давайте обсудим вашу задачу
             </h2>
             <p className="type-body-sm mt-6 max-w-[36ch] text-ivory/65">

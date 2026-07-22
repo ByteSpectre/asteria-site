@@ -1,40 +1,14 @@
 import type { Metadata } from "next";
-import {
-  Prata,
-  Source_Serif_4,
-  IBM_Plex_Sans,
-  IBM_Plex_Mono,
-} from "next/font/google";
+import { Inter } from "next/font/google";
 import SmoothScroll from "@/components/SmoothScroll";
 import CustomCursor from "@/components/CustomCursor";
 import "./globals.css";
 
-const prata = Prata({
-  subsets: ["cyrillic", "latin"],
-  weight: ["400"],
-  variable: "--font-prata",
-  display: "swap",
-});
-
-const sourceSerif = Source_Serif_4({
-  subsets: ["cyrillic", "latin"],
-  weight: ["300", "400", "500", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-source-serif",
-  display: "swap",
-});
-
-const ibmPlexSans = IBM_Plex_Sans({
-  subsets: ["cyrillic", "latin"],
-  weight: ["300", "400", "500", "600"],
-  variable: "--font-ibm-plex-sans",
-  display: "swap",
-});
-
-const ibmPlexMono = IBM_Plex_Mono({
+const inter = Inter({
   subsets: ["cyrillic", "latin"],
   weight: ["400", "500"],
-  variable: "--font-ibm-plex-mono",
+  style: ["normal", "italic"],
+  variable: "--font-inter",
   display: "swap",
 });
 
@@ -48,11 +22,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="ru"
-      className={`${prata.variable} ${sourceSerif.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="ru" className={inter.variable} suppressHydrationWarning>
       <body className="font-sans antialiased" suppressHydrationWarning>
         <SmoothScroll>
           {children}

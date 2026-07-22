@@ -16,7 +16,7 @@ export default function KnowledgePage() {
       <main className="min-h-[70svh] bg-ivory pt-28 pb-20 md:pt-36 md:pb-28">
         <div className="container-x mx-auto max-w-[800px]">
           <p className="eyebrow text-wine">База знаний</p>
-          <h1 className="type-section-title-lg font-display mt-5 font-semibold">
+          <h1 className="type-section-title-lg font-display mt-5">
             Раздел в подготовке
           </h1>
           <p className="type-body-lg mt-6 max-w-[42ch] text-ink/65">

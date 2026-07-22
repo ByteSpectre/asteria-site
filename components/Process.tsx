@@ -50,7 +50,7 @@ export default function Process() {
               <Star className="h-2.5 w-2.5" />
               Как мы работаем
             </p>
-            <h2 className="type-section-title font-display max-w-[16ch] font-semibold">
+            <h2 className="type-section-title font-display max-w-[16ch]">
               От заявки до результата
             </h2>
           </Reveal>
@@ -123,7 +123,7 @@ export default function Process() {
                     }`}
                   >
                     <span
-                      className={`type-stat-step font-display font-light transition-all duration-500 ${
+                      className={`type-stat-step font-display transition-all duration-500 ${
                         isActive
                           ? "text-wine"
                           : "text-stroke-wine opacity-50"
