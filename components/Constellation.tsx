@@ -134,84 +134,91 @@ export default function Constellation() {
       aria-label="Карта Астерии"
       className="relative overflow-hidden border-y border-ink/10 bg-ivory"
     >
-      <div className="container-x mx-auto flex max-w-[1440px] items-end justify-between gap-6 pt-8 pb-2 md:pt-10">
-        <p className="eyebrow text-ink/40">Atlas · Asteria</p>
-        <p className="type-label font-mono uppercase text-ink/35">
+      <div className="container-x mx-auto flex max-w-[1440px] flex-col gap-3 pt-10 pb-5 sm:flex-row sm:items-end sm:justify-between sm:gap-6 sm:pt-10 sm:pb-3 md:pt-12">
+        <p className="eyebrow text-ink/45">Atlas · Asteria</p>
+        <p className="type-label font-mono uppercase text-ink/40 sm:text-right">
           α 2018 — каталог практик
         </p>
       </div>
 
-      <div className="container-x mx-auto max-w-[1440px] pb-8 md:pb-10">
-        <svg
-          viewBox="0 0 1200 220"
-          className="h-auto w-full text-wine"
-          role="img"
-          aria-label="Созвездие практик Астерии"
-        >
-          <g data-parallax>
-            {/* faint grid — archival chart feel */}
-            <g stroke="currentColor" strokeOpacity="0.08" strokeWidth="0.6">
-              <line x1="0" y1="110" x2="1200" y2="110" />
-              <line x1="600" y1="20" x2="600" y2="200" />
-            </g>
+      <div className="pb-10 md:container-x md:mx-auto md:max-w-[1440px] md:pb-12">
+        {/* On mobile: keep chart large via horizontal scroll instead of squashing */}
+        <div className="overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:overflow-visible">
+          <div className="min-w-[920px] px-5 md:min-w-0 md:px-0">
+            <svg
+              viewBox="0 0 1200 240"
+              className="h-[240px] w-full text-wine md:h-auto md:min-h-[180px]"
+              role="img"
+              aria-label="Созвездие практик Астерии"
+              preserveAspectRatio="xMidYMid meet"
+            >
+              <g data-parallax>
+                <g stroke="currentColor" strokeOpacity="0.08" strokeWidth="0.6">
+                  <line x1="0" y1="120" x2="1200" y2="120" />
+                  <line x1="600" y1="24" x2="600" y2="216" />
+                </g>
 
-            {EDGES.map(([a, b], i) => (
-              <line
-                key={`e-${i}`}
-                data-line
-                x1={STARS[a].x}
-                y1={STARS[a].y}
-                x2={STARS[b].x}
-                y2={STARS[b].y}
-                stroke="currentColor"
-                strokeOpacity="0.45"
-                strokeWidth="1"
-                vectorEffect="non-scaling-stroke"
-              />
-            ))}
+                {EDGES.map(([a, b], i) => (
+                  <line
+                    key={`e-${i}`}
+                    data-line
+                    x1={STARS[a].x}
+                    y1={STARS[a].y}
+                    x2={STARS[b].x}
+                    y2={STARS[b].y}
+                    stroke="currentColor"
+                    strokeOpacity="0.55"
+                    strokeWidth="1.5"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                ))}
 
-            {STARS.map((star, i) => (
-              <g key={star.code}>
-                <circle
-                  data-star
-                  cx={star.x}
-                  cy={star.y}
-                  r={star.r}
-                  fill="currentColor"
-                />
-                <circle
-                  cx={star.x}
-                  cy={star.y}
-                  r={star.r + 5}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeOpacity="0.2"
-                  strokeWidth="0.75"
-                />
-                <text
-                  data-label
-                  x={star.x + 10}
-                  y={star.y - 10}
-                  className="font-mono"
-                  fill="currentColor"
-                  fillOpacity="0.7"
-                  fontSize="11"
-                  letterSpacing="0.08em"
-                >
-                  {star.code} · {star.name}
-                </text>
-                {/* invisible hit area index kept for future interactivity */}
-                <circle
-                  cx={star.x}
-                  cy={star.y}
-                  r={18}
-                  fill="transparent"
-                  data-star-hit={i}
-                />
+                {STARS.map((star, i) => (
+                  <g key={star.code}>
+                    <circle
+                      data-star
+                      cx={star.x}
+                      cy={star.y}
+                      r={star.r * 1.6}
+                      fill="currentColor"
+                    />
+                    <circle
+                      cx={star.x}
+                      cy={star.y}
+                      r={star.r * 1.6 + 7}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeOpacity="0.22"
+                      strokeWidth="1"
+                    />
+                    <text
+                      data-label
+                      x={star.x + 14}
+                      y={star.y - 14}
+                      className="font-mono"
+                      fill="currentColor"
+                      fillOpacity="0.78"
+                      fontSize="16"
+                      letterSpacing="0.05em"
+                    >
+                      {star.code} · {star.name}
+                    </text>
+                    <circle
+                      cx={star.x}
+                      cy={star.y}
+                      r={20}
+                      fill="transparent"
+                      data-star-hit={i}
+                    />
+                  </g>
+                ))}
               </g>
-            ))}
-          </g>
-        </svg>
+            </svg>
+          </div>
+        </div>
+        <p className="container-x mt-3 font-mono text-[10px] tracking-[0.14em] text-ink/30 uppercase md:hidden">
+          Листайте карту →
+        </p>
       </div>
     </section>
   );
