@@ -7,7 +7,10 @@ import MagneticButton from "@/components/MagneticButton";
 import Arrow from "@/components/Arrow";
 import { STATS } from "@/lib/data";
 
-const HERO_STATS = STATS.slice(0, 2);
+const HERO_STATS = [STATS[0], STATS[1]] as [
+  (typeof STATS)[0],
+  (typeof STATS)[1],
+];
 
 export default function Hero() {
   const root = useRef<HTMLElement>(null);
