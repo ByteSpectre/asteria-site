@@ -132,7 +132,7 @@ export default function About() {
           </Reveal>
 
           <Reveal delay={0.1} className="flex flex-col justify-end">
-            <p className="type-body-lg max-w-[42ch] text-ink/75 md:text-lg">
+            <p className="type-body-lg max-w-[42ch] text-ink/75">
               Юридическое агентство Астерия защищает интересы людей и бизнеса в
               судах и сделках. Работаем прозрачно, сопровождаем клиента на каждом
               этапе. Онлайн по всей России.

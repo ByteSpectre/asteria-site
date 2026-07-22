@@ -1,28 +1,32 @@
 import type { Metadata } from "next";
-import { Cormorant, Manrope, JetBrains_Mono } from "next/font/google";
+import {
+  Source_Serif_4,
+  IBM_Plex_Sans,
+  IBM_Plex_Mono,
+} from "next/font/google";
 import SmoothScroll from "@/components/SmoothScroll";
 import CustomCursor from "@/components/CustomCursor";
 import "./globals.css";
 
-const cormorant = Cormorant({
+const sourceSerif = Source_Serif_4({
   subsets: ["cyrillic", "latin"],
   weight: ["300", "400", "500", "600"],
   style: ["normal", "italic"],
-  variable: "--font-cormorant",
+  variable: "--font-source-serif",
   display: "swap",
 });
 
-const manrope = Manrope({
+const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["cyrillic", "latin"],
   weight: ["300", "400", "500", "600"],
-  variable: "--font-manrope",
+  variable: "--font-ibm-plex-sans",
   display: "swap",
 });
 
-const jbMono = JetBrains_Mono({
+const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["cyrillic", "latin"],
   weight: ["400", "500"],
-  variable: "--font-jbmono",
+  variable: "--font-ibm-plex-mono",
   display: "swap",
 });
 
@@ -38,9 +42,10 @@ export default function RootLayout({
   return (
     <html
       lang="ru"
-      className={`${cormorant.variable} ${manrope.variable} ${jbMono.variable}`}
+      className={`${sourceSerif.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}
+      suppressHydrationWarning
     >
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased" suppressHydrationWarning>
         <SmoothScroll>
           {children}
           <CustomCursor />

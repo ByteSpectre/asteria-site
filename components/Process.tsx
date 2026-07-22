@@ -131,7 +131,7 @@ export default function Process() {
                     </span>
                     <div className="pt-1 md:pt-3">
                       <h3
-                        className={`type-card-title font-display font-medium transition-colors duration-300 md:text-xl ${
+                        className={`type-card-title font-display font-medium transition-colors duration-300 ${
                           isActive ? "text-wine" : "text-ink"
                         }`}
                       >
