@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import {
+  Prata,
   Source_Serif_4,
   IBM_Plex_Sans,
   IBM_Plex_Mono,
@@ -7,6 +8,13 @@ import {
 import SmoothScroll from "@/components/SmoothScroll";
 import CustomCursor from "@/components/CustomCursor";
 import "./globals.css";
+
+const prata = Prata({
+  subsets: ["cyrillic", "latin"],
+  weight: ["400"],
+  variable: "--font-prata",
+  display: "swap",
+});
 
 const sourceSerif = Source_Serif_4({
   subsets: ["cyrillic", "latin"],
@@ -42,7 +50,7 @@ export default function RootLayout({
   return (
     <html
       lang="ru"
-      className={`${sourceSerif.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}
+      className={`${prata.variable} ${sourceSerif.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}
       suppressHydrationWarning
     >
       <body className="font-sans antialiased" suppressHydrationWarning>

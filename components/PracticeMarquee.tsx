@@ -1,6 +1,7 @@
 "use client";
 
 import { SERVICES } from "@/lib/data";
+import SectionConstellation from "@/components/SectionConstellation";
 
 const ITEMS = [
   ...SERVICES.individuals.map((s) => s.title),
@@ -13,9 +14,10 @@ export default function PracticeMarquee() {
   return (
     <section
       aria-label="Практики агентства"
-      className="overflow-hidden border-b border-ink/10 bg-wine py-4 text-ivory md:py-5"
+      className="relative overflow-hidden border-b border-ink/10 bg-wine py-4 text-ivory md:py-5"
     >
-      <div className="flex w-max animate-marquee will-change-transform hover:[animation-play-state:paused]">
+      <SectionConstellation tone="ivory" opacity={0.022} />
+      <div className="relative z-10 flex w-max animate-marquee will-change-transform hover:[animation-play-state:paused]">
         {row.map((title, i) => (
           <span
             key={`${title}-${i}`}

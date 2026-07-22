@@ -5,6 +5,7 @@ import { gsap, useGSAP } from "@/lib/gsap";
 import { STATS } from "@/lib/data";
 import Reveal from "@/components/Reveal";
 import Star from "@/components/Star";
+import SectionConstellation from "@/components/SectionConstellation";
 
 function StatValue({
   value,
@@ -118,8 +119,9 @@ export default function About() {
   });
 
   return (
-    <section id="about" className="relative bg-ivory py-20 md:py-28 lg:py-32">
-      <div className="container-x mx-auto max-w-[1440px]">
+    <section id="about" className="relative overflow-hidden bg-ivory py-20 md:py-28 lg:py-32">
+      <SectionConstellation tone="wine" opacity={0.025} />
+      <div className="container-x relative z-10 mx-auto max-w-[1440px]">
         <div className="grid gap-10 pb-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:pb-12">
           <Reveal>
             <p className="eyebrow mb-5 flex items-center gap-2 text-wine">
@@ -178,15 +180,6 @@ export default function About() {
                       {stat.label}
                     </p>
                   </div>
-
-                  {isAyur && (
-                    <span
-                      aria-hidden="true"
-                      className="type-micro pointer-events-none absolute top-5 right-5 rotate-12 border border-ivory/40 px-2 py-1 font-mono uppercase text-ivory/70"
-                    >
-                      Confidential
-                    </span>
-                  )}
                 </TiltStat>
               </Reveal>
             );

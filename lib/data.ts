@@ -190,3 +190,13 @@ export const NAV_LINKS = [
   { label: "База знаний", href: "/knowledge" },
   { label: "Контакты", href: "#contacts" },
 ];
+
+export const SOCIAL_LINKS = [
+  { label: "Max", href: "#", icon: "/images/icon-max.svg" },
+  { label: "Telegram", href: "https://t.me/", icon: "/images/icon-msg-2.svg" },
+  {
+    label: "WhatsApp",
+    href: "https://wa.me/79953013834",
+    icon: "/images/icon-msg-3.svg",
+  },
+] as const;

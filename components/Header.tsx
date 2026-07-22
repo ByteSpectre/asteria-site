@@ -3,7 +3,40 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { NAV_LINKS, CONTACTS } from "@/lib/data";
+import { NAV_LINKS, SOCIAL_LINKS } from "@/lib/data";
+
+function SocialIcons({
+  light = false,
+  className = "",
+}: {
+  light?: boolean;
+  className?: string;
+}) {
+  return (
+    <div className={`flex items-center gap-3 ${className}`}>
+      {SOCIAL_LINKS.map((social) => (
+        <a
+          key={social.label}
+          href={social.href}
+          target={social.href.startsWith("http") ? "_blank" : undefined}
+          rel={social.href.startsWith("http") ? "noopener noreferrer" : undefined}
+          aria-label={social.label}
+          className={`flex h-11 w-11 items-center justify-center transition-opacity duration-300 hover:opacity-70 ${
+            light ? "text-ivory" : "text-ink"
+          }`}
+        >
+          <Image
+            src={social.icon}
+            alt=""
+            width={24}
+            height={24}
+            className={`h-6 w-6 ${light ? "brightness-0 invert" : "brightness-0"}`}
+          />
+        </a>
+      ))}
+    </div>
+  );
+}
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -105,26 +138,7 @@ export default function Header() {
             ))}
           </nav>
 
-          <div className="hidden items-center gap-5 lg:flex">
-            <a
-              href={CONTACTS.phoneHref}
-              className={`type-label font-mono transition-colors duration-300 ${
-                light ? "text-ivory/90" : "text-ink/80"
-              }`}
-            >
-              {CONTACTS.phone}
-            </a>
-            <a
-              href="#contacts"
-              className={`type-label inline-flex h-10 items-center px-4 font-mono uppercase transition-colors duration-300 ${
-                light
-                  ? "bg-ivory text-ink hover:bg-cream"
-                  : "bg-wine text-ivory hover:bg-wine-deep"
-              }`}
-            >
-              Консультация
-            </a>
-          </div>
+          <SocialIcons light={light} className="hidden lg:flex" />
 
           <button
             type="button"
@@ -185,19 +199,8 @@ export default function Header() {
           </ul>
 
           <div className="shrink-0 space-y-4 border-t border-ink/10 pt-6">
-            <a
-              href={CONTACTS.phoneHref}
-              className="block font-mono text-sm tracking-wide text-ink"
-            >
-              {CONTACTS.phone}
-            </a>
-            <a
-              href="#contacts"
-              onClick={() => setOpen(false)}
-              className="type-label inline-flex h-12 cursor-pointer items-center bg-wine px-5 font-mono uppercase text-ivory"
-            >
-              Консультация
-            </a>
+            <p className="eyebrow text-ink/40">Мессенджеры</p>
+            <SocialIcons />
           </div>
         </nav>
       </div>

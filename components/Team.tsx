@@ -5,6 +5,7 @@ import Image from "next/image";
 import { FEATURED_PARTNER, TEAM } from "@/lib/data";
 import Reveal from "@/components/Reveal";
 import Star from "@/components/Star";
+import SectionConstellation from "@/components/SectionConstellation";
 
 function MemberCard({
   name,
@@ -90,10 +91,11 @@ function MemberCard({
 export default function Team() {
   return (
     <section id="team" className="relative overflow-hidden bg-cream py-20 md:py-28 lg:py-32">
+      <SectionConstellation tone="wine" opacity={0.025} />
       {/* Soft side atmosphere — not competing with text */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-0 right-0 h-full w-1/3 bg-gradient-to-l from-wine/[0.03] to-transparent"
+        className="pointer-events-none absolute top-0 right-0 z-[1] h-full w-1/3 bg-gradient-to-l from-wine/[0.03] to-transparent"
       />
 
       <div className="container-x relative z-10 mx-auto max-w-[1440px]">

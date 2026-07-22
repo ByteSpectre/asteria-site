@@ -134,14 +134,14 @@ export default function Constellation() {
       aria-label="Карта Астерии"
       className="relative overflow-hidden border-y border-ink/10 bg-ivory"
     >
-      <div className="container-x mx-auto flex max-w-[1440px] flex-col gap-3 pt-10 pb-5 sm:flex-row sm:items-end sm:justify-between sm:gap-6 sm:pt-10 sm:pb-3 md:pt-12">
+      <div className="container-x relative z-10 mx-auto flex max-w-[1440px] flex-col gap-3 pt-10 pb-5 sm:flex-row sm:items-end sm:justify-between sm:gap-6 sm:pt-10 sm:pb-3 md:pt-12">
         <p className="eyebrow text-ink/45">Atlas · Asteria</p>
         <p className="type-label font-mono uppercase text-ink/40 sm:text-right">
           α 2018 — каталог практик
         </p>
       </div>
 
-      <div className="pb-10 md:container-x md:mx-auto md:max-w-[1440px] md:pb-12">
+      <div className="relative z-10 pb-10 md:container-x md:mx-auto md:max-w-[1440px] md:pb-12">
         {/* On mobile: keep chart large via horizontal scroll instead of squashing */}
         <div className="overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:overflow-visible">
           <div className="min-w-[920px] px-5 md:min-w-0 md:px-0">
@@ -153,11 +153,6 @@ export default function Constellation() {
               preserveAspectRatio="xMidYMid meet"
             >
               <g data-parallax>
-                <g stroke="currentColor" strokeOpacity="0.08" strokeWidth="0.6">
-                  <line x1="0" y1="120" x2="1200" y2="120" />
-                  <line x1="600" y1="24" x2="600" y2="216" />
-                </g>
-
                 {EDGES.map(([a, b], i) => (
                   <line
                     key={`e-${i}`}

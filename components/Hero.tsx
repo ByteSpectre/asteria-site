@@ -156,40 +156,33 @@ export default function Hero() {
           ))}
         </ul>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.65fr)] lg:items-end lg:gap-12">
-          <h1 className="type-hero-title font-display max-w-[12ch] font-medium">
-            <span className="block overflow-hidden">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
+          <h1 className="type-hero-title min-w-0">
+            <span className="hero-line-mask">
               <span data-hero-line className="block will-change-transform">
-                Защищаем в
+                Защищаем в&nbsp;судах
               </span>
             </span>
-            <span className="block overflow-hidden">
+            <span className="hero-line-mask">
               <span data-hero-line className="block will-change-transform">
-                судах и сделках,
+                и&nbsp;сделках,
               </span>
             </span>
-            <span className="block overflow-hidden">
+            <span className="hero-line-mask">
               <span data-hero-line className="block will-change-transform">
-                сохраняем
-              </span>
-            </span>
-            <span className="block overflow-hidden italic">
-              <span data-hero-line className="block will-change-transform">
-                активы
+                сохраняем активы
               </span>
             </span>
           </h1>
 
-          <div className="flex flex-col gap-6 lg:items-end lg:text-right">
-            <div data-hero-cta className="flex flex-col gap-3 opacity-0 lg:items-end">
-              <MagneticButton
-                href="#contacts"
-                className="type-label h-12 min-w-[220px] bg-ivory px-7 font-mono uppercase text-ink transition-colors duration-300 hover:bg-cream"
-              >
-                Консультация
-                <Arrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </MagneticButton>
-            </div>
+          <div data-hero-cta className="flex shrink-0 flex-col gap-3 opacity-0 lg:items-end">
+            <MagneticButton
+              href="#contacts"
+              className="type-label h-12 min-w-[220px] bg-ivory px-7 font-mono uppercase text-ink transition-colors duration-300 hover:bg-cream"
+            >
+              Консультация
+              <Arrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </MagneticButton>
           </div>
         </div>
 

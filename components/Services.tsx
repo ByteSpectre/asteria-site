@@ -4,6 +4,7 @@ import { useState } from "react";
 import { SERVICES } from "@/lib/data";
 import Reveal from "@/components/Reveal";
 import Star from "@/components/Star";
+import SectionConstellation from "@/components/SectionConstellation";
 
 type Tab = "individuals" | "business";
 
@@ -21,6 +22,7 @@ export default function Services() {
       id="services"
       className="relative overflow-hidden bg-cream py-20 md:py-28 lg:py-32"
     >
+      <SectionConstellation tone="wine" opacity={0.025} />
       <div className="container-x relative z-10 mx-auto max-w-[1440px]">
         <Reveal>
           <p className="eyebrow mb-5 flex items-center gap-2 text-wine">

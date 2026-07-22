@@ -8,6 +8,7 @@ import Reveal from "@/components/Reveal";
 import MagneticButton from "@/components/MagneticButton";
 import Arrow from "@/components/Arrow";
 import Star from "@/components/Star";
+import SectionConstellation from "@/components/SectionConstellation";
 
 export default function Process() {
   const root = useRef<HTMLElement>(null);
@@ -39,9 +40,10 @@ export default function Process() {
     <section
       id="process"
       ref={root}
-      className="relative bg-ivory py-20 md:py-28 lg:py-32"
+      className="relative overflow-hidden bg-ivory py-20 md:py-28 lg:py-32"
     >
-      <div className="container-x mx-auto max-w-[1440px]">
+      <SectionConstellation tone="wine" opacity={0.025} />
+      <div className="container-x relative z-10 mx-auto max-w-[1440px]">
         <div className="mb-12 flex flex-col gap-4 md:mb-16 md:flex-row md:items-end md:justify-between">
           <Reveal>
             <p className="eyebrow mb-5 flex items-center gap-2 text-wine">
