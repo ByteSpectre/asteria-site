@@ -17,8 +17,51 @@
 
 html {
   font-size: 16px;
+  /* Firefox */
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--color-ink) 40%, transparent) transparent;
+  scrollbar-color: var(--color-wine)
+    color-mix(in srgb, var(--color-cream) 70%, var(--color-ivory));
+}
+
+/* Chrome, Edge, Safari — native right scrollbar */
+*::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--color-cream) 80%, var(--color-ink));
+  border-left: 1px solid color-mix(in srgb, var(--color-ink) 10%, transparent);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-wine) 78%, #6e3544),
+    var(--color-wine-deep)
+  );
+  border: 3px solid color-mix(in srgb, var(--color-cream) 80%, var(--color-ink));
+  border-radius: 999px;
+  background-clip: padding-box;
+  min-height: 48px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-wine) 90%, #8a4558),
+    var(--color-wine)
+  );
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: var(--color-wine-deep);
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 body {
