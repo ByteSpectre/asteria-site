@@ -41,9 +41,6 @@ export default function Footer() {
               height={30}
               className="h-7 w-auto brightness-0"
             />
-            <span className="type-card-title font-display font-semibold tracking-[0.02em]">
-              Астерия
-            </span>
           </Link>
           <p className="mt-4 max-w-[28ch] text-sm leading-relaxed text-ink/50">
             Юридическое агентство. Защищаем в судах и сделках, сохраняем активы.
