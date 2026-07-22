@@ -70,23 +70,34 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
   font-size: 1.0625rem;
   line-height: 1.65;
+  letter-spacing: -0.03em;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  font-style: normal;
+}
+
+em,
+i,
+.italic {
+  font-style: normal;
 }
 
 .font-display {
   font-family: var(--font-display), system-ui, sans-serif;
   font-weight: 400;
+  letter-spacing: -0.06em;
 }
 
 .font-hero {
   font-family: var(--font-hero), system-ui, sans-serif;
   font-weight: 400;
+  letter-spacing: -0.06em;
 }
 
 .font-mono {
   font-family: var(--font-mono), system-ui, sans-serif;
   font-weight: 400;
+  letter-spacing: -0.03em;
 }
 
 h1,
@@ -94,8 +105,8 @@ h1,
   font-family: var(--font-inter), system-ui, sans-serif;
   font-weight: 400;
   font-size: clamp(48px, calc(2.8205vw + 37.846px), 92px);
-  line-height: 1.12;
-  letter-spacing: -0.02em;
+  line-height: 1;
+  letter-spacing: -0.06em;
 }
 
 h2,
@@ -103,8 +114,8 @@ h2,
   font-family: var(--font-inter), system-ui, sans-serif;
   font-weight: 400;
   font-size: clamp(42px, calc(1.9231vw + 35.077px), 72px);
-  line-height: 1.15;
-  letter-spacing: -0.015em;
+  line-height: 1;
+  letter-spacing: -0.06em;
 }
 
 h3,
@@ -114,7 +125,8 @@ h6,
 .h3 {
   font-family: var(--font-inter), system-ui, sans-serif;
   font-weight: 500;
-  letter-spacing: -0.01em;
+  line-height: 1;
+  letter-spacing: -0.035em;
 }
 
 ::selection {
@@ -161,7 +173,7 @@ html.lenis body {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 400;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   line-height: 1.4;
 }
@@ -170,18 +182,17 @@ html.lenis body {
 .type-hero-brand {
   font-family: var(--font-inter), system-ui, sans-serif;
   font-size: clamp(48px, calc(2.8205vw + 37.846px), 92px);
-  line-height: 1.12;
-  letter-spacing: -0.02em;
+  line-height: 1;
+  letter-spacing: -0.06em;
   font-weight: 400;
 }
 
 .type-hero-title {
   font-family: var(--font-inter), system-ui, sans-serif;
   font-size: clamp(48px, calc(2.8205vw + 37.846px), 92px);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  line-height: 1;
+  letter-spacing: -0.06em;
   font-weight: 400;
-  font-style: normal;
 }
 
 .hero-line-mask {
@@ -195,23 +206,23 @@ html.lenis body {
 
 .type-hero-stat {
   font-family: var(--font-inter), system-ui, sans-serif;
-  font-size: clamp(42px, calc(1.9231vw + 35.077px), 72px);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  font-size: clamp(32px, calc(1.7949vw + 25.538px), 60px);
+  line-height: 1;
+  letter-spacing: -0.06em;
   font-weight: 400;
 }
 
 .type-hero-stat-label {
   font-size: clamp(0.9375rem, 1.4vw, 1.125rem);
   line-height: 1.4;
-  letter-spacing: 0;
+  letter-spacing: -0.03em;
   font-weight: 400;
 }
 
 .type-hero-tagline {
   font-size: clamp(1.0625rem, 1.6vw, 1.25rem);
   line-height: 1.55;
-  letter-spacing: 0;
+  letter-spacing: -0.03em;
   font-weight: 400;
 }
 
@@ -219,32 +230,32 @@ html.lenis body {
 .type-section-title-lg {
   font-family: var(--font-inter), system-ui, sans-serif;
   font-size: clamp(42px, calc(1.9231vw + 35.077px), 72px);
-  line-height: 1.15;
-  letter-spacing: -0.015em;
+  line-height: 1;
+  letter-spacing: -0.06em;
   font-weight: 400;
 }
 
 .type-feature-name {
   font-family: var(--font-inter), system-ui, sans-serif;
   font-size: clamp(1.375rem, 1.5vw, 1.75rem);
-  line-height: 1.2;
-  letter-spacing: -0.01em;
+  line-height: 1;
+  letter-spacing: -0.035em;
   font-weight: 500;
 }
 
 .type-stat {
   font-family: var(--font-inter), system-ui, sans-serif;
-  font-size: clamp(42px, calc(1.9231vw + 35.077px), 72px);
-  line-height: 1.05;
-  letter-spacing: -0.015em;
+  font-size: clamp(32px, calc(1.7949vw + 25.538px), 60px);
+  line-height: 1;
+  letter-spacing: -0.06em;
   font-weight: 400;
 }
 
 .type-stat-step {
   font-family: var(--font-inter), system-ui, sans-serif;
-  font-size: clamp(2rem, 3vw, 3rem);
-  line-height: 1.05;
-  letter-spacing: -0.015em;
+  font-size: clamp(32px, calc(1.7949vw + 25.538px), 60px);
+  line-height: 1;
+  letter-spacing: -0.06em;
   font-weight: 400;
 }
 
@@ -252,16 +263,16 @@ html.lenis body {
 .type-service-title {
   font-family: var(--font-inter), system-ui, sans-serif;
   font-size: clamp(1.1875rem, 1.4vw, 1.5rem);
-  line-height: 1.35;
-  letter-spacing: -0.01em;
+  line-height: 1;
+  letter-spacing: -0.035em;
   font-weight: 500;
 }
 
 .type-nav-mobile {
   font-family: var(--font-inter), system-ui, sans-serif;
   font-size: clamp(1.5rem, 5.5vw, 2rem);
-  line-height: 1.2;
-  letter-spacing: -0.01em;
+  line-height: 1;
+  letter-spacing: -0.04em;
   font-weight: 400;
 }
 
@@ -269,30 +280,33 @@ html.lenis body {
   font-size: 1.125rem;
   line-height: 1.7;
   font-weight: 400;
+  letter-spacing: -0.03em;
 }
 
 .type-body {
   font-size: 1.0625rem;
   line-height: 1.65;
   font-weight: 400;
+  letter-spacing: -0.03em;
 }
 
 .type-body-sm {
   font-size: 0.975rem;
   line-height: 1.6;
   font-weight: 400;
+  letter-spacing: -0.03em;
 }
 
 .type-label {
   font-size: 0.75rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   line-height: 1.4;
   font-weight: 400;
 }
 
 .type-micro {
   font-size: 0.6875rem;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.04em;
   line-height: 1.4;
   font-weight: 400;
 }

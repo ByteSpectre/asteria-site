@@ -32,7 +32,7 @@ export default function Services() {
             <h2 className="type-section-title-lg font-display max-w-[14ch]">
             16 практик.
             <br />
-            <span className="italic">Одна команда.</span>
+            <span>Одна команда.</span>
           </h2>
         </Reveal>
 
@@ -57,7 +57,7 @@ export default function Services() {
                   role="tab"
                   aria-selected={active}
                   onClick={() => setTab(item.id)}
-                  className={`type-label relative z-10 cursor-pointer px-4 py-4 text-left font-mono uppercase transition-colors duration-300 md:px-6 ${
+                  className={`type-label relative z-10 flex cursor-pointer items-center justify-center px-4 py-4 text-center font-mono uppercase transition-colors duration-300 md:px-6 ${
                     active ? "text-ivory" : "text-ink/70 hover:text-ink"
                   }`}
                 >

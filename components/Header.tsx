@@ -204,7 +204,7 @@ export default function Header() {
             <a
               href="#contacts"
               onClick={() => setOpen(false)}
-              className="type-label inline-flex h-12 cursor-pointer items-center bg-wine px-5 font-mono uppercase text-ivory"
+              className="type-label inline-flex h-12 cursor-pointer items-center justify-center bg-wine px-5 font-mono uppercase text-ivory"
             >
               Консультация
             </a>

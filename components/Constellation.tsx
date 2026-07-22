@@ -3,17 +3,18 @@
 import { useRef } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 
-/** Geometric star chart — brand signature for «Астерия». */
+/** Geometric star chart — brand signature for «Астерия».
+ *  Labels sit centered directly above each node. */
 const STARS = [
-  { x: 70, y: 155, r: 3.2, code: "α", name: "Суд", lx: 8, ly: -18 },
-  { x: 200, y: 68, r: 2.8, code: "β", name: "Сделки", lx: 10, ly: -20 },
-  { x: 330, y: 140, r: 3.4, code: "γ", name: "Активы", lx: 10, ly: -20 },
-  { x: 460, y: 52, r: 2.6, code: "δ", name: "Семья", lx: 10, ly: -20 },
-  { x: 590, y: 168, r: 3.2, code: "ε", name: "Бизнес", lx: 10, ly: 28 },
-  { x: 720, y: 78, r: 2.8, code: "ζ", name: "Земля", lx: 10, ly: -20 },
-  { x: 850, y: 152, r: 3.0, code: "η", name: "Труд", lx: 10, ly: -20 },
-  { x: 980, y: 58, r: 2.6, code: "θ", name: "Налоги", lx: 10, ly: -20 },
-  { x: 1110, y: 132, r: 3.6, code: "ι", name: "АЮР", lx: -52, ly: -20 },
+  { x: 70, y: 155, r: 3.2, code: "α", name: "Суд" },
+  { x: 200, y: 68, r: 2.8, code: "β", name: "Сделки" },
+  { x: 330, y: 140, r: 3.4, code: "γ", name: "Активы" },
+  { x: 460, y: 52, r: 2.6, code: "δ", name: "Семья" },
+  { x: 590, y: 168, r: 3.2, code: "ε", name: "Бизнес" },
+  { x: 720, y: 78, r: 2.8, code: "ζ", name: "Земля" },
+  { x: 850, y: 152, r: 3.0, code: "η", name: "Труд" },
+  { x: 980, y: 58, r: 2.6, code: "θ", name: "Налоги" },
+  { x: 1110, y: 132, r: 3.6, code: "ι", name: "АЮР" },
 ] as const;
 
 const EDGES: [number, number][] = [
@@ -28,6 +29,21 @@ const EDGES: [number, number][] = [
   [7, 8],
   [4, 6],
 ];
+
+/** Stop lines before the label/node halo so text stays clear. */
+function edgePoints(a: (typeof STARS)[number], b: (typeof STARS)[number], pad = 26) {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const ux = dx / len;
+  const uy = dy / len;
+  return {
+    x1: a.x + ux * pad,
+    y1: a.y + uy * pad,
+    x2: b.x - ux * pad,
+    y2: b.y - uy * pad,
+  };
+}
 
 export default function Constellation() {
   const root = useRef<HTMLElement>(null);
@@ -153,20 +169,23 @@ export default function Constellation() {
             >
               <g data-parallax>
                 {/* Lines under nodes so joins stay crisp */}
-                {EDGES.map(([a, b], i) => (
-                  <line
-                    key={`e-${i}`}
-                    data-line
-                    x1={STARS[a].x}
-                    y1={STARS[a].y}
-                    x2={STARS[b].x}
-                    y2={STARS[b].y}
-                    stroke="currentColor"
-                    strokeOpacity="0.7"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                ))}
+                {EDGES.map(([a, b], i) => {
+                  const p = edgePoints(STARS[a], STARS[b]);
+                  return (
+                    <line
+                      key={`e-${i}`}
+                      data-line
+                      x1={p.x1}
+                      y1={p.y1}
+                      x2={p.x2}
+                      y2={p.y2}
+                      stroke="currentColor"
+                      strokeOpacity="0.7"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  );
+                })}
 
                 {STARS.map((star, i) => (
                   <g key={star.code}>
@@ -194,14 +213,19 @@ export default function Constellation() {
                     />
                     <text
                       data-label
-                      x={star.x + star.lx}
-                      y={star.y + star.ly}
+                      x={star.x}
+                      y={star.y - 18}
+                      textAnchor="middle"
                       className="font-mono"
                       fill="currentColor"
                       fillOpacity="0.85"
-                      fontSize="15"
+                      fontSize="14"
                       fontWeight="400"
                       letterSpacing="0.04em"
+                      paintOrder="stroke fill"
+                      stroke="#fbf8f1"
+                      strokeWidth="8"
+                      strokeLinejoin="round"
                     >
                       {star.code} · {star.name}
                     </text>
@@ -218,7 +242,7 @@ export default function Constellation() {
             </svg>
           </div>
         </div>
-        <p className="container-x mt-3 font-mono text-[10px] tracking-[0.14em] text-ink/30 uppercase md:hidden">
+        <p className="container-x mt-3 font-mono text-[10px] tracking-[0.04em] text-ink/30 uppercase md:hidden">
           Листайте карту →
         </p>
       </div>

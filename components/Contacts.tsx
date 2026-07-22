@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -57,7 +57,7 @@ function CopyRow({
       <dd className="mt-3">
         <a
           href={href}
-          className="link-underline font-display text-[clamp(1.125rem,2.4vw,1.5rem)] tracking-tight whitespace-nowrap"
+          className="link-underline font-display text-[clamp(1rem,1.9vw,1.25rem)] tracking-tight whitespace-nowrap"
         >
           {display}
         </a>
@@ -73,7 +73,7 @@ export default function Contacts() {
 
       <div className="container-x relative z-10 mx-auto max-w-[1440px] py-20 md:py-28 lg:py-32">
         <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
-          <Reveal>
+          <Reveal className="flex flex-col items-start">
             <p className="eyebrow mb-5 flex items-center gap-2 text-ivory/55">
               <Star className="h-2.5 w-2.5" />
               Контакты
@@ -85,16 +85,6 @@ export default function Contacts() {
               Свяжитесь удобным способом — ответим на вопрос и предложим подходящий
               формат работы.
             </p>
-
-            <div className="mt-8 inline-flex items-center gap-3 border border-ivory/20 bg-wine/40 px-4 py-3 backdrop-blur-[2px]">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inset-0 animate-ping rounded-full bg-ivory/50" />
-                <span className="relative h-2 w-2 rounded-full bg-ivory" />
-              </span>
-              <span className="type-label font-mono uppercase text-ivory/80">
-                Ответим ~15 минут
-              </span>
-            </div>
 
             <MagneticButton
               href={CONTACTS.phoneHref}

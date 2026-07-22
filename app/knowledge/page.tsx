@@ -26,13 +26,13 @@ export default function KnowledgePage() {
           <div className="mt-10 flex flex-wrap gap-4">
             <Link
               href="/#contacts"
-              className="type-label inline-flex h-12 items-center bg-wine px-6 font-mono uppercase text-ivory transition-colors duration-300 hover:bg-wine-deep"
+              className="type-label inline-flex h-12 items-center justify-center bg-wine px-6 font-mono uppercase text-ivory transition-colors duration-300 hover:bg-wine-deep"
             >
               Консультация
             </Link>
             <Link
               href="/"
-              className="type-label inline-flex h-12 items-center border border-ink/15 px-6 font-mono uppercase text-ink transition-colors duration-300 hover:border-ink/40"
+              className="type-label inline-flex h-12 items-center justify-center border border-ink/15 px-6 font-mono uppercase text-ink transition-colors duration-300 hover:border-ink/40"
             >
               На главную
             </Link>

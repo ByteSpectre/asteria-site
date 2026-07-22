@@ -140,7 +140,7 @@ export default function Hero() {
 
       <div className="container-x relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[1440px] flex-col justify-end pb-10 pt-28 md:pb-14 md:pt-32">
         <ul
-          className="mb-8 flex flex-wrap gap-x-10 gap-y-6 md:mb-10 md:gap-x-14 lg:mb-12"
+          className="mb-14 flex flex-wrap gap-x-10 gap-y-6 md:mb-16 md:gap-x-14 lg:mb-20"
           aria-label="Ключевые показатели"
         >
           {HERO_STATS.map((stat) => (

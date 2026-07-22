@@ -78,7 +78,7 @@ export default function Footer() {
 
       <div className="type-micro container-x mx-auto flex max-w-[1440px] flex-col gap-2 border-t border-ink/8 py-6 text-ink/40 sm:flex-row sm:items-center sm:justify-between">
         <p>© {year} Астерия. Все права защищены.</p>
-        <p className="font-mono tracking-[0.12em] uppercase">
+        <p className="font-mono tracking-[0.04em] uppercase">
           Первая консультация бесплатно
         </p>
       </div>

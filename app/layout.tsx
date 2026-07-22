@@ -7,7 +7,7 @@ import "./globals.css";
 const inter = Inter({
   subsets: ["cyrillic", "latin"],
   weight: ["400", "500"],
-  style: ["normal", "italic"],
+  style: ["normal"],
   variable: "--font-inter",
   display: "swap",
 });
