@@ -1,0 +1,300 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #161310;
+  --color-ivory: #fbf8f1;
+  --color-cream: #f5f1e8;
+  --color-wine: #431c26;
+  --color-wine-deep: #2c1119;
+}
+
+@theme inline {
+  --font-display: var(--font-cormorant);
+  --font-sans: var(--font-manrope);
+  --font-mono: var(--font-jbmono);
+}
+
+html {
+  /* Slight global bump for readability */
+  font-size: 17px;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-ink) 40%, transparent) transparent;
+}
+
+body {
+  background-color: var(--color-ivory);
+  color: var(--color-ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+}
+
+.font-mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+::selection {
+  background-color: var(--color-wine);
+  color: var(--color-ivory);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-wine);
+  outline-offset: 3px;
+}
+
+/* Lenis smooth scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+/* Page-wide horizontal rhythm */
+.container-x {
+  padding-inline: 20px;
+}
+@media (min-width: 640px) {
+  .container-x {
+    padding-inline: 32px;
+  }
+}
+@media (min-width: 1024px) {
+  .container-x {
+    padding-inline: 48px;
+  }
+}
+@media (min-width: 1440px) {
+  .container-x {
+    padding-inline: 72px;
+  }
+}
+
+/* Editorial section label */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+/* Inter type scale */
+.type-hero-brand {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+}
+
+.type-hero-title {
+  font-size: clamp(1.875rem, 3.5vw, 2.875rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+
+.type-section-title {
+  font-size: clamp(1.875rem, 4vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.type-section-title-lg {
+  font-size: clamp(2rem, 4.25vw, 3.25rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+.type-feature-name {
+  font-size: clamp(1.625rem, 3vw, 2.375rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.type-stat {
+  font-size: clamp(2rem, 4.25vw, 3.25rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.type-stat-step {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.type-card-title {
+  font-size: clamp(1.125rem, 1.4vw, 1.375rem);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.type-service-title {
+  font-size: clamp(1.125rem, 1.2vw, 1.375rem);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.type-nav-mobile {
+  font-size: clamp(1.625rem, 6.5vw, 2.125rem);
+  line-height: 1.15;
+}
+
+.type-body-lg {
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+
+.type-body {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+
+.type-body-sm {
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.type-label {
+  font-size: 0.8125rem;
+  letter-spacing: 0.095em;
+  line-height: 1.4;
+}
+
+.type-micro {
+  font-size: 0.75rem;
+  letter-spacing: 0.11em;
+  line-height: 1.4;
+}
+
+/* Underline link animation */
+.link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: left bottom;
+  background-repeat: no-repeat;
+  transition: background-size 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.link-underline:hover,
+.link-underline:focus-visible {
+  background-size: 100% 1px;
+}
+
+/* Outlined display digits (process steps, footer watermark) */
+.text-stroke-wine {
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--color-wine) 75%, transparent);
+}
+.text-stroke-ivory {
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--color-ivory) 35%, transparent);
+}
+
+/* SplitText masks get inline-block; keep kerning stable */
+.split-line {
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 55s linear infinite;
+}
+
+@keyframes scroll-line {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(200%);
+  }
+}
+
+/* Custom cursor (desktop only) */
+@media (hover: hover) and (pointer: fine) {
+  .has-custom-cursor,
+  .has-custom-cursor body,
+  .has-custom-cursor a,
+  .has-custom-cursor button,
+  .has-custom-cursor [role="button"],
+  .has-custom-cursor input,
+  .has-custom-cursor textarea,
+  .has-custom-cursor select,
+  .has-custom-cursor label,
+  .has-custom-cursor summary {
+    cursor: none !important;
+  }
+}
+
+.custom-cursor-dot,
+.custom-cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1200;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.custom-cursor-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-ivory);
+  mix-blend-mode: difference;
+}
+
+.custom-cursor-ring {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-wine) 55%, transparent);
+  background: color-mix(in srgb, var(--color-ivory) 8%, transparent);
+  backdrop-filter: blur(1px);
+  transform: translate(-50%, -50%);
+  transition:
+    width 0.22s ease,
+    height 0.22s ease,
+    border-color 0.22s ease,
+    background-color 0.22s ease;
+}
+
+.custom-cursor-ring[data-mode="interactive"] {
+  width: 44px;
+  height: 44px;
+  border-color: color-mix(in srgb, var(--color-wine) 80%, transparent);
+  background: color-mix(in srgb, var(--color-wine) 10%, transparent);
+}
+
+.custom-cursor-ring[data-mode="pressed"] {
+  width: 26px;
+  height: 26px;
+}
