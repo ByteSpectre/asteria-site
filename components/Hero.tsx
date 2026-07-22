@@ -5,6 +5,9 @@ import Image from "next/image";
 import { gsap, useGSAP } from "@/lib/gsap";
 import MagneticButton from "@/components/MagneticButton";
 import Arrow from "@/components/Arrow";
+import { STATS } from "@/lib/data";
+
+const HERO_STATS = STATS.slice(0, 2);
 
 export default function Hero() {
   const root = useRef<HTMLElement>(null);
@@ -28,16 +31,16 @@ export default function Hero() {
           0,
         )
         .fromTo(
-          "[data-hero-brand]",
-          { y: 40, autoAlpha: 0 },
-          { y: 0, autoAlpha: 1, duration: 1.1 },
-          0.35,
+          "[data-hero-stat]",
+          { y: 28, autoAlpha: 0 },
+          { y: 0, autoAlpha: 1, duration: 1, stagger: 0.1 },
+          0.3,
         )
         .fromTo(
           "[data-hero-line]",
           { y: "110%" },
           { y: "0%", duration: 1.15, stagger: 0.08 },
-          0.55,
+          0.5,
         )
         .fromTo(
           "[data-hero-sub]",
@@ -132,36 +135,49 @@ export default function Hero() {
         />
       </div>
 
-      <div className="container-x relative z-10 mx-auto w-full max-w-[1440px] pb-10 pt-28 md:pb-14 md:pt-32">
-        <p
-          data-hero-brand
-          className="type-hero-brand font-display mb-6 font-semibold text-ivory opacity-0"
+      <div className="container-x relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[1440px] flex-col justify-end pb-10 pt-28 md:pb-14 md:pt-32">
+        <ul
+          className="mb-8 flex flex-wrap gap-x-10 gap-y-6 md:mb-10 md:gap-x-14 lg:mb-12"
+          aria-label="Ключевые показатели"
         >
-          Астерия
-        </p>
+          {HERO_STATS.map((stat) => (
+            <li key={stat.label} data-hero-stat className="opacity-0">
+              <p className="type-hero-stat font-display font-medium text-ivory">
+                {stat.value}
+                {stat.suffix}
+              </p>
+              <p className="type-hero-stat-label mt-2 max-w-[14ch] text-ivory/80">
+                {stat.label}
+              </p>
+            </li>
+          ))}
+        </ul>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)] lg:items-end lg:gap-12">
-          <h1 className="type-hero-title font-display max-w-[14ch] font-medium">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.65fr)] lg:items-end lg:gap-12">
+          <h1 className="type-hero-title font-display max-w-[12ch] font-medium">
             <span className="block overflow-hidden">
               <span data-hero-line className="block will-change-transform">
-                Защищаем в судах и сделках,
+                Защищаем в
+              </span>
+            </span>
+            <span className="block overflow-hidden">
+              <span data-hero-line className="block will-change-transform">
+                судах и сделках,
+              </span>
+            </span>
+            <span className="block overflow-hidden">
+              <span data-hero-line className="block will-change-transform">
+                сохраняем
               </span>
             </span>
             <span className="block overflow-hidden italic">
               <span data-hero-line className="block will-change-transform">
-                сохраняем активы
+                активы
               </span>
             </span>
           </h1>
 
           <div className="flex flex-col gap-6 lg:items-end lg:text-right">
-            <p
-              data-hero-sub
-              className="type-body-sm max-w-[28ch] text-ivory/75 opacity-0 lg:ml-auto"
-            >
-              Работаем онлайн по всей России. Первая консультация — бесплатно.
-            </p>
-
             <div data-hero-cta className="flex flex-col gap-3 opacity-0 lg:items-end">
               <MagneticButton
                 href="#contacts"
@@ -170,12 +186,16 @@ export default function Hero() {
                 Консультация
                 <Arrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </MagneticButton>
-              <p className="type-micro font-mono uppercase text-ivory/45">
-                С 2018 года · онлайн по всей России
-              </p>
             </div>
           </div>
         </div>
+
+        <p
+          data-hero-sub
+          className="type-hero-tagline mt-8 max-w-[40ch] text-ivory/85 opacity-0 md:mt-10 md:max-w-[48ch]"
+        >
+          Работаем онлайн по всей России — первая консультация бесплатно.
+        </p>
 
         <a
           href="#about"

@@ -95,9 +95,27 @@ html.lenis body {
 }
 
 .type-hero-title {
-  font-size: clamp(1.875rem, 3.5vw, 2.875rem);
-  line-height: 1.12;
+  font-size: clamp(2.25rem, 5.2vw, 4rem);
+  line-height: 1.06;
   letter-spacing: -0.02em;
+}
+
+.type-hero-stat {
+  font-size: clamp(2.75rem, 7vw, 5rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+
+.type-hero-stat-label {
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.type-hero-tagline {
+  font-size: clamp(1.0625rem, 2vw, 1.375rem);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
 }
 
 .type-section-title {
