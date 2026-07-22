@@ -263,6 +263,18 @@ html.lenis body {
 }
 
 /* Custom cursor (desktop only) */
+.custom-cursor-dot,
+.custom-cursor-ring {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1200;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .has-custom-cursor,
   .has-custom-cursor body,
@@ -276,17 +288,12 @@ html.lenis body {
   .has-custom-cursor summary {
     cursor: none !important;
   }
-}
 
-.custom-cursor-dot,
-.custom-cursor-ring {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1200;
-  pointer-events: none;
-  opacity: 1;
-  transition: opacity 0.2s ease;
+  .has-custom-cursor .custom-cursor-dot,
+  .has-custom-cursor .custom-cursor-ring {
+    display: block;
+    opacity: 1;
+  }
 }
 
 .custom-cursor-dot {
@@ -309,7 +316,8 @@ html.lenis body {
     width 0.22s ease,
     height 0.22s ease,
     border-color 0.22s ease,
-    background-color 0.22s ease;
+    background-color 0.22s ease,
+    opacity 0.2s ease;
 }
 
 .custom-cursor-ring[data-mode="interactive"] {

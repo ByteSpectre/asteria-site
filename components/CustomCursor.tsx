@@ -1,20 +1,39 @@
 ﻿"use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type PointerMode = "default" | "interactive" | "pressed";
 
+function canUseCustomCursor() {
+  if (typeof window === "undefined") return false;
+  return (
+    window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
 export default function CustomCursor() {
+  const [enabled, setEnabled] = useState(false);
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (
-      window.matchMedia("(pointer: coarse)").matches ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      return;
-    }
+    const sync = () => setEnabled(canUseCustomCursor());
+    sync();
+
+    const hoverMq = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const motionMq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    hoverMq.addEventListener("change", sync);
+    motionMq.addEventListener("change", sync);
+
+    return () => {
+      hoverMq.removeEventListener("change", sync);
+      motionMq.removeEventListener("change", sync);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
 
     const root = document.documentElement;
     root.classList.add("has-custom-cursor");
@@ -24,8 +43,8 @@ export default function CustomCursor() {
     if (!dot || !ring) return;
 
     let mode: PointerMode = "default";
-    let x = window.innerWidth / 2;
-    let y = window.innerHeight / 2;
+    let x = -100;
+    let y = -100;
     let rx = x;
     let ry = y;
     let rafId = 0;
@@ -88,12 +107,19 @@ export default function CustomCursor() {
       document.removeEventListener("mouseenter", onEnter);
       root.classList.remove("has-custom-cursor");
     };
-  }, []);
+  }, [enabled]);
+
+  if (!enabled) return null;
 
   return (
     <>
-      <div ref={ringRef} data-mode="default" className="custom-cursor-ring" />
-      <div ref={dotRef} className="custom-cursor-dot" />
+      <div
+        ref={ringRef}
+        data-mode="default"
+        className="custom-cursor-ring"
+        aria-hidden="true"
+      />
+      <div ref={dotRef} className="custom-cursor-dot" aria-hidden="true" />
     </>
   );
 }
