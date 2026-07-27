@@ -449,3 +449,107 @@ html.lenis body {
   width: 26px;
   height: 26px;
 }
+
+/* BlockNote CMS editor — Notion-like UX in Asteria's visual language */
+.asteria-blocknote {
+  --bn-colors-editor-text: var(--color-ink);
+  --bn-colors-editor-background: var(--color-ivory);
+  --bn-colors-menu-text: var(--color-ink);
+  --bn-colors-menu-background: var(--color-ivory);
+  --bn-colors-tooltip-text: var(--color-ivory);
+  --bn-colors-tooltip-background: var(--color-wine-deep);
+  --bn-colors-hovered-text: var(--color-wine);
+  --bn-colors-hovered-background: var(--color-cream);
+  --bn-colors-selected-text: var(--color-ivory);
+  --bn-colors-selected-background: var(--color-wine);
+  --bn-colors-disabled-text: color-mix(in srgb, var(--color-ink) 28%, transparent);
+  --bn-colors-disabled-background: var(--color-cream);
+  --bn-colors-shadow: color-mix(in srgb, var(--color-ink) 14%, transparent);
+  --bn-colors-border: color-mix(in srgb, var(--color-ink) 12%, transparent);
+  --bn-colors-side-menu: color-mix(in srgb, var(--color-wine) 48%, transparent);
+  --bn-font-family: var(--font-sans), system-ui, sans-serif;
+  --bn-border-radius: 2px;
+  color: var(--color-ink);
+}
+
+.asteria-blocknote--editable {
+  min-height: 560px;
+  border: 1px solid color-mix(in srgb, var(--color-ink) 10%, transparent);
+  background: var(--color-ivory);
+  box-shadow: 0 24px 70px color-mix(in srgb, var(--color-ink) 5%, transparent);
+}
+
+.asteria-blocknote .bn-editor {
+  padding: 52px 70px 140px;
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  letter-spacing: -0.025em;
+}
+
+.asteria-blocknote--editable .bn-editor {
+  min-height: 558px;
+}
+
+.asteria-blocknote--readonly .bn-editor {
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.asteria-blocknote .bn-block-content[data-content-type="heading"][data-level="1"] {
+  font-size: clamp(2.1rem, 4vw, 3.5rem);
+  line-height: 1;
+  letter-spacing: -0.06em;
+  font-weight: 400;
+}
+
+.asteria-blocknote .bn-block-content[data-content-type="heading"][data-level="2"] {
+  font-size: clamp(1.65rem, 3vw, 2.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.05em;
+  font-weight: 400;
+}
+
+.asteria-blocknote .bn-block-content[data-content-type="heading"][data-level="3"] {
+  font-size: 1.35rem;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+  font-weight: 500;
+}
+
+.asteria-blocknote .bn-block-content[data-content-type="quote"] blockquote {
+  border-left-color: var(--color-wine);
+  color: color-mix(in srgb, var(--color-ink) 72%, transparent);
+}
+
+.asteria-blocknote .bn-editor a {
+  color: var(--color-wine);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.asteria-blocknote .bn-block-content[data-content-type="codeBlock"] {
+  background: var(--color-wine-deep);
+  border-radius: 2px;
+}
+
+.asteria-blocknote .bn-side-menu button,
+.asteria-blocknote .bn-toolbar button {
+  cursor: pointer;
+}
+
+.asteria-blocknote--readonly .bn-side-menu,
+.asteria-blocknote--readonly .bn-formatting-toolbar,
+.asteria-blocknote--readonly .bn-slash-menu {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .asteria-blocknote .bn-editor {
+    padding: 36px 24px 100px;
+  }
+
+  .asteria-blocknote--readonly .bn-editor {
+    padding: 0;
+  }
+}

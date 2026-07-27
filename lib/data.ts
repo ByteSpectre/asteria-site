@@ -184,11 +184,9 @@ export const TEAM = [
 ];
 
 export const NAV_LINKS = [
-  { label: "Услуги", href: "#services" },
-  { label: "Как работаем", href: "#process" },
-  { label: "Команда", href: "#team" },
+  { label: "Услуги", href: "/services" },
   { label: "База знаний", href: "/knowledge" },
-  { label: "Контакты", href: "#contacts" },
+  { label: "Контакты", href: "/#contacts" },
 ];
 
 export const SOCIAL_LINKS = [
