@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import type { Prisma } from "@/app/generated/prisma/client";
-import { articleInputSchema, serviceInputSchema, type ArticleInput, type ServiceInput } from "@/lib/content-validation";
+import { parseArticleInput, parseServiceInput, type ArticleInput, type ServiceInput } from "@/lib/content-validation";
 import { slugify } from "@/lib/content";
 import { createAdminSession, destroyAdminSession, requireAdmin, verifyCaptcha } from "@/lib/server/auth";
 import { getDb } from "@/lib/server/db";
@@ -85,7 +85,7 @@ async function uniqueServiceSlug(title: string, id?: string) {
 
 export async function saveArticleAction(input: ArticleInput) {
   await requireAdmin();
-  const data = articleInputSchema.parse(input);
+  const data = parseArticleInput(input);
   const db = getDb();
   const slug = await uniqueArticleSlug(data.title, data.id);
   const existing = data.id ? await db.article.findUnique({ where: { id: data.id }, select: { publishedAt: true } }) : null;
@@ -121,7 +121,7 @@ export async function deleteArticleAction(id: string) {
 
 export async function saveServiceAction(input: ServiceInput) {
   await requireAdmin();
-  const data = serviceInputSchema.parse(input);
+  const data = parseServiceInput(input);
   const db = getDb();
   const slug = await uniqueServiceSlug(data.title, data.id);
   const existing = data.id ? await db.service.findUnique({ where: { id: data.id }, select: { publishedAt: true } }) : null;

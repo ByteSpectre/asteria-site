@@ -22,7 +22,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     <>
       <Header />
       <main className="bg-ivory pt-28 pb-20 md:pt-36 md:pb-28">
-        <article className="container-x mx-auto max-w-[1040px]">
+        <article className="container-x mx-auto max-w-[1440px]">
           <Link href="/knowledge" className="text-[10px] uppercase tracking-[0.08em] text-ink/42 hover:text-wine">← Все статьи</Link>
           <header className="mt-10 border-b border-ink/10 pb-10">
             <p className="eyebrow text-wine">{article.category}</p>
@@ -30,7 +30,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             {article.excerpt ? <p className="mt-7 max-w-[58ch] text-lg leading-relaxed text-ink/55">{article.excerpt}</p> : null}
             <p className="mt-7 text-[10px] uppercase tracking-[0.08em] text-ink/32">{formatContentDate(article.publishedAt ?? article.updatedAt)} · Астерия</p>
           </header>
-          <div className="mx-auto mt-12 max-w-[800px]"><AsteriaEditor initialValue={article.content} readOnly /></div>
+          <div className="mt-12"><AsteriaEditor initialValue={article.content} readOnly /></div>
         </article>
       </main>
       <Footer />

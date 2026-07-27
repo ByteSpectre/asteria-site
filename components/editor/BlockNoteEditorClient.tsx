@@ -1,11 +1,17 @@
 "use client";
 
 import type { PartialBlock } from "@blocknote/core";
+import { filenameFromURL } from "@blocknote/core";
 import { ru } from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
-import { useCreateBlockNote } from "@blocknote/react";
+import {
+  FilePanelController,
+  useCreateBlockNote,
+} from "@blocknote/react";
 import type { ArticleContentValue } from "@/lib/article-content";
 import { normalizeArticleContent } from "@/lib/article-content";
+import { isImageUrl, normalizeImageUrl } from "@/lib/editor-images";
+import { AsteriaFilePanel } from "@/components/editor/AsteriaFilePanel";
 
 type BlockNoteEditorClientProps = {
   initialValue?: unknown;
@@ -39,12 +45,41 @@ async function uploadEditorFile(file: File) {
   return result.url;
 }
 
+async function resolveEditorFileUrl(url: string) {
+  const normalized = normalizeImageUrl(url) || url;
+  if (normalized.startsWith("/")) {
+    return `${window.location.origin}${normalized}`;
+  }
+  return normalized;
+}
+
 export function BlockNoteEditorClient({ initialValue, readOnly = false, onChange }: BlockNoteEditorClientProps) {
   const initialContent = normalizeArticleContent(initialValue) as PartialBlock[];
   const editor = useCreateBlockNote({
     initialContent,
     dictionary: russianDictionary,
     uploadFile: uploadEditorFile,
+    resolveFileUrl: resolveEditorFileUrl,
+    pasteHandler: ({ event, editor: blockEditor, defaultPasteHandler }) => {
+      const text = event.clipboardData?.getData("text/plain")?.trim();
+      if (text) {
+        const url = normalizeImageUrl(text);
+        if (url && isImageUrl(url)) {
+          const block = blockEditor.getTextCursorPosition().block;
+          blockEditor.updateBlock(block.id, {
+            type: "image",
+            props: {
+              url,
+              name: filenameFromURL(url),
+              showPreview: true,
+            },
+          } as never);
+          return true;
+        }
+      }
+
+      return defaultPasteHandler();
+    },
   });
 
   return (
@@ -58,10 +93,12 @@ export function BlockNoteEditorClient({ initialValue, readOnly = false, onChange
         linkToolbar={!readOnly}
         slashMenu={!readOnly}
         sideMenu={!readOnly}
-        filePanel={!readOnly}
+        filePanel={false}
         tableHandles={!readOnly}
         emojiPicker={!readOnly}
-      />
+      >
+        {!readOnly ? <FilePanelController filePanel={AsteriaFilePanel} /> : null}
+      </BlockNoteView>
     </div>
   );
 }

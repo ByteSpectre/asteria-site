@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { NAV_LINKS, CONTACTS } from "@/lib/data";
+import { CONTACTS } from "@/lib/data";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -47,18 +47,6 @@ export default function Footer() {
           </p>
         </div>
 
-        <nav aria-label="Подвал" className="flex flex-wrap gap-x-8 gap-y-3">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="eyebrow link-underline text-ink/55 hover:text-ink"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
         <div className="text-sm text-ink/50 md:text-right">
           <a href={CONTACTS.phoneHref} className="link-underline block">
             {CONTACTS.phone}
@@ -69,7 +57,6 @@ export default function Footer() {
           >
             {CONTACTS.email}
           </a>
-          {/* Фишка: московское время */}
           <p className="type-label mt-4 font-mono uppercase text-ink/35">
             Москва · {msk}
           </p>

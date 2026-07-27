@@ -1,0 +1,15 @@
+node_modules
+.next
+work
+.agent-*
+storage
+screenshots
+.git
+.claude
+.windsurf
+.cursor
+.env
+.env.local
+docker-compose.yml
+BACKEND.md
+prisma/migrations

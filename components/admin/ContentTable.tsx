@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { MoreHorizontal, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { deleteArticleAction, deleteServiceAction } from "@/app/admin/actions";
@@ -14,11 +14,19 @@ type ContentTableProps = {
   emptyTitle: string;
 };
 
+type MenuPosition = {
+  top: number;
+  right: number;
+};
+
 export function ContentTable({ kind, rows, addHref, emptyTitle }: ContentTableProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState<MenuPosition | null>(null);
   const [pending, startTransition] = useTransition();
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   const filteredRows = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase("ru");
@@ -26,15 +34,62 @@ export function ContentTable({ kind, rows, addHref, emptyTitle }: ContentTablePr
     return rows.filter((row) => `${row.title} ${row.category}`.toLocaleLowerCase("ru").includes(normalized));
   }, [query, rows]);
 
+  const closeMenu = () => {
+    setOpenMenu(null);
+    setMenuPosition(null);
+  };
+
+  const toggleMenu = (rowId: string) => {
+    if (openMenu === rowId) {
+      closeMenu();
+      return;
+    }
+
+    const button = buttonRefs.current[rowId];
+    if (!button) return;
+
+    const rect = button.getBoundingClientRect();
+    setMenuPosition({
+      top: rect.bottom + 6,
+      right: window.innerWidth - rect.right,
+    });
+    setOpenMenu(rowId);
+  };
+
+  useEffect(() => {
+    if (!openMenu) return;
+
+    const onPointerDown = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (menuRef.current?.contains(target)) return;
+      if (buttonRefs.current[openMenu]?.contains(target)) return;
+      closeMenu();
+    };
+
+    const onReposition = () => closeMenu();
+
+    window.addEventListener("mousedown", onPointerDown);
+    window.addEventListener("scroll", onReposition, true);
+    window.addEventListener("resize", onReposition);
+
+    return () => {
+      window.removeEventListener("mousedown", onPointerDown);
+      window.removeEventListener("scroll", onReposition, true);
+      window.removeEventListener("resize", onReposition);
+    };
+  }, [openMenu]);
+
   const remove = (row: ContentRow) => {
     if (!window.confirm(`Удалить «${row.title}»? Это действие нельзя отменить.`)) return;
-    setOpenMenu(null);
+    closeMenu();
     startTransition(async () => {
       if (kind === "article") await deleteArticleAction(row.id);
       else await deleteServiceAction(row.id);
       router.refresh();
     });
   };
+
+  const activeRow = openMenu ? filteredRows.find((row) => row.id === openMenu) : null;
 
   return (
     <section className="mt-8 border border-ink/10 bg-ivory">
@@ -71,22 +126,51 @@ export function ContentTable({ kind, rows, addHref, emptyTitle }: ContentTablePr
                 </td>
                 <td className="px-5 py-5 text-[12px] text-ink/55">{row.category}</td>
                 <td className="px-5 py-5 text-[12px] tabular-nums text-ink/45">{row.date}</td>
-                <td className="relative px-3 py-5 text-right">
-                  <button type="button" aria-label={`Действия: ${row.title}`} aria-expanded={openMenu === row.id} onClick={() => setOpenMenu((value) => value === row.id ? null : row.id)} className="inline-flex h-9 w-9 items-center justify-center text-ink/35 hover:bg-ink/5 hover:text-wine">
+                <td className="px-3 py-5 text-right">
+                  <button
+                    ref={(node) => {
+                      buttonRefs.current[row.id] = node;
+                    }}
+                    type="button"
+                    aria-label={`Действия: ${row.title}`}
+                    aria-expanded={openMenu === row.id}
+                    onClick={() => toggleMenu(row.id)}
+                    className="inline-flex h-9 w-9 items-center justify-center text-ink/35 hover:bg-ink/5 hover:text-wine"
+                  >
                     <MoreHorizontal size={18} strokeWidth={1.5} />
                   </button>
-                  {openMenu === row.id ? (
-                    <div className="absolute top-[58px] right-4 z-20 w-40 border border-ink/10 bg-ivory p-1 text-left shadow-xl">
-                      <Link href={row.editHref} className="flex items-center gap-2 px-3 py-2 text-[12px] text-ink/65 hover:bg-cream hover:text-wine"><Pencil size={13} strokeWidth={1.5} />Редактировать</Link>
-                      <button type="button" disabled={pending} onClick={() => remove(row)} className="flex w-full items-center gap-2 px-3 py-2 text-[12px] text-wine hover:bg-wine/6 disabled:opacity-50"><Trash2 size={13} strokeWidth={1.5} />Удалить</button>
-                    </div>
-                  ) : null}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {activeRow && menuPosition ? (
+        <div
+          ref={menuRef}
+          className="fixed z-50 w-44 border border-ink/10 bg-ivory p-1 text-left shadow-xl"
+          style={{ top: menuPosition.top, right: menuPosition.right }}
+        >
+          <Link
+            href={activeRow.editHref}
+            onClick={closeMenu}
+            className="flex items-center gap-2 px-3 py-2 text-[12px] text-ink/65 hover:bg-cream hover:text-wine"
+          >
+            <Pencil size={13} strokeWidth={1.5} />
+            Редактировать
+          </Link>
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => remove(activeRow)}
+            className="flex w-full items-center gap-2 px-3 py-2 text-[12px] text-wine hover:bg-wine/6 disabled:opacity-50"
+          >
+            <Trash2 size={13} strokeWidth={1.5} />
+            Удалить
+          </button>
+        </div>
+      ) : null}
 
       {!filteredRows.length ? (
         <div className="flex min-h-[260px] flex-col items-center justify-center px-5 text-center">

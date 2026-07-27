@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { ArrowLeft, Check } from "lucide-react";
 import { saveServiceAction } from "@/app/admin/actions";
+import { getServiceValidationMessage } from "@/lib/content-validation";
 
 type ServiceEditorFormProps = {
   service?: {
@@ -15,6 +16,16 @@ type ServiceEditorFormProps = {
   };
 };
 
+function isRedirectError(cause: unknown) {
+  return (
+    typeof cause === "object" &&
+    cause !== null &&
+    "digest" in cause &&
+    typeof (cause as { digest?: unknown }).digest === "string" &&
+    String((cause as { digest: string }).digest).startsWith("NEXT_REDIRECT")
+  );
+}
+
 export function ServiceEditorForm({ service }: ServiceEditorFormProps) {
   const [title, setTitle] = useState(service?.title ?? "");
   const [category, setCategory] = useState(service?.category ?? "");
@@ -24,12 +35,19 @@ export function ServiceEditorForm({ service }: ServiceEditorFormProps) {
   const [pending, startTransition] = useTransition();
 
   const save = () => {
+    const payload = { id: service?.id, title, category, summary, published };
+    const validationError = getServiceValidationMessage(payload);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setError("");
     startTransition(async () => {
       try {
-        await saveServiceAction({ id: service?.id, title, category, summary, published });
+        await saveServiceAction(payload);
       } catch (cause) {
-        if (cause instanceof Error && cause.message === "NEXT_REDIRECT") throw cause;
+        if (isRedirectError(cause)) throw cause;
         setError(cause instanceof Error ? cause.message : "Не удалось сохранить услугу.");
       }
     });
@@ -41,7 +59,7 @@ export function ServiceEditorForm({ service }: ServiceEditorFormProps) {
         <Link href="/admin/services" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.07em] text-ink/45 hover:text-wine"><ArrowLeft size={14} strokeWidth={1.4} /> К списку</Link>
         <button type="button" onClick={save} disabled={pending} className="inline-flex h-10 items-center gap-2 bg-wine px-5 text-[10px] uppercase tracking-[0.07em] text-ivory hover:bg-wine-deep disabled:opacity-50"><Check size={14} strokeWidth={1.5} />{pending ? "Сохраняем…" : "Сохранить"}</button>
       </header>
-      <div className="mx-auto max-w-[940px] px-4 py-10 sm:px-7 lg:py-14">
+      <div className="mx-auto max-w-[1440px] px-4 py-10 sm:px-7 lg:px-10 lg:py-14">
         <p className="text-[10px] uppercase tracking-[0.1em] text-wine">{service ? "Редактирование услуги" : "Новая услуга"}</p>
         <textarea value={title} onChange={(event) => setTitle(event.target.value)} rows={2} placeholder="Название услуги" className="mt-4 w-full resize-none bg-transparent text-[clamp(2.6rem,6vw,5.5rem)] leading-[0.94] tracking-[-0.07em] outline-none placeholder:text-ink/18" />
         <div className="mt-8 border border-ink/10 bg-ivory p-5 sm:p-7">
@@ -52,7 +70,7 @@ export function ServiceEditorForm({ service }: ServiceEditorFormProps) {
           <label className="mt-6 block"><span className="mb-2 block text-[9px] uppercase tracking-[0.09em] text-ink/38">Описание</span><textarea value={summary} onChange={(event) => setSummary(event.target.value)} rows={8} placeholder="Кратко опишите услугу. Расширенный редактор будет добавлен позднее." className="w-full resize-y border border-ink/12 bg-transparent p-4 text-sm leading-relaxed outline-none focus:border-wine" /></label>
           <p className="mt-3 text-[10px] leading-relaxed text-ink/32">Редактор содержимого для услуг будет подключён отдельным этапом.</p>
         </div>
-        {error ? <p role="alert" className="mt-5 border-l-2 border-wine pl-3 text-xs text-wine">{error}</p> : null}
+        {error ? <p role="alert" className="mt-5 border-l-2 border-wine pl-3 text-sm leading-relaxed text-wine">{error}</p> : null}
       </div>
     </div>
   );

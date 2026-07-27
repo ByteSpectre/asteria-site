@@ -6,6 +6,7 @@ import { ArrowLeft, Check, ExternalLink } from "lucide-react";
 import { saveArticleAction } from "@/app/admin/actions";
 import { AsteriaEditor } from "@/components/editor/AsteriaEditor";
 import { normalizeArticleContent } from "@/lib/article-content";
+import { getArticleValidationMessage } from "@/lib/content-validation";
 
 type ArticleEditorFormProps = {
   article?: {
@@ -19,6 +20,16 @@ type ArticleEditorFormProps = {
   };
 };
 
+function isRedirectError(cause: unknown) {
+  return (
+    typeof cause === "object" &&
+    cause !== null &&
+    "digest" in cause &&
+    typeof (cause as { digest?: unknown }).digest === "string" &&
+    String((cause as { digest: string }).digest).startsWith("NEXT_REDIRECT")
+  );
+}
+
 export function ArticleEditorForm({ article }: ArticleEditorFormProps) {
   const [title, setTitle] = useState(article?.title ?? "");
   const [category, setCategory] = useState(article?.category ?? "");
@@ -29,12 +40,19 @@ export function ArticleEditorForm({ article }: ArticleEditorFormProps) {
   const [pending, startTransition] = useTransition();
 
   const save = () => {
+    const payload = { id: article?.id, title, category, excerpt, content, published };
+    const validationError = getArticleValidationMessage(payload);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setError("");
     startTransition(async () => {
       try {
-        await saveArticleAction({ id: article?.id, title, category, excerpt, content, published });
+        await saveArticleAction(payload);
       } catch (cause) {
-        if (cause instanceof Error && cause.message === "NEXT_REDIRECT") throw cause;
+        if (isRedirectError(cause)) throw cause;
         setError(cause instanceof Error ? cause.message : "Не удалось сохранить статью.");
       }
     });
@@ -50,7 +68,7 @@ export function ArticleEditorForm({ article }: ArticleEditorFormProps) {
         </div>
       </header>
 
-      <div className="mx-auto max-w-[1040px] px-4 py-10 sm:px-7 lg:py-14">
+      <div className="mx-auto max-w-[1440px] px-4 py-10 sm:px-7 lg:px-10 lg:py-14">
         <p className="text-[10px] uppercase tracking-[0.1em] text-wine">{article ? "Редактирование статьи" : "Новая статья"}</p>
         <textarea value={title} onChange={(event) => setTitle(event.target.value)} rows={2} placeholder="Название статьи" className="mt-4 w-full resize-none bg-transparent text-[clamp(2.6rem,6vw,5.5rem)] leading-[0.94] tracking-[-0.07em] outline-none placeholder:text-ink/18" />
 
@@ -60,7 +78,7 @@ export function ArticleEditorForm({ article }: ArticleEditorFormProps) {
           <label className="flex h-11 cursor-pointer items-center gap-3 border border-ink/12 bg-ivory px-4"><input type="checkbox" checked={published} onChange={(event) => setPublished(event.target.checked)} className="h-4 w-4 accent-[#431c26]" /><span className="text-[10px] uppercase tracking-[0.06em] text-ink/55">Опубликовать</span></label>
         </div>
 
-        {error ? <p role="alert" className="mt-5 border-l-2 border-wine pl-3 text-xs text-wine">{error}</p> : null}
+        {error ? <p role="alert" className="mt-5 border-l-2 border-wine pl-3 text-sm leading-relaxed text-wine">{error}</p> : null}
         <div className="mt-8"><AsteriaEditor initialValue={article?.content} onChange={setContent} /></div>
       </div>
     </div>
