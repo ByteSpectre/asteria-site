@@ -7,5 +7,20 @@ export const metadata: Metadata = { title: "Редактирование усл�
 export default async function EditServicePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const service = await getServiceForAdmin(id);
-  return <ServiceEditorForm service={{ id: service.id, title: service.title, category: service.category, summary: service.summary ?? "", published: service.status === "PUBLISHED" }} />;
+
+  return (
+    <ServiceEditorForm
+      service={{
+        id: service.id,
+        title: service.title,
+        category: service.category,
+        summary: service.summary ?? "",
+        pricing: service.pricing,
+        scopeItems: service.scopeItems,
+        faqItems: service.faqItems,
+        cases: service.cases,
+        published: service.status === "PUBLISHED",
+      }}
+    />
+  );
 }

@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { ArrowLeft, Check, ExternalLink, Plus } from "lucide-react";
+import { ArrowLeft, Check, ExternalLink, ImagePlus, Plus, X } from "lucide-react";
 import { saveArticleAction } from "@/app/admin/actions";
 import { AsteriaEditor } from "@/components/editor/AsteriaEditor";
 import { normalizeArticleContent } from "@/lib/article-content";
+import { joinCategoryList, parseCategoryList } from "@/lib/category-list";
 import { getArticleValidationMessage } from "@/lib/content-validation";
+import { normalizeImageUrl } from "@/lib/editor-images";
 
 type ArticleEditorFormProps = {
   categories: string[];
@@ -15,6 +17,7 @@ type ArticleEditorFormProps = {
     title: string;
     category: string;
     excerpt: string;
+    previewImage: string;
     content: unknown;
     published: boolean;
     publicHref: string;
@@ -49,14 +52,12 @@ export function ArticleEditorForm({ categories, article }: ArticleEditorFormProp
 
   const [title, setTitle] = useState(article?.title ?? "");
 
-  const articleCategory = article?.category.trim() ?? "";
-  const articleCategoryKnown =
-    articleCategory.length > 0 && normalizedCategories.includes(articleCategory);
+  const initialSelectedCategories = useMemo(() => {
+    return parseCategoryList(article?.category ?? "");
+  }, [article?.category]);
 
-  const [selectedCategory, setSelectedCategory] = useState<string>(articleCategory);
-  const [customCategory, setCustomCategory] = useState<string>(
-    articleCategoryKnown ? "" : articleCategory,
-  );
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(initialSelectedCategories);
+  const [customCategory, setCustomCategory] = useState<string>("");
 
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
@@ -64,6 +65,8 @@ export function ArticleEditorForm({ categories, article }: ArticleEditorFormProp
   const [addCategoryPopupPosition, setAddCategoryPopupPosition] = useState<PopPosition | null>(null);
 
   const [excerpt, setExcerpt] = useState(article?.excerpt ?? "");
+  const [previewImage, setPreviewImage] = useState(article?.previewImage ?? "");
+  const [previewUploading, setPreviewUploading] = useState(false);
   const [published, setPublished] = useState(article?.published ?? false);
   const [content, setContent] = useState(() =>
     normalizeArticleContent(article?.content),
@@ -71,12 +74,19 @@ export function ArticleEditorForm({ categories, article }: ArticleEditorFormProp
 
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
+  const previewFileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const getResolvedCategory = () => {
-    const selected = selectedCategory.trim();
+  const menuCategories = useMemo(() => {
+    return Array.from(new Set([...normalizedCategories, ...selectedCategories])).sort((a, b) =>
+      a.localeCompare(b, "ru"),
+    );
+  }, [normalizedCategories, selectedCategories]);
+
+  const getResolvedCategories = () => {
+    const selected = selectedCategories;
     const custom = customCategory.trim();
-    if (isAddingCategory) return custom || selected;
-    return selected || custom;
+    if (isAddingCategory && custom) return joinCategoryList([...selected, custom]);
+    return joinCategoryList(selected);
   };
 
   const categoryButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -167,6 +177,11 @@ export function ArticleEditorForm({ categories, article }: ArticleEditorFormProp
   }, [isAddingCategory]);
 
   const openCategoryMenu = () => {
+    if (isCategoryMenuOpen) {
+      closeCategoryUI();
+      return;
+    }
+
     updateCategoryMenuPosition();
 
     setIsAddingCategory(false);
@@ -190,20 +205,53 @@ export function ArticleEditorForm({ categories, article }: ArticleEditorFormProp
     const trimmed = customCategory.trim();
     if (!trimmed) return;
 
-    setSelectedCategory(trimmed);
+    setSelectedCategories((previous) =>
+      previous.includes(trimmed) ? previous : [...previous, trimmed],
+    );
     setCustomCategory("");
     setIsAddingCategory(false);
     setAddCategoryPopupPosition(null);
   };
 
+  const toggleCategory = (categoryOption: string) => {
+    setSelectedCategories((previous) =>
+      previous.includes(categoryOption)
+        ? previous.filter((category) => category !== categoryOption)
+        : [...previous, categoryOption],
+    );
+  };
+
   const hasCustomCategoryText = customCategory.trim().length > 0;
+
+  const uploadPreviewFile = async (file: File) => {
+    setPreviewUploading(true);
+    setError("");
+    try {
+      const formData = new FormData();
+      formData.set("file", file);
+      const response = await fetch("/api/admin/uploads", {
+        method: "POST",
+        body: formData,
+      });
+      const result = (await response.json()) as { url?: string; error?: string };
+      if (!response.ok || !result.url) {
+        throw new Error(result.error ?? "Не удалось загрузить превью.");
+      }
+      setPreviewImage(result.url);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Не удалось загрузить превью.");
+    } finally {
+      setPreviewUploading(false);
+    }
+  };
 
   const save = () => {
     const payload = {
       id: article?.id,
       title,
-      category: getResolvedCategory(),
+      category: getResolvedCategories(),
       excerpt,
+      previewImage: normalizeImageUrl(previewImage) || previewImage.trim(),
       content,
       published,
     };
@@ -227,7 +275,7 @@ export function ArticleEditorForm({ categories, article }: ArticleEditorFormProp
   };
 
   return (
-    <div className="admin-article-editor min-h-screen bg-cream">
+    <div className="admin-editor min-h-screen bg-cream">
       <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-ink/10 bg-cream/95 px-4 backdrop-blur sm:px-7 lg:px-10">
         <Link
           href="/admin/knowledge"
@@ -283,7 +331,9 @@ export function ArticleEditorForm({ categories, article }: ArticleEditorFormProp
                   aria-haspopup="listbox"
                   aria-expanded={isCategoryMenuOpen}
                 >
-                  {selectedCategory ? selectedCategory : "Выберите категорию"}
+                  {selectedCategories.length > 0
+                    ? joinCategoryList(selectedCategories)
+                    : "Выберите категории"}
                 </button>
 
                 <button
@@ -325,6 +375,71 @@ export function ArticleEditorForm({ categories, article }: ArticleEditorFormProp
           </label>
         </div>
 
+        <div className="mt-6 border border-ink/10 bg-ivory p-4 sm:p-5">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-[9px] uppercase tracking-[0.09em] text-ink/38">Превью статьи</p>
+              <p className="mt-1 text-[12px] text-ink/45">
+                Показывается в сетке базы знаний. Можно загрузить файл или вставить URL.
+              </p>
+            </div>
+            {previewImage ? (
+              <button
+                type="button"
+                onClick={() => setPreviewImage("")}
+                className="inline-flex h-9 items-center gap-2 border border-ink/12 px-3 text-[10px] uppercase tracking-[0.06em] text-ink/50 hover:border-ink/25 hover:text-ink"
+              >
+                <X size={13} strokeWidth={1.6} />
+                Убрать
+              </button>
+            ) : null}
+          </div>
+
+          <div className="mt-4 grid gap-4 lg:grid-cols-[240px_1fr]">
+            <div className="aspect-[16/10] overflow-hidden border border-ink/10 bg-cream">
+              {previewImage ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={previewImage} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-[11px] text-ink/30">
+                  Нет превью
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <input
+                value={previewImage}
+                onChange={(event) => setPreviewImage(event.target.value)}
+                placeholder="https://… или /api/uploads/…"
+                className="h-11 w-full border border-ink/12 bg-cream/40 px-3 text-sm outline-none focus:border-ink/12 focus-visible:outline-none focus-visible:ring-0"
+              />
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={previewUploading || pending}
+                  onClick={() => previewFileInputRef.current?.click()}
+                  className="inline-flex h-10 items-center gap-2 border border-ink/12 bg-cream/40 px-4 text-[10px] uppercase tracking-[0.06em] text-ink/55 transition-colors hover:border-ink/25 hover:text-ink disabled:opacity-50"
+                >
+                  <ImagePlus size={14} strokeWidth={1.5} />
+                  {previewUploading ? "Загружаем…" : "Загрузить файл"}
+                </button>
+                <input
+                  ref={previewFileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                  className="hidden"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    event.target.value = "";
+                    if (file) void uploadPreviewFile(file);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {error ? (
           <p
             role="alert"
@@ -345,16 +460,20 @@ export function ArticleEditorForm({ categories, article }: ArticleEditorFormProp
           style={{ top: categoryMenuPosition.top, right: categoryMenuPosition.right }}
           role="listbox"
         >
-          {normalizedCategories.map((categoryOption) => (
+          {menuCategories.map((categoryOption) => (
             <button
               key={categoryOption}
               type="button"
               onClick={() => {
-                setSelectedCategory(categoryOption);
-                closeCategoryUI();
+                toggleCategory(categoryOption);
               }}
-              className="flex w-full items-center px-3 py-2 text-[12px] text-ink/65 hover:bg-cream hover:text-wine"
+              className="flex w-full items-center px-3 py-2 text-[12px] text-ink/65 outline-none hover:bg-cream hover:text-wine focus:outline-none focus-visible:outline-none"
             >
+              <span className="mr-2 inline-flex w-4 items-center justify-center text-wine">
+                {selectedCategories.includes(categoryOption) ? (
+                  <Check size={12} strokeWidth={2} />
+                ) : null}
+              </span>
               {categoryOption}
             </button>
           ))}

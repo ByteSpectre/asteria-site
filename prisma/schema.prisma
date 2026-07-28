@@ -18,16 +18,17 @@ enum ContentStatus {
 }
 
 model Article {
-  id          String        @id @default(cuid())
-  title       String
-  slug        String        @unique
-  category    String
-  excerpt     String?
-  content     Json
-  status      ContentStatus @default(DRAFT)
-  publishedAt DateTime?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id           String        @id @default(cuid())
+  title        String
+  slug         String        @unique
+  category     String
+  excerpt      String?
+  previewImage String?
+  content      Json
+  status       ContentStatus @default(DRAFT)
+  publishedAt  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   @@index([status, publishedAt])
   @@index([category])
@@ -45,6 +46,10 @@ model Service {
   slug        String        @unique
   category    String
   summary     String?
+  pricing     Json?
+  scopeItems  Json?
+  faqItems    Json?
+  cases       Json?
   status      ContentStatus @default(DRAFT)
   sortOrder   Int           @default(0)
   publishedAt DateTime?

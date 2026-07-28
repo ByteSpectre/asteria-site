@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { parseCategoryList } from "@/lib/category-list";
 import { getDb } from "@/lib/server/db";
 
 export async function listAdminArticles() {
@@ -12,20 +13,16 @@ export async function listArticleCategories() {
       orderBy: { name: "asc" },
     });
 
-    return rows
-      .map((row) => row.name.trim())
-      .filter((category) => category.length > 0);
+    return Array.from(
+      new Set(rows.flatMap((row) => parseCategoryList(row.name))),
+    ).sort((a, b) => a.localeCompare(b, "ru"));
   } catch {
     // Fallback for environments where migration is not applied yet.
-    const legacyRows = await getDb().article.findMany({
-      distinct: ["category"],
-      select: { category: true },
-      orderBy: { category: "asc" },
-    });
+    const legacyRows = await getDb().article.findMany({ select: { category: true } });
 
-    return legacyRows
-      .map((row) => row.category.trim())
-      .filter((category) => category.length > 0);
+    return Array.from(
+      new Set(legacyRows.flatMap((row) => parseCategoryList(row.category))),
+    ).sort((a, b) => a.localeCompare(b, "ru"));
   }
 }
 

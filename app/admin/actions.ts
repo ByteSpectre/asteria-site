@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import type { Prisma } from "@/app/generated/prisma/client";
 import { parseArticleInput, parseServiceInput, type ArticleInput, type ServiceInput } from "@/lib/content-validation";
+import { joinCategoryList, parseCategoryList } from "@/lib/category-list";
 import { slugify } from "@/lib/content";
 import { createAdminSession, destroyAdminSession, requireAdmin, verifyCaptcha } from "@/lib/server/auth";
 import { getDb } from "@/lib/server/db";
@@ -87,15 +88,17 @@ export async function saveArticleAction(input: ArticleInput) {
   await requireAdmin();
   const data = parseArticleInput(input);
   const db = getDb();
-  const categoryName = data.category.trim();
+  const categories = parseCategoryList(data.category);
+  const categoryValue = joinCategoryList(categories);
   const slug = await uniqueArticleSlug(data.title, data.id);
   const existing = data.id ? await db.article.findUnique({ where: { id: data.id }, select: { publishedAt: true } }) : null;
   const publishedAt = data.published ? existing?.publishedAt ?? new Date() : null;
 
   const values = {
     title: data.title,
-    category: categoryName,
+    category: categoryValue,
     excerpt: data.excerpt || null,
+    previewImage: data.previewImage || null,
     slug,
     content: data.content as Prisma.InputJsonValue,
     status: data.published ? ("PUBLISHED" as const) : ("DRAFT" as const),
@@ -109,11 +112,13 @@ export async function saveArticleAction(input: ArticleInput) {
   }
 
   try {
-    await db.articleCategory.upsert({
-      where: { name: categoryName },
-      create: { name: categoryName },
-      update: {},
-    });
+    for (const categoryName of categories) {
+      await db.articleCategory.upsert({
+        where: { name: categoryName },
+        create: { name: categoryName },
+        update: {},
+      });
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message.toLowerCase() : "";
     if (!message.includes("articlecategory")) {
@@ -144,6 +149,10 @@ export async function saveServiceAction(input: ServiceInput) {
     title: data.title,
     category: data.category,
     summary: data.summary || null,
+    pricing: data.pricing as Prisma.InputJsonValue,
+    scopeItems: data.scopeItems as Prisma.InputJsonValue,
+    faqItems: data.faqItems as Prisma.InputJsonValue,
+    cases: data.cases as Prisma.InputJsonValue,
     slug,
     status: data.published ? ("PUBLISHED" as const) : ("DRAFT" as const),
     publishedAt: data.published ? existing?.publishedAt ?? new Date() : null,
@@ -157,6 +166,7 @@ export async function saveServiceAction(input: ServiceInput) {
 
   revalidatePath("/admin/services");
   revalidatePath("/services");
+  revalidatePath(`/services/${slug}`);
   redirect("/admin/services");
 }
 

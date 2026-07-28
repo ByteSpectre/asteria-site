@@ -134,9 +134,20 @@ h6,
   color: var(--color-ivory);
 }
 
-:focus-visible {
+/* Keyboard focus for links */
+:where(a, [role="link"]):focus-visible {
   outline: 2px solid var(--color-wine);
   outline-offset: 3px;
+}
+
+/* Form controls: no extra focus ring on any page */
+:where(input, textarea, select, button, [contenteditable="true"]):focus,
+:where(input, textarea, select, button, [contenteditable="true"]):focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+  box-shadow: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
 }
 
 /* Lenis smooth scroll */
@@ -544,23 +555,33 @@ html.lenis body {
   display: none;
 }
 
-/* Admin article form: disable heavy focus outlines */
-.admin-article-editor :where(input, textarea, button, [contenteditable="true"]):focus,
-.admin-article-editor :where(input, textarea, button, [contenteditable="true"]):focus-visible {
-  outline: none !important;
-  outline-offset: 0 !important;
-  box-shadow: none !important;
+/* Admin editor forms: keep subtle borders on focus */
+.admin-editor :where(input, textarea, select):focus,
+.admin-editor :where(input, textarea, select):focus-visible {
+  border-color: color-mix(in srgb, var(--color-ink) 12%, transparent) !important;
+}
+
+/* Public content pages: same subtle borders on focus */
+.public-content :where(input, textarea, select):focus,
+.public-content :where(input, textarea, select):focus-visible {
+  border-color: color-mix(in srgb, var(--color-ink) 12%, transparent) !important;
 }
 
 /* Admin article form: keep editor border same in focus/blur states */
-.admin-article-editor .asteria-blocknote--editable {
+.admin-editor .asteria-blocknote--editable {
   border: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
   box-shadow: none !important;
 }
 
-.admin-article-editor .asteria-blocknote--editable:focus-within {
+.admin-editor .asteria-blocknote--editable:focus-within {
   border: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
   box-shadow: none !important;
+}
+
+.asteria-blocknote--readonly:focus-within {
+  border: none;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 @media (max-width: 640px) {

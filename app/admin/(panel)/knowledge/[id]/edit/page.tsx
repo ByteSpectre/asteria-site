@@ -11,5 +11,5 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
     listArticleCategories(),
   ]);
 
-  return <ArticleEditorForm categories={categories} article={{ id: article.id, title: article.title, category: article.category, excerpt: article.excerpt ?? "", content: article.content, published: article.status === "PUBLISHED", publicHref: `/knowledge/${article.slug}` }} />;
+  return <ArticleEditorForm categories={categories} article={{ id: article.id, title: article.title, category: article.category, excerpt: article.excerpt ?? "", previewImage: article.previewImage ?? "", content: article.content, published: article.status === "PUBLISHED", publicHref: `/knowledge/${article.slug}` }} />;
 }

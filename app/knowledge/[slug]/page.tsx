@@ -24,7 +24,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       <main className="bg-ivory pt-28 pb-20 md:pt-36 md:pb-28">
         <article className="container-x mx-auto max-w-[1440px]">
           <Link href="/knowledge" className="text-[10px] uppercase tracking-[0.08em] text-ink/42 hover:text-wine">← Все статьи</Link>
-          <header className="mt-10 border-b border-ink/10 pb-10">
+          {article.previewImage ? (
+            <div className="mt-10 aspect-[21/9] overflow-hidden border border-ink/8 bg-cream">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={article.previewImage} alt="" className="h-full w-full object-cover" />
+            </div>
+          ) : null}
+          <header className={article.previewImage ? "mt-8 border-b border-ink/10 pb-10" : "mt-10 border-b border-ink/10 pb-10"}>
             <p className="eyebrow text-wine">{article.category}</p>
             <h1 className="mt-5 text-[clamp(3rem,7vw,7rem)] leading-[0.92] tracking-[-0.075em]">{article.title}</h1>
             {article.excerpt ? <p className="mt-7 max-w-[58ch] text-lg leading-relaxed text-ink/55">{article.excerpt}</p> : null}

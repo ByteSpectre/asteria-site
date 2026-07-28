@@ -28,12 +28,12 @@ export function PublicContentIndex({ items, itemLabel, emptyLabel }: PublicConte
   }, [items, query]);
 
   return (
-    <section className="border border-ink/10 bg-ivory">
+    <section className="public-content border border-ink/10 bg-ivory">
       <div className="border-b border-ink/10 p-4 sm:p-5">
         <label className="relative block w-full max-w-[520px]">
           <Search size={16} strokeWidth={1.4} className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-ink/30" />
           <span className="sr-only">Поиск</span>
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Поиск" className="h-12 w-full border border-ink/12 bg-cream/40 pr-4 pl-10 text-sm outline-none placeholder:text-ink/28 focus:border-wine" />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Поиск" className="h-12 w-full border border-ink/12 bg-cream/40 pr-4 pl-10 text-sm outline-none placeholder:text-ink/28 focus:border-ink/12 focus-visible:outline-none focus-visible:ring-0" />
         </label>
       </div>
 

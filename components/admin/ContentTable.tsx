@@ -97,7 +97,7 @@ export function ContentTable({ kind, rows, addHref, emptyTitle }: ContentTablePr
         <label className="relative block w-full max-w-[480px]">
           <Search size={16} strokeWidth={1.4} className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-ink/32" aria-hidden="true" />
           <span className="sr-only">Поиск</span>
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Поиск" className="h-11 w-full border border-ink/12 bg-cream/45 pr-4 pl-10 text-sm outline-none placeholder:text-ink/28 focus:border-wine" />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Поиск" className="h-11 w-full border border-ink/12 bg-cream/45 pr-4 pl-10 text-sm outline-none placeholder:text-ink/28 focus:border-ink/12 focus-visible:outline-none focus-visible:ring-0" />
         </label>
         <Link href={addHref} className="inline-flex h-11 shrink-0 items-center justify-center gap-2 bg-wine px-5 text-[10px] uppercase tracking-[0.07em] text-ivory transition-colors hover:bg-wine-deep">
           <Plus size={15} strokeWidth={1.5} aria-hidden="true" /> Добавить
