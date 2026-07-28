@@ -108,11 +108,18 @@ export async function saveArticleAction(input: ArticleInput) {
     await db.article.create({ data: values });
   }
 
-  await db.articleCategory.upsert({
-    where: { name: categoryName },
-    create: { name: categoryName },
-    update: {},
-  });
+  try {
+    await db.articleCategory.upsert({
+      where: { name: categoryName },
+      create: { name: categoryName },
+      update: {},
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message.toLowerCase() : "";
+    if (!message.includes("articlecategory")) {
+      throw error;
+    }
+  }
 
   revalidatePath("/admin/knowledge");
   revalidatePath("/knowledge");
