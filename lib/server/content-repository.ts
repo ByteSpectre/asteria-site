@@ -6,14 +6,27 @@ export async function listAdminArticles() {
 }
 
 export async function listArticleCategories() {
-  const rows = await getDb().articleCategory.findMany({
-    select: { name: true },
-    orderBy: { name: "asc" },
-  });
+  try {
+    const rows = await getDb().articleCategory.findMany({
+      select: { name: true },
+      orderBy: { name: "asc" },
+    });
 
-  return rows
-    .map((row) => row.name.trim())
-    .filter((category) => category.length > 0);
+    return rows
+      .map((row) => row.name.trim())
+      .filter((category) => category.length > 0);
+  } catch {
+    // Fallback for environments where migration is not applied yet.
+    const legacyRows = await getDb().article.findMany({
+      distinct: ["category"],
+      select: { category: true },
+      orderBy: { category: "asc" },
+    });
+
+    return legacyRows
+      .map((row) => row.category.trim())
+      .filter((category) => category.length > 0);
+  }
 }
 
 export async function listPublishedArticles() {
