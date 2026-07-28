@@ -33,6 +33,12 @@ model Article {
   @@index([category])
 }
 
+model ArticleCategory {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+}
+
 model Service {
   id          String        @id @default(cuid())
   title       String

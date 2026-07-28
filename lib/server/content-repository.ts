@@ -5,6 +5,17 @@ export async function listAdminArticles() {
   return getDb().article.findMany({ orderBy: { updatedAt: "desc" } });
 }
 
+export async function listArticleCategories() {
+  const rows = await getDb().articleCategory.findMany({
+    select: { name: true },
+    orderBy: { name: "asc" },
+  });
+
+  return rows
+    .map((row) => row.name.trim())
+    .filter((category) => category.length > 0);
+}
+
 export async function listPublishedArticles() {
   return getDb().article.findMany({
     where: { status: "PUBLISHED" },

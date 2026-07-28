@@ -87,13 +87,14 @@ export async function saveArticleAction(input: ArticleInput) {
   await requireAdmin();
   const data = parseArticleInput(input);
   const db = getDb();
+  const categoryName = data.category.trim();
   const slug = await uniqueArticleSlug(data.title, data.id);
   const existing = data.id ? await db.article.findUnique({ where: { id: data.id }, select: { publishedAt: true } }) : null;
   const publishedAt = data.published ? existing?.publishedAt ?? new Date() : null;
 
   const values = {
     title: data.title,
-    category: data.category,
+    category: categoryName,
     excerpt: data.excerpt || null,
     slug,
     content: data.content as Prisma.InputJsonValue,
@@ -106,6 +107,12 @@ export async function saveArticleAction(input: ArticleInput) {
   } else {
     await db.article.create({ data: values });
   }
+
+  await db.articleCategory.upsert({
+    where: { name: categoryName },
+    create: { name: categoryName },
+    update: {},
+  });
 
   revalidatePath("/admin/knowledge");
   revalidatePath("/knowledge");

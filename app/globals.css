@@ -473,7 +473,7 @@ html.lenis body {
 }
 
 .asteria-blocknote--editable {
-  min-height: 560px;
+  min-height: 720px;
   border: 1px solid color-mix(in srgb, var(--color-ink) 10%, transparent);
   background: var(--color-ivory);
   box-shadow: 0 24px 70px color-mix(in srgb, var(--color-ink) 5%, transparent);
@@ -487,7 +487,7 @@ html.lenis body {
 }
 
 .asteria-blocknote--editable .bn-editor {
-  min-height: 558px;
+  min-height: 718px;
 }
 
 .asteria-blocknote--readonly .bn-editor {
@@ -542,6 +542,25 @@ html.lenis body {
 .asteria-blocknote--readonly .bn-formatting-toolbar,
 .asteria-blocknote--readonly .bn-slash-menu {
   display: none;
+}
+
+/* Admin article form: disable heavy focus outlines */
+.admin-article-editor :where(input, textarea, button, [contenteditable="true"]):focus,
+.admin-article-editor :where(input, textarea, button, [contenteditable="true"]):focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Admin article form: keep editor border same in focus/blur states */
+.admin-article-editor .asteria-blocknote--editable {
+  border: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
+  box-shadow: none !important;
+}
+
+.admin-article-editor .asteria-blocknote--editable:focus-within {
+  border: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
+  box-shadow: none !important;
 }
 
 @media (max-width: 640px) {
