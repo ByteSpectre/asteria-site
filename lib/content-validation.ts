@@ -2,22 +2,22 @@ import { z } from "zod";
 import { parseCategoryList } from "@/lib/category-list";
 
 const priceItemSchema = z.object({
-  title: z.string().trim().max(180, "Название позиции прайса слишком длинное."),
-  price: z.string().trim().max(80, "Цена слишком длинная."),
+  title: z.string().trim(),
+  price: z.string().trim(),
 });
 
 const qaItemSchema = z.object({
-  question: z.string().trim().max(300, "Вопрос слишком длинный."),
-  answer: z.string().trim().max(2000, "Ответ слишком длинный."),
+  question: z.string().trim(),
+  answer: z.string().trim(),
 });
 
 const caseItemSchema = z.object({
-  title: z.string().trim().max(180, "Название дела слишком длинное."),
-  court: z.string().trim().max(180, "Поле «Суд» слишком длинное."),
-  role: z.string().trim().max(180, "Поле «Роль» слишком длинное."),
-  complexity: z.string().trim().max(180, "Поле «Сложность» слишком длинное."),
-  whatDone: z.string().trim().max(1000, "Поле «Что сделали» слишком длинное."),
-  result: z.string().trim().max(1000, "Поле «Результат» слишком длинное."),
+  title: z.string().trim(),
+  court: z.string().trim(),
+  role: z.string().trim(),
+  complexity: z.string().trim(),
+  whatDone: z.string().trim(),
+  result: z.string().trim(),
 });
 
 export const articleInputSchema = z.object({
@@ -62,23 +62,16 @@ export const serviceInputSchema = z.object({
   title: z
     .string({ error: "Заполните поле «Название»." })
     .trim()
-    .min(3, "Поле «Название» пусто или слишком короткое. Введите не менее 3 символов.")
-    .max(180, "Название слишком длинное — не более 180 символов."),
+    .min(3, "Поле «Название» пусто или слишком короткое. Введите не менее 3 символов."),
   category: z
     .string({ error: "Заполните поле «Категория»." })
     .trim()
-    .min(2, "Поле «Категория» пусто. Заполните его.")
-    .max(80, "Категория слишком длинная — не более 80 символов."),
-  summary: z
-    .string()
-    .trim()
-    .max(1000, "Описание слишком длинное — не более 1000 символов.")
-    .optional()
-    .default(""),
-  pricing: z.array(priceItemSchema).max(50, "Слишком много позиций в прайсе.").default([]),
-  scopeItems: z.array(qaItemSchema).max(50, "Слишком много пунктов практики.").default([]),
-  faqItems: z.array(qaItemSchema).max(50, "Слишком много вопросов.").default([]),
-  cases: z.array(caseItemSchema).max(50, "Слишком много дел.").default([]),
+    .min(2, "Поле «Категория» пусто. Заполните его."),
+  summary: z.string().trim().optional().default(""),
+  pricing: z.array(priceItemSchema).default([]),
+  scopeItems: z.array(qaItemSchema).default([]),
+  faqItems: z.array(qaItemSchema).default([]),
+  cases: z.array(caseItemSchema).default([]),
   published: z.boolean(),
 });
 

@@ -1,20 +1,27 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { AsteriaEditor } from "@/components/editor/AsteriaEditor";
+import { ArticleDetail } from "@/components/content/ArticleDetail";
 import { formatContentDate } from "@/lib/content";
 import { getPublishedArticle } from "@/lib/server/content-repository";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const article = await getPublishedArticle(slug);
   return { title: `${article.title} — Астерия`, description: article.excerpt ?? undefined };
 }
 
-export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ArticlePage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const article = await getPublishedArticle(slug);
 
@@ -22,22 +29,14 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     <>
       <Header />
       <main className="bg-ivory pt-28 pb-20 md:pt-36 md:pb-28">
-        <article className="container-x mx-auto max-w-[1440px]">
-          <Link href="/knowledge" className="text-[10px] uppercase tracking-[0.08em] text-ink/42 hover:text-wine">← Все статьи</Link>
-          {article.previewImage ? (
-            <div className="mt-10 aspect-[21/9] overflow-hidden border border-ink/8 bg-cream">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={article.previewImage} alt="" className="h-full w-full object-cover" />
-            </div>
-          ) : null}
-          <header className={article.previewImage ? "mt-8 border-b border-ink/10 pb-10" : "mt-10 border-b border-ink/10 pb-10"}>
-            <p className="eyebrow text-wine">{article.category}</p>
-            <h1 className="mt-5 text-[clamp(3rem,7vw,7rem)] leading-[0.92] tracking-[-0.075em]">{article.title}</h1>
-            {article.excerpt ? <p className="mt-7 max-w-[58ch] text-lg leading-relaxed text-ink/55">{article.excerpt}</p> : null}
-            <p className="mt-7 text-[10px] uppercase tracking-[0.08em] text-ink/32">{formatContentDate(article.publishedAt ?? article.updatedAt)} · Астерия</p>
-          </header>
-          <div className="mt-12"><AsteriaEditor initialValue={article.content} readOnly /></div>
-        </article>
+        <ArticleDetail
+          title={article.title}
+          category={article.category}
+          excerpt={article.excerpt}
+          previewImage={article.previewImage}
+          publishedLabel={formatContentDate(article.publishedAt ?? article.updatedAt)}
+          content={article.content}
+        />
       </main>
       <Footer />
     </>

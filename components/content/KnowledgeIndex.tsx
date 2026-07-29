@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import Reveal from "@/components/Reveal";
+import RevealStagger from "@/components/RevealStagger";
 import { parseCategoryList } from "@/lib/category-list";
 
 export type KnowledgeArticleCard = {
@@ -37,35 +39,41 @@ export function KnowledgeIndex({ articles }: KnowledgeIndexProps) {
 
   return (
     <section className="public-content">
-      <div className="flex flex-wrap gap-2 border-b border-ink/10 pb-8">
-        {categories.map((category) => {
-          const isActive = category === activeCategory;
-          return (
-            <button
-              key={category}
-              type="button"
-              onClick={() => setActiveCategory(category)}
-              className={
-                isActive
-                  ? "h-10 bg-wine px-4 text-[10px] uppercase tracking-[0.08em] text-ivory transition-colors"
-                  : "h-10 border border-ink/12 bg-ivory px-4 text-[10px] uppercase tracking-[0.08em] text-ink/55 transition-colors hover:border-ink/25 hover:text-ink"
-              }
-              aria-pressed={isActive}
-            >
-              {category}
-            </button>
-          );
-        })}
-      </div>
+      <Reveal>
+        <div className="flex flex-wrap gap-2 border-b border-ink/10 pb-8">
+          {categories.map((category) => {
+            const isActive = category === activeCategory;
+            return (
+              <button
+                key={category}
+                type="button"
+                onClick={() => setActiveCategory(category)}
+                className={
+                  isActive
+                    ? "h-10 bg-wine px-4 text-[10px] uppercase tracking-[0.08em] text-ivory transition-colors"
+                    : "h-10 border border-ink/12 bg-ivory px-4 text-[10px] uppercase tracking-[0.08em] text-ink/55 transition-colors hover:border-ink/25 hover:text-ink"
+                }
+                aria-pressed={isActive}
+              >
+                {category}
+              </button>
+            );
+          })}
+        </div>
+      </Reveal>
 
       {visible.length ? (
-        <div className="mt-10 grid gap-x-7 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+        <RevealStagger
+          deps={[activeCategory, visible.map((item) => item.id).join(",")]}
+          className="mt-10 grid gap-x-7 gap-y-12 sm:grid-cols-2 lg:grid-cols-3"
+        >
           {visible.map((article) => {
             const categoriesLabel = parseCategoryList(article.category).join(" · ");
             return (
               <Link
                 key={article.id}
                 href={article.href}
+                data-reveal-item
                 className="group flex flex-col outline-none transition-opacity hover:opacity-95"
               >
                 <div className="relative aspect-[16/10] overflow-hidden border border-ink/8 bg-cream">
@@ -112,13 +120,15 @@ export function KnowledgeIndex({ articles }: KnowledgeIndexProps) {
               </Link>
             );
           })}
-        </div>
+        </RevealStagger>
       ) : (
-        <div className="mt-16 flex min-h-[240px] items-center justify-center text-sm text-ink/40">
-          {activeCategory === "Все"
-            ? "Опубликованных статей пока нет."
-            : "В этой категории пока нет статей."}
-        </div>
+        <Reveal className="mt-16">
+          <div className="flex min-h-[240px] items-center justify-center text-sm text-ink/40">
+            {activeCategory === "Все"
+              ? "Опубликованных статей пока нет."
+              : "В этой категории пока нет статей."}
+          </div>
+        </Reveal>
       )}
     </section>
   );
