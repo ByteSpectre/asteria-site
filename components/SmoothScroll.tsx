@@ -18,30 +18,34 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Lenis перехватывает wheel на странице. Для меню/попапов внутри BlockNote
-    // нужно, чтобы wheel прокручивал именно их (если у них есть собственный scroll).
+    // Lenis перехватывает wheel на странице. Для внутренних скроллов
+    // (BlockNote, попап дела) останавливаем перехват.
     const onWheelCapture = (event: WheelEvent) => {
       const target = event.target;
       if (!(target instanceof Element)) return;
 
-      const blocknoteRoot = target.closest(".asteria-blocknote");
-      if (!blocknoteRoot) return;
+      if (document.body.classList.contains("case-popup-open")) {
+        event.stopImmediatePropagation();
+        return;
+      }
 
-      // Найдём ближайший контейнер внутри .asteria-blocknote, который реально умеет скроллиться.
+      const preventRoot = target.closest("[data-lenis-prevent], .asteria-blocknote");
+      if (!preventRoot) return;
+
       let el: HTMLElement | null = target as HTMLElement;
-      while (el && el !== blocknoteRoot) {
+      while (el && el !== preventRoot.parentElement) {
         const style = window.getComputedStyle(el);
         const overflowY = style.overflowY;
         const canScrollY =
           (overflowY === "auto" || overflowY === "scroll") &&
           el.scrollHeight > el.clientHeight + 1;
 
-        if (canScrollY) {
-          // Останавливаем перехват Lenis, чтобы wheel скроллил внутренний контейнер.
+        if (canScrollY || el.hasAttribute("data-lenis-prevent")) {
           event.stopImmediatePropagation();
           return;
         }
 
+        if (el === preventRoot) break;
         el = el.parentElement;
       }
     };
@@ -57,6 +61,17 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
 
     lenis.on("scroll", ScrollTrigger.update);
 
+    const syncLenisWithPopup = () => {
+      if (document.body.classList.contains("case-popup-open")) {
+        lenis.stop();
+      } else {
+        lenis.start();
+      }
+    };
+    syncLenisWithPopup();
+    const popupObserver = new MutationObserver(syncLenisWithPopup);
+    popupObserver.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+
     const raf = (time: number) => {
       lenis.raf(time * 1000);
     };
@@ -69,6 +84,7 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
     window.addEventListener("load", onLoad);
 
     return () => {
+      popupObserver.disconnect();
       window.removeEventListener("wheel", onWheelCapture, { capture: true } as any);
       window.removeEventListener("load", onLoad);
       gsap.ticker.remove(raf);

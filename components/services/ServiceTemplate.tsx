@@ -565,40 +565,45 @@ function CasesSection({ cases }: { cases: ServiceCaseItem[] }) {
         <div className="fixed inset-0 z-[110]">
           <div
             ref={modalRef}
-            role="dialog"
-            aria-modal="true"
-            aria-label={activeCase.title || `Дело ${pad(openIndex)}`}
-            className="relative flex h-full w-full flex-col overflow-y-auto bg-[#f7f1e8]"
+            className="h-full w-full"
             style={{ opacity: 0 }}
           >
-            <div className="sticky top-0 z-10 flex items-center justify-between bg-[#f7f1e8]/95 px-5 py-4 backdrop-blur-sm sm:px-10">
-              <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink/35">
-                Дело {pad(openIndex)}
-              </p>
-              <button
-                type="button"
-                onClick={closeCase}
-                className="h-10 px-3 text-[11px] font-normal uppercase tracking-[0.08em] text-ink/50 transition-colors hover:text-wine"
-              >
-                Закрыть ✕
-              </button>
-            </div>
-
-            <div className="flex-1 px-5 py-8 sm:px-10 sm:py-14 lg:px-16">
-              <article className="mx-auto w-full max-w-[720px]">
-                <h2
-                  className="font-normal tracking-[-0.04em] text-ink"
-                  style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)", lineHeight: 1.15 }}
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label={activeCase.title || `Дело ${pad(openIndex)}`}
+              data-lenis-prevent
+              className="case-popup-scroll h-dvh w-full overflow-y-auto overscroll-contain bg-[#f7f1e8]"
+            >
+              <div className="sticky top-0 z-10 flex items-center justify-between bg-[#f7f1e8]/95 px-5 py-4 backdrop-blur-sm sm:px-10">
+                <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink/35">
+                  Дело {pad(openIndex)}
+                </p>
+                <button
+                  type="button"
+                  onClick={closeCase}
+                  className="h-10 px-3 text-[11px] font-normal uppercase tracking-[0.08em] text-ink/50 transition-colors hover:text-wine"
                 >
-                  {activeCase.title || "Без названия"}
-                </h2>
+                  Закрыть ✕
+                </button>
+              </div>
 
-                <CaseArticleBlock heading="Суд" body={activeCase.court} />
-                <CaseArticleBlock heading="Роль" body={activeCase.role} />
-                <CaseArticleBlock heading="Сложность" body={activeCase.complexity} />
-                <CaseArticleBlock heading="Что сделали" body={activeCase.whatDone} />
-                <CaseArticleBlock heading="Результат" body={activeCase.result} />
-              </article>
+              <div className="px-5 py-8 pb-16 sm:px-10 sm:py-14 lg:px-16">
+                <article className="mx-auto w-full max-w-[720px]">
+                  <h2
+                    className="font-normal tracking-[-0.04em] text-ink"
+                    style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)", lineHeight: 1.15 }}
+                  >
+                    {activeCase.title || "Без названия"}
+                  </h2>
+
+                  <CaseArticleBlock heading="Суд" body={activeCase.court} />
+                  <CaseArticleBlock heading="Роль" body={activeCase.role} />
+                  <CaseArticleBlock heading="Сложность" body={activeCase.complexity} />
+                  <CaseArticleBlock heading="Что сделали" body={activeCase.whatDone} />
+                  <CaseArticleBlock heading="Результат" body={activeCase.result} />
+                </article>
+              </div>
             </div>
           </div>
         </div>
