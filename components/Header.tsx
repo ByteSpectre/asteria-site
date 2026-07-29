@@ -40,7 +40,17 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [overDark, setOverDark] = useState(false);
+  const [casePopupOpen, setCasePopupOpen] = useState(false);
   const raf = useRef(0);
+
+  useEffect(() => {
+    const sync = () =>
+      setCasePopupOpen(document.body.classList.contains("case-popup-open"));
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const measure = () => {
@@ -88,14 +98,16 @@ export default function Header() {
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-[100] transition-[background-color,backdrop-filter,border-color] duration-300 ${
-          open
-            ? "border-b border-ink/8 bg-ivory"
-            : scrolled
-              ? light
-                ? "border-b border-ivory/10 bg-ink/55 backdrop-blur-md"
-                : "border-b border-ink/8 bg-ivory/90 backdrop-blur-md"
-              : "border-b border-transparent bg-transparent"
+        className={`fixed inset-x-0 top-0 z-[100] transition-[background-color,backdrop-filter,border-color,transform,opacity] duration-300 ${
+          casePopupOpen
+            ? "pointer-events-none -translate-y-full opacity-0"
+            : open
+              ? "border-b border-ink/8 bg-ivory"
+              : scrolled
+                ? light
+                  ? "border-b border-ivory/10 bg-ink/55 backdrop-blur-md"
+                  : "border-b border-ink/8 bg-ivory/90 backdrop-blur-md"
+                : "border-b border-transparent bg-transparent"
         }`}
       >
         <div className="container-x relative z-[2] mx-auto flex h-16 max-w-[1440px] items-center justify-between md:h-20">
