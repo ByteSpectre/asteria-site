@@ -35,7 +35,7 @@ export default async function ServicePage({
   return (
     <>
       <Header />
-      <main className="bg-ivory pt-16 md:pt-20">
+      <main className="bg-cream pt-16 md:pt-20">
         <ServiceTemplate
           title={service.title}
           category={service.category}
