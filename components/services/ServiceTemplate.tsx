@@ -375,7 +375,7 @@ export function ServiceTemplate({
         <div className="container-x mx-auto max-w-[1440px]">
           <Reveal>
             <nav className="flex flex-wrap items-center gap-3 pt-6 pb-8">
-              <Link href="/services" className="eyebrow link-underline text-ink/40 hover:text-wine">
+              <Link href="/" className="eyebrow link-underline text-ink/40 hover:text-wine">
                 Услуги
               </Link>
               <span className="eyebrow text-ink/25">/</span>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Header from "@/components/Header";
+import AppHeader from "@/components/AppHeader";
 import Footer from "@/components/Footer";
 import { ArticleDetail } from "@/components/content/ArticleDetail";
 import { formatContentDate } from "@/lib/content";
@@ -27,7 +27,7 @@ export default async function ArticlePage({
 
   return (
     <>
-      <Header />
+      <AppHeader />
       <main className="bg-ivory pt-28 pb-20 md:pt-36 md:pb-28">
         <ArticleDetail
           title={article.title}

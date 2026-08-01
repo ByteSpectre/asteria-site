@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Header from "@/components/Header";
+import AppHeader from "@/components/AppHeader";
 import Footer from "@/components/Footer";
 import { AnimatedPageHeader } from "@/components/content/AnimatedPageHeader";
 import { KnowledgeIndex } from "@/components/content/KnowledgeIndex";
@@ -26,7 +26,7 @@ export default async function KnowledgePage() {
 
   return (
     <>
-      <Header />
+      <AppHeader />
       <main className="min-h-[75svh] bg-cream pt-28 pb-20 md:pt-36 md:pb-28">
         <div className="container-x mx-auto max-w-[1440px]">
           <AnimatedPageHeader

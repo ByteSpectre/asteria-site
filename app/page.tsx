@@ -1,4 +1,4 @@
-import Header from "@/components/Header";
+import AppHeader from "@/components/AppHeader";
 import Hero from "@/components/Hero";
 import Constellation from "@/components/Constellation";
 import PracticeMarquee from "@/components/PracticeMarquee";
@@ -12,7 +12,7 @@ import Footer from "@/components/Footer";
 export default function HomePage() {
   return (
     <>
-      <Header />
+      <AppHeader />
       <main>
         <Hero />
         <Constellation />

@@ -315,6 +315,46 @@ html.lenis body {
   font-weight: 400;
 }
 
+/* Service detail pages — a slightly denser editorial scale for long Russian copy. */
+.service-hero-title {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: clamp(2.5rem, calc(2.45vw + 2rem), 5.25rem);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+  font-weight: 400;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  text-wrap: balance;
+}
+
+.service-page .type-section-title,
+.service-page .type-section-title-lg {
+  font-size: clamp(2.25rem, calc(1.75vw + 1.85rem), 4rem);
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+.service-page .type-card-title,
+.service-page .type-service-title {
+  line-height: 1.18;
+  text-wrap: pretty;
+}
+
+.service-page .type-body,
+.service-page .type-body-sm {
+  text-wrap: pretty;
+}
+
+.service-page table {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 479px) {
+  .service-hero-title {
+    font-size: clamp(2.125rem, 10.25vw, 2.5rem);
+  }
+}
+
 .type-micro {
   font-size: 0.6875rem;
   letter-spacing: 0.04em;

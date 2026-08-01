@@ -8,6 +8,8 @@ type Props = {
   href: string;
   className?: string;
   strength?: number;
+  target?: string;
+  rel?: string;
 };
 
 export default function MagneticButton({
@@ -15,6 +17,8 @@ export default function MagneticButton({
   href,
   className = "",
   strength = 0.35,
+  target,
+  rel,
 }: Props) {
   const ref = useRef<HTMLAnchorElement>(null);
   const xTo = useRef<gsap.QuickToFunc | null>(null);
@@ -43,6 +47,8 @@ export default function MagneticButton({
     <a
       ref={ref}
       href={href}
+      target={target}
+      rel={rel}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
       className={`group inline-flex cursor-pointer items-center justify-center gap-3 ${className}`}

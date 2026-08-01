@@ -20,7 +20,7 @@ export default async function AdminServicesPage() {
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-8 sm:px-7 lg:px-10 lg:py-12">
-      <AdminPageHeader eyebrow="Каталог практик" title="Услуги" description="Управляйте направлениями юридической практики, которые отображаются на сайте." publicHref="/services" />
+      <AdminPageHeader eyebrow="Каталог практик" title="Услуги" description="Управляйте направлениями юридической практики, которые отображаются на сайте." />
       <ContentTable kind="service" rows={rows} addHref="/admin/services/new" emptyTitle="Услуг пока нет" />
     </div>
   );

@@ -1,7 +1,17 @@
 import type { Metadata } from "next";
-import Header from "@/components/Header";
+import AppHeader from "@/components/AppHeader";
 import Footer from "@/components/Footer";
+import BankruptcyTurnkeyPage from "@/components/services/BankruptcyTurnkeyPage";
 import { ServiceTemplate } from "@/components/services/ServiceTemplate";
+import SubscriptionServicePage from "@/components/services/SubscriptionServicePage";
+import {
+  BANKRUPTCY_META,
+  BANKRUPTCY_SLUG,
+} from "@/lib/services/bankruptcy";
+import {
+  SUBSCRIPTION_META,
+  SUBSCRIPTION_SLUG,
+} from "@/lib/services/subscription";
 import {
   normalizeServiceCases,
   normalizeServicePricing,
@@ -17,6 +27,21 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+
+  if (slug === BANKRUPTCY_SLUG) {
+    return {
+      title: `${BANKRUPTCY_META.title} — Астерия`,
+      description: BANKRUPTCY_META.description,
+    };
+  }
+
+  if (slug === SUBSCRIPTION_SLUG) {
+    return {
+      title: `${SUBSCRIPTION_META.title} — Астерия`,
+      description: SUBSCRIPTION_META.description,
+    };
+  }
+
   const service = await getPublishedService(slug);
   return {
     title: `${service.title} — Астерия`,
@@ -30,11 +55,36 @@ export default async function ServicePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+
+  if (slug === BANKRUPTCY_SLUG) {
+    return (
+      <>
+        <AppHeader />
+        <main className="bg-cream pt-16 md:pt-20">
+          <BankruptcyTurnkeyPage />
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (slug === SUBSCRIPTION_SLUG) {
+    return (
+      <>
+        <AppHeader />
+        <main className="bg-cream pt-16 md:pt-20">
+          <SubscriptionServicePage />
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
   const service = await getPublishedService(slug);
 
   return (
     <>
-      <Header />
+      <AppHeader />
       <main className="bg-cream pt-16 md:pt-20">
         <ServiceTemplate
           title={service.title}

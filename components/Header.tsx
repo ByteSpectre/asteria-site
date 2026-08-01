@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { NAV_LINKS, SOCIAL_LINKS } from "@/lib/data";
+import type { ServiceNavItem } from "@/lib/services/catalog";
 
 function SocialIcons({
   light = false,
@@ -36,12 +37,16 @@ function SocialIcons({
   );
 }
 
-export default function Header() {
+export default function Header({ services = [] }: { services?: ServiceNavItem[] }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [overDark, setOverDark] = useState(false);
   const [casePopupOpen, setCasePopupOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const raf = useRef(0);
+  const servicesRef = useRef<HTMLDivElement>(null);
+  const servicesMenuId = useId();
 
   useEffect(() => {
     const sync = () =>
@@ -93,7 +98,28 @@ export default function Header() {
     };
   }, [open]);
 
+  useEffect(() => {
+    if (!servicesOpen) return;
+
+    const onPointerDown = (event: MouseEvent) => {
+      if (!servicesRef.current?.contains(event.target as Node)) {
+        setServicesOpen(false);
+      }
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setServicesOpen(false);
+    };
+
+    window.addEventListener("mousedown", onPointerDown);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("mousedown", onPointerDown);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [servicesOpen]);
+
   const light = overDark && !open;
+  const otherLinks = NAV_LINKS.filter((link) => link.label !== "Услуги");
 
   return (
     <>
@@ -133,7 +159,75 @@ export default function Header() {
             className="hidden items-center gap-8 lg:flex"
             aria-label="Основная"
           >
-            {NAV_LINKS.map((link) => (
+            <div
+              ref={servicesRef}
+              className="relative flex items-center"
+              onMouseEnter={() => setServicesOpen(true)}
+              onMouseLeave={() => setServicesOpen(false)}
+            >
+              <button
+                type="button"
+                className={`eyebrow link-underline inline-flex h-auto items-center gap-1.5 border-0 bg-transparent p-0 pb-0.5 leading-[1.4] transition-colors duration-300 ${
+                  light
+                    ? "text-ivory/80 hover:text-ivory"
+                    : "text-ink/70 hover:text-ink"
+                }`}
+                aria-expanded={servicesOpen}
+                aria-controls={servicesMenuId}
+                aria-haspopup="menu"
+                onClick={() => setServicesOpen((value) => !value)}
+                onFocus={() => setServicesOpen(true)}
+              >
+                Услуги
+                <span
+                  aria-hidden
+                  className={`inline-block translate-y-[-0.05em] text-[0.6em] leading-none transition-transform duration-300 ${
+                    servicesOpen ? "rotate-180" : ""
+                  }`}
+                >
+                  ▾
+                </span>
+              </button>
+
+              <div
+                id={servicesMenuId}
+                role="menu"
+                aria-label="Услуги"
+                className={`absolute top-full left-0 min-w-[18rem] pt-3 transition-[opacity,visibility,transform] duration-200 ${
+                  servicesOpen
+                    ? "visible translate-y-0 opacity-100"
+                    : "invisible pointer-events-none -translate-y-1 opacity-0"
+                }`}
+              >
+                <div className="border border-ink/10 bg-ivory shadow-[0_18px_40px_rgba(22,19,16,0.08)]">
+                  {services.length ? (
+                    <ul className="py-2">
+                      {services.map((service) => (
+                        <li key={service.slug} role="none">
+                          <Link
+                            role="menuitem"
+                            href={`/services/${service.slug}`}
+                            className="block px-5 py-3 transition-colors hover:bg-cream"
+                            onClick={() => setServicesOpen(false)}
+                          >
+                            <span className="type-body-sm block font-medium text-ink">
+                              {service.title}
+                            </span>
+                            <span className="type-label mt-1 block font-mono uppercase text-ink/35">
+                              {service.category}
+                            </span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="type-body-sm px-5 py-4 text-ink/45">Услуги скоро появятся</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {otherLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -152,7 +246,7 @@ export default function Header() {
 
           <button
             type="button"
-            className={`relative flex h-11 w-11 cursor-pointer items-center justify-center lg:hidden ${
+            className={`relative z-[110] flex h-11 w-11 cursor-pointer items-center justify-center lg:hidden ${
               light ? "text-ivory" : "text-ink"
             }`}
             aria-expanded={open}
@@ -195,7 +289,50 @@ export default function Header() {
       >
         <nav className="flex h-dvh flex-col justify-between px-6 pt-24 pb-[max(2.5rem,env(safe-area-inset-bottom))]">
           <ul className="flex flex-col gap-1 overflow-y-auto">
-            {NAV_LINKS.map((link) => (
+            <li>
+              <button
+                type="button"
+                className="type-nav-mobile font-display flex w-full items-center justify-between py-2.5 text-left text-ink"
+                aria-expanded={mobileServicesOpen}
+                onClick={() => setMobileServicesOpen((value) => !value)}
+              >
+                Услуги
+                <span
+                  aria-hidden
+                  className={`type-label font-mono transition-transform duration-300 ${
+                    mobileServicesOpen ? "rotate-45" : ""
+                  }`}
+                >
+                  +
+                </span>
+              </button>
+              <div
+                className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+                  mobileServicesOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                }`}
+              >
+                <div className="overflow-hidden">
+                  <ul className="space-y-1 border-l border-ink/10 pb-3 pl-4">
+                    {services.map((service) => (
+                      <li key={service.slug}>
+                        <Link
+                          href={`/services/${service.slug}`}
+                          onClick={() => setOpen(false)}
+                          className="block py-2"
+                        >
+                          <span className="type-body-sm block text-ink/80">{service.title}</span>
+                          <span className="type-label mt-1 block font-mono uppercase text-ink/35">
+                            {service.category}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </li>
+
+            {otherLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
@@ -214,7 +351,7 @@ export default function Header() {
               <SocialIcons />
             </div>
             <a
-              href="#contacts"
+              href="/#contacts"
               onClick={() => setOpen(false)}
               className="type-label inline-flex h-12 cursor-pointer items-center justify-center bg-wine px-5 font-mono uppercase text-ivory"
             >
