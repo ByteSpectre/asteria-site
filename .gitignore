@@ -2,29 +2,59 @@
 node_modules/
 .pnp
 .pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
 # Next.js / build
 .next/
 out/
 build/
 dist/
+.turbo/
+.swc/
+storybook-static/
 
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
 
-# Environment
+# Environment & secrets
 .env*
 !.env.example
+*.pem
+*.key
+credentials.json
+service-account*.json
 
-# Prisma generated client
+# Prisma / local databases
 /app/generated/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+prisma/*.db
+prisma/*.db-journal
 
-# Runtime uploads
+# Runtime uploads & local storage
 /storage/
+/uploads/
+/public/uploads/
+/tmp/
+/temp/
+.tmp/
+.temp/
 
-# Testing
+# Testing & e2e
 coverage/
+.nyc_output/
+playwright-report/
+playwright/.cache/
+test-results/
+blob-report/
+vitest.config.ts.timestamp-*
 
 # Logs & debug
 *.log
@@ -33,30 +63,58 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lint_output.txt
+debug.log
+.eslintcache
+.prettiercache
+.stylelintcache
 
 # Vercel
+.vercel/
 .vercel
 
-# Certificates
-*.pem
+# Caches
+.cache/
+.parcel-cache/
+.npm/
+*.cache
 
 # OS
 .DS_Store
+.AppleDouble
+.LSOverride
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+$RECYCLE.BIN/
+
+# Editors & backups
+*~
+*.bak
+*.orig
+*.swp
+*.swo
+*.tmp
 
 # IDE & AI assistants
 .idea/
 .vscode/
 .cursor/
 .claude/
+.codex/
+.opencode/
+.gemini/
+.continue/
+.augment/
 .windsurf/
 .agent-*/
 .agents/
+.mcp/
 work/
 skills-lock.json
 
 # Design & local artifacts
 .figma-ref/
 screenshots/
+*.psd
+*.ai
+*.fig
