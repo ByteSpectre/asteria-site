@@ -1,10 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import Reveal from "@/components/Reveal";
 import RevealStagger from "@/components/RevealStagger";
-import SectionConstellation from "@/components/SectionConstellation";
 import ContactSky from "@/components/ContactSky";
 import {
   SUBSCRIPTION_CONTENT,
@@ -16,16 +14,24 @@ import {
   ServiceBreadcrumb,
   ServicePageShell,
   SectionEyebrow,
+  TextLink,
   pad,
 } from "@/components/services/ui";
 
 const content = SUBSCRIPTION_CONTENT;
 
+/**
+ * Subject: Asteria legal hours retainer for business.
+ * Job: pick an hours package and message us.
+ * Signature: page as a monthly hours register — hairline ledgers,
+ * wine decision plane for packages, quiet support sections after.
+ */
 export default function SubscriptionServicePage() {
   const [openFaq, setOpenFaq] = useState(0);
 
   return (
     <ServicePageShell>
+      {/* 1. Hero */}
       <section className="border-t border-ink">
         <div className="container-x mx-auto max-w-[1440px]">
           <Reveal>
@@ -35,31 +41,37 @@ export default function SubscriptionServicePage() {
             />
           </Reveal>
 
-          <div className="grid gap-8 border-y border-ink py-9 sm:py-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:gap-16 lg:py-14">
-            <Reveal>
+          <div className="grid gap-0 border-y border-ink lg:grid-cols-[minmax(0,1.35fr)_minmax(16rem,0.65fr)]">
+            <Reveal className="flex flex-col justify-center gap-6 pb-10 pt-8 lg:gap-8 lg:pb-16 lg:pr-16 lg:pt-12">
               <SectionEyebrow>{content.hero.eyebrow}</SectionEyebrow>
-              <h1 className="service-hero-title max-w-[16ch] text-ink lg:max-w-[14ch]">
+              <h1 className="service-hero-title max-w-[15ch] text-ink">
                 {content.hero.title}
               </h1>
-              <p className="type-body mt-6 max-w-[42ch] text-ink/70">{content.hero.text}</p>
+              <p className="type-body max-w-[40ch] text-ink/65">{content.hero.text}</p>
+              <div className="pt-1">
+                <MessengerButton>{content.hero.cta}</MessengerButton>
+              </div>
             </Reveal>
 
             <Reveal
               delay={0.08}
-              className="flex min-w-0 flex-col justify-end border-t border-ink/15 pt-7 lg:justify-center lg:border-t-0 lg:border-l lg:border-ink lg:pt-0 lg:pl-10"
+              className="flex flex-col justify-between gap-10 border-t border-ink/15 bg-wine px-6 py-9 text-ivory sm:px-8 sm:py-10 lg:border-l lg:border-t-0 lg:border-ink lg:px-10 lg:py-16"
             >
-              <p className="type-label font-mono uppercase text-wine">Бонус</p>
-              <p className="type-card-title font-display mt-3 font-medium text-ink">
-                {content.hero.bonus}
+              <div>
+                <p className="type-label font-mono uppercase text-ivory/50">Бонус</p>
+                <p className="type-card-title font-display mt-4 font-medium leading-[1.3] text-ivory">
+                  {content.hero.bonus}
+                </p>
+              </div>
+              <p className="type-label font-mono uppercase text-ivory/40">
+                Ставка · 5 000 ₽/ч
               </p>
-              <MessengerButton className="mt-8">
-                {content.hero.cta}
-              </MessengerButton>
             </Reveal>
           </div>
         </div>
       </section>
 
+      {/* 2. Comparison — contract verdict stamps */}
       <section className="bg-ivory py-16 sm:py-20 md:py-28">
         <div className="container-x mx-auto max-w-[1440px]">
           <Reveal>
@@ -67,45 +79,98 @@ export default function SubscriptionServicePage() {
             <h2 className="type-section-title font-display max-w-[16ch]">
               {content.comparison.title}
             </h2>
+            <p className="type-body-sm mt-5 max-w-[42ch] text-ink/55">
+              {content.comparison.lead}
+            </p>
           </Reveal>
 
-          <div className="mt-10 hidden grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-px overflow-hidden border border-ink/12 bg-ink/12 md:mt-14 md:grid">
-            <div className="bg-cream px-6 py-4">
-              <p className="type-label font-mono uppercase text-ink/40">
-                {content.comparison.leftLabel}
+          {/* Desktop */}
+          <div className="mt-12 hidden md:mt-16 md:block">
+            <div className="grid grid-cols-[minmax(0,1fr)_7.5rem_9.5rem] items-end gap-x-8 border-b border-ink pb-4 lg:grid-cols-[minmax(0,1fr)_8rem_11rem] lg:gap-x-12">
+              <p className="type-label font-mono uppercase text-ink/30">Критерий</p>
+              <p className="type-label text-center font-mono uppercase text-wine">
+                {content.comparison.productLabel}
+              </p>
+              <p className="type-label text-center font-mono uppercase text-ink/35">
+                {content.comparison.competitorLabel}
               </p>
             </div>
-            <div className="bg-wine px-6 py-4">
-              <p className="type-label font-mono uppercase text-ivory/70">
-                {content.comparison.rightLabel}
+
+            <RevealStagger>
+              {content.comparison.rows.map((row) => (
+                <div
+                  key={row.feature}
+                  data-reveal-item
+                  className="grid grid-cols-[minmax(0,1fr)_7.5rem_9.5rem] items-center gap-x-8 border-b border-ink/12 py-5 lg:grid-cols-[minmax(0,1fr)_8rem_11rem] lg:gap-x-12 lg:py-6"
+                >
+                  <p className="type-body-sm max-w-[52ch] text-ink/75">{row.feature}</p>
+
+                  <div className="flex justify-center">
+                    <span className="sr-only">Есть в абонементе</span>
+                    <span
+                      className="flex h-11 w-11 items-center justify-center bg-wine text-ivory lg:h-12 lg:w-12"
+                      aria-hidden
+                    >
+                      <svg width="14" height="11" viewBox="0 0 12 10" fill="none">
+                        <path
+                          d="M1 5.2 4.2 8.5 11 1.5"
+                          stroke="currentColor"
+                          strokeWidth="1.7"
+                        />
+                      </svg>
+                    </span>
+                  </div>
+
+                  <div className="flex justify-center">
+                    <span className="sr-only">Нет у штатного юриста</span>
+                    <span
+                      className="type-label font-mono text-ink/30"
+                      aria-hidden
+                    >
+                      —
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </RevealStagger>
+          </div>
+
+          {/* Mobile */}
+          <div className="mt-10 md:hidden">
+            <div className="mb-4 flex items-center justify-end gap-6 border-b border-ink pb-3">
+              <p className="type-label font-mono uppercase text-wine">
+                {content.comparison.productLabel}
+              </p>
+              <p className="type-label font-mono uppercase text-ink/35">
+                {content.comparison.competitorLabel}
               </p>
             </div>
             {content.comparison.rows.map((row) => (
-              <div key={row.left} className="contents">
-                <div className="bg-cream px-6 py-6">
-                  <p className="type-body-sm text-ink/50">{row.left}</p>
-                </div>
-                <div className="bg-wine px-6 py-6">
-                  <p className="type-body-sm text-ivory/85">{row.right}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 space-y-4 md:hidden">
-            {content.comparison.rows.map((row, index) => (
-              <article key={row.left} className="border border-ink/12">
-                <div className="bg-cream px-5 py-4">
-                  <p className="type-label mb-2 font-mono uppercase text-ink/35">
-                    {pad(index)} · {content.comparison.leftLabel}
-                  </p>
-                  <p className="type-body-sm text-ink/55">{row.left}</p>
-                </div>
-                <div className="bg-wine px-5 py-4 text-ivory">
-                  <p className="type-label mb-2 font-mono uppercase text-ivory/45">
-                    {content.comparison.rightLabel}
-                  </p>
-                  <p className="type-body-sm text-ivory/85">{row.right}</p>
+              <article
+                key={row.feature}
+                className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-b border-ink/12 py-5"
+              >
+                <p className="type-body-sm text-ink/75">{row.feature}</p>
+                <div className="flex items-center gap-6">
+                  <span className="sr-only">
+                    {content.comparison.productLabel}: да.{" "}
+                    {content.comparison.competitorLabel}: нет.
+                  </span>
+                  <span
+                    className="flex h-10 w-10 shrink-0 items-center justify-center bg-wine text-ivory"
+                    aria-hidden
+                  >
+                    <svg width="13" height="10" viewBox="0 0 12 10" fill="none">
+                      <path
+                        d="M1 5.2 4.2 8.5 11 1.5"
+                        stroke="currentColor"
+                        strokeWidth="1.7"
+                      />
+                    </svg>
+                  </span>
+                  <span className="type-label w-10 text-center font-mono text-ink/30" aria-hidden>
+                    —
+                  </span>
                 </div>
               </article>
             ))}
@@ -113,173 +178,217 @@ export default function SubscriptionServicePage() {
         </div>
       </section>
 
+      {/* 3. Advantages */}
       <section className="bg-cream py-16 sm:py-20 md:py-28">
         <div className="container-x mx-auto max-w-[1440px]">
           <Reveal>
             <SectionEyebrow>Преимущества</SectionEyebrow>
             <h2 className="type-section-title font-display max-w-[12ch]">
-              Что даёт абонемент
+              Наши преимущества
             </h2>
           </Reveal>
 
-          <ol className="mt-12 border-t border-ink/15 md:mt-16">
+          <div className="mt-12 border-t border-ink/15 md:mt-16">
             <RevealStagger>
               {content.advantages.map((item, index) => (
-                <li
+                <article
                   key={item.title}
                   data-reveal-item
-                  className="grid gap-3 border-b border-ink/15 py-7 md:grid-cols-[5rem_minmax(10rem,16rem)_minmax(0,1fr)] md:gap-10 md:py-8"
+                  className="grid gap-3 border-b border-ink/15 py-7 md:grid-cols-[4rem_minmax(12rem,0.9fr)_minmax(0,1.5fr)] md:items-start md:gap-8 md:py-8"
                 >
-                  <span className="type-stat font-display text-wine/80">{pad(index)}</span>
-                  <h3 className="type-card-title font-display font-medium md:pt-2">{item.title}</h3>
-                  <p className="type-body-sm max-w-[48ch] text-ink/60 md:pt-2">{item.text}</p>
-                </li>
+                  <span className="type-label font-mono text-wine">{pad(index)}</span>
+                  <h3 className="type-card-title font-display font-medium">{item.title}</h3>
+                  <p className="type-body-sm max-w-[52ch] text-ink/60">{item.text}</p>
+                </article>
               ))}
             </RevealStagger>
-          </ol>
-        </div>
-      </section>
-
-      <section className="bg-ivory py-16 sm:py-20 md:py-28">
-        <div className="container-x mx-auto max-w-[1440px]">
-          <Reveal>
-            <SectionEyebrow>Кому подойдёт</SectionEyebrow>
-            <h2 className="type-section-title font-display max-w-[14ch]">
-              Под ваш масштаб задач
-            </h2>
-          </Reveal>
-
-          <div className="mt-12 grid gap-px overflow-hidden border border-ink/12 bg-ink/12 sm:grid-cols-2">
-            {content.audience.map((item, index) => (
-              <Reveal key={item.title} delay={index * 0.05}>
-                <article className="flex h-full min-h-[160px] flex-col justify-between bg-ivory p-5 sm:min-h-[180px] sm:p-6 md:min-h-[210px] md:p-8">
-                  <span className="type-label font-mono text-ink/30">{pad(index)}</span>
-                  <div className="pt-8">
-                    <h3 className="type-card-title font-display font-medium">{item.title}</h3>
-                    <p className="type-body-sm mt-3 max-w-[28ch] text-ink/55">{item.text}</p>
-                  </div>
-                </article>
-              </Reveal>
-            ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-cream py-16 sm:py-20 md:py-28">
+      {/* 4. Audience */}
+      <section className="relative overflow-hidden bg-wine-deep py-16 text-ivory sm:py-20 md:py-28">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-35"
+          aria-hidden
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, rgba(251,248,241,0.035) 1px, transparent 1px)",
+            backgroundSize: "clamp(5rem, 9vw, 10rem) 100%",
+          }}
+        />
+        <div className="container-x relative mx-auto max-w-[1440px]">
+          <Reveal>
+            <SectionEyebrow light>Аудитория</SectionEyebrow>
+            <h2 className="type-section-title font-display max-w-[14ch]">
+              Кому подойдёт абонемент
+            </h2>
+          </Reveal>
+
+          <RevealStagger className="mt-12 grid gap-px bg-ivory/15 sm:grid-cols-2 md:mt-16">
+            {content.audience.map((item) => (
+              <article
+                key={item.title}
+                data-reveal-item
+                className="bg-wine-deep px-6 py-8 sm:px-8 sm:py-10"
+              >
+                <h3 className="type-card-title font-display font-medium text-ivory">
+                  {item.title}
+                </h3>
+                <p className="type-body-sm mt-4 max-w-[36ch] text-ivory/60">{item.text}</p>
+              </article>
+            ))}
+          </RevealStagger>
+        </div>
+      </section>
+
+      {/* 5. Inclusions */}
+      <section className="bg-ivory py-16 sm:py-20 md:py-28">
         <div className="container-x mx-auto max-w-[1440px]">
           <Reveal>
             <SectionEyebrow>Наполнение</SectionEyebrow>
             <h2 className="type-section-title font-display max-w-[14ch]">
               {content.inclusions.title}
             </h2>
-            <p className="type-body-sm mt-5 max-w-[46ch] text-ink/55">{content.inclusions.lead}</p>
+            <p className="type-body-sm mt-5 max-w-[48ch] text-ink/55">{content.inclusions.lead}</p>
           </Reveal>
 
-          <div className="mt-10 border-t border-ink/15 md:mt-14">
-            <div className="hidden grid-cols-[4rem_minmax(0,1fr)_8rem] items-center gap-8 border-b border-ink/15 py-4 md:grid">
-              <span aria-hidden />
+          <div className="mt-10 border-t border-ink md:mt-14">
+            <div className="hidden grid-cols-[minmax(0,1fr)_7rem] gap-8 border-b border-ink/15 py-4 md:grid">
               <span className="type-label font-mono uppercase text-ink/35">Услуга</span>
-              <span className="type-label font-mono uppercase text-ink/35">Время</span>
+              <span className="type-label text-right font-mono uppercase text-ink/35">
+                Время
+              </span>
             </div>
-            {content.inclusions.rows.map((row, index) => (
-              <div
-                key={row.service}
-                className="grid grid-cols-[2.75rem_minmax(0,1fr)] gap-x-3 gap-y-1 border-b border-ink/15 py-5 md:grid-cols-[4rem_minmax(0,1fr)_8rem] md:items-center md:gap-8 md:py-6"
-              >
-                <span className="type-label font-mono text-ink/30">{pad(index)}</span>
-                <p className="type-body-sm text-ink/80">{row.service}</p>
-                <p className="type-body-sm col-start-2 text-ink/55 md:col-start-3 md:text-ink/70">
-                  {row.time}
-                </p>
-              </div>
-            ))}
+            <RevealStagger>
+              {content.inclusions.rows.map((row) => (
+                <div
+                  key={row.service}
+                  data-reveal-item
+                  className="grid gap-2 border-b border-ink/15 py-5 md:grid-cols-[minmax(0,1fr)_7rem] md:items-baseline md:gap-8 md:py-6"
+                >
+                  <p className="type-body-sm text-ink/80">{row.service}</p>
+                  <p className="type-label font-mono uppercase tabular-nums text-wine md:text-right md:text-ink/70">
+                    {row.time}
+                  </p>
+                </div>
+              ))}
+            </RevealStagger>
           </div>
           <p className="type-body-sm mt-5 text-ink/45">{content.inclusions.note}</p>
         </div>
       </section>
 
-      <section id="packages" className="scroll-mt-24 bg-wine py-16 text-ivory sm:py-20 md:py-28">
+      {/* 6. Packages — decision plane */}
+      <section
+        id="packages"
+        className="scroll-mt-24 bg-wine py-16 text-ivory sm:py-20 md:py-28"
+      >
         <div className="container-x mx-auto max-w-[1440px]">
           <Reveal>
             <SectionEyebrow light>Пакеты</SectionEyebrow>
-            <h2 className="type-section-title font-display max-w-[14ch]">
-              Выберите объём часов
+            <h2 className="type-section-title font-display max-w-[12ch]">
+              {content.packages.title}
             </h2>
-            <p className="type-body-sm mt-5 max-w-[42ch] text-ivory/55">
-              Ставка 5 000 ₽/час. Вы сами решаете, как распределить часы — комбинации ниже лишь ориентир.
+            <p className="type-body-sm mt-5 max-w-[46ch] text-ivory/55">
+              {content.packages.lead}
             </p>
           </Reveal>
 
-          <div className="mt-12 grid gap-4 lg:mt-16 lg:grid-cols-3">
-            {content.packages.map((pack, index) => (
-              <Reveal key={pack.id} delay={index * 0.06}>
-                <article
-                  className={`flex h-full flex-col border p-6 md:p-8 ${
-                    pack.featured
-                      ? "border-ivory bg-ivory text-ink"
-                      : "border-ivory/20 bg-transparent text-ivory"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <span
-                      className={`type-label font-mono uppercase ${
-                        pack.featured ? "text-wine" : "text-ivory/45"
-                      }`}
-                    >
-                      {pack.featured ? "Популярный" : pad(index)}
-                    </span>
-                    <span
-                      className={`type-label font-mono ${
-                        pack.featured ? "text-ink/40" : "text-ivory/40"
-                      }`}
-                    >
-                      {pack.hours}
-                    </span>
-                  </div>
-                  <h3 className="type-stat font-display mt-8">{pack.name}</h3>
-                  <p className="type-section-title font-display mt-4 text-[clamp(2rem,3vw,2.75rem)]">
-                    {pack.price}
-                    <span
-                      className={`type-label ml-2 font-mono uppercase ${
-                        pack.featured ? "text-ink/40" : "text-ivory/40"
-                      }`}
-                    >
-                      / мес
-                    </span>
-                  </p>
-                  <p
-                    className={`type-body-sm mt-4 ${
-                      pack.featured ? "text-ink/55" : "text-ivory/55"
-                    }`}
+          <div className="mt-12 flex flex-col gap-px bg-ivory/20 md:mt-16">
+            {content.packages.items.map((pack, index) => {
+              const featured = pack.featured;
+              return (
+                <Reveal key={pack.id} delay={index * 0.05}>
+                  <article
+                    className={
+                      featured
+                        ? "bg-ivory text-ink"
+                        : "bg-wine-deep text-ivory lg:bg-wine"
+                    }
                   >
-                    {pack.forWhom}
-                  </p>
-                  <p
-                    className={`type-body-sm mt-6 border-t pt-5 ${
-                      pack.featured
-                        ? "border-ink/10 text-ink/60"
-                        : "border-ivory/15 text-ivory/60"
-                    }`}
-                  >
-                    {pack.examples}
-                  </p>
-                  <MessengerButton
-                    className={`mt-8 !w-full ${
-                      pack.featured
-                        ? "bg-wine text-ivory"
-                        : "bg-ivory text-wine"
-                    }`}
-                  >
-                    Выбрать пакет
-                  </MessengerButton>
-                </article>
-              </Reveal>
-            ))}
+                    <div className="grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+                      <div className="flex flex-col justify-between gap-10 px-6 py-9 sm:px-8 sm:py-11 lg:px-12 lg:py-14">
+                        <div>
+                          <div className="flex items-baseline justify-between gap-4">
+                            <p
+                              className={`eyebrow ${
+                                featured ? "text-wine" : "text-ivory/50"
+                              }`}
+                            >
+                              {featured ? "Рекомендуем" : pad(index)}
+                            </p>
+                            <p
+                              className={`type-label font-mono tabular-nums ${
+                                featured ? "text-ink/40" : "text-ivory/45"
+                              }`}
+                            >
+                              {pack.hours}
+                            </p>
+                          </div>
+                          <h3 className="font-display mt-6 text-[clamp(1.875rem,2.6vw,2.75rem)] leading-none font-medium tracking-[-0.045em]">
+                            {pack.name}
+                          </h3>
+                          <p className="mt-5 font-display text-[clamp(2.125rem,3.2vw,3rem)] leading-none tracking-[-0.05em]">
+                            {pack.price}
+                            <span
+                              className={`type-label ml-2 align-middle font-mono uppercase ${
+                                featured ? "text-ink/40" : "text-ivory/40"
+                              }`}
+                            >
+                              / мес
+                            </span>
+                          </p>
+                          <p
+                            className={`type-body-sm mt-5 max-w-[32ch] ${
+                              featured ? "text-ink/55" : "text-ivory/55"
+                            }`}
+                          >
+                            {pack.forWhom}
+                          </p>
+                        </div>
+                        <MessengerButton
+                          className={
+                            featured
+                              ? "!bg-wine !text-ivory hover:!bg-wine-deep"
+                              : "!bg-ivory !text-wine hover:!bg-cream"
+                          }
+                        >
+                          Выбрать пакет
+                        </MessengerButton>
+                      </div>
+
+                      <div
+                        className={`flex flex-col justify-center border-t px-6 py-9 sm:px-8 sm:py-11 lg:border-l lg:border-t-0 lg:px-12 lg:py-14 ${
+                          featured ? "border-ink/10" : "border-ivory/12"
+                        }`}
+                      >
+                        <p
+                          className={`type-label mb-4 font-mono uppercase ${
+                            featured ? "text-ink/35" : "text-ivory/40"
+                          }`}
+                        >
+                          Примерное наполнение
+                        </p>
+                        <p
+                          className={`type-body-sm max-w-[44ch] ${
+                            featured ? "text-ink/65" : "text-ivory/65"
+                          }`}
+                        >
+                          {pack.examples}
+                        </p>
+                      </div>
+                    </div>
+                  </article>
+                </Reveal>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      <section className="bg-ivory py-16 sm:py-20 md:py-28">
+      {/* 7. Long-term */}
+      <section className="bg-cream py-16 sm:py-20 md:py-28">
         <div className="container-x mx-auto max-w-[1440px]">
           <Reveal>
             <SectionEyebrow>Долгосрочно</SectionEyebrow>
@@ -287,102 +396,124 @@ export default function SubscriptionServicePage() {
               {content.longTerm.title}
             </h2>
             <p className="type-body-sm mt-5 max-w-[46ch] text-ink/55">{content.longTerm.lead}</p>
-            <p className="type-label mt-4 font-mono uppercase text-wine">
+            <p className="type-label mt-5 font-mono uppercase text-wine">
               {content.longTerm.exampleLabel}
             </p>
           </Reveal>
 
-          <div className="mt-10 border-t border-ink/15 md:mt-14">
-            {content.longTerm.rows.map((row, index) => (
-              <div
-                key={row.term}
-                className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-x-3 gap-y-1 border-b border-ink/15 py-5 sm:grid-cols-[2.75rem_minmax(0,1fr)_auto] sm:items-start sm:gap-4 md:grid-cols-[4rem_8rem_minmax(0,1fr)_9rem] md:items-center md:gap-8 md:py-6"
-              >
-                <span className="type-label font-mono text-ink/35">{pad(index)}</span>
-                <p className="type-card-title font-display font-medium">{row.term}</p>
-                <p className="type-body-sm col-start-2 text-ink/55 sm:col-start-2 md:col-start-3">
-                  {row.bonus}
-                </p>
-                <p className="type-body-sm col-start-2 font-medium text-ink sm:col-start-3 sm:row-span-2 sm:self-center sm:text-right md:col-start-4 md:row-span-1">
-                  {row.price}
-                </p>
-              </div>
-            ))}
+          <div className="mt-10 border-t border-ink md:mt-14">
+            <div className="hidden grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_auto] gap-8 border-b border-ink/15 py-4 sm:grid">
+              <span className="type-label font-mono uppercase text-ink/35">Срок</span>
+              <span className="type-label font-mono uppercase text-ink/35">
+                Скидка / бонус
+              </span>
+              <span className="type-label font-mono uppercase text-ink/35">Цена / мес</span>
+            </div>
+            <RevealStagger>
+              {content.longTerm.rows.map((row) => (
+                <div
+                  key={row.term}
+                  data-reveal-item
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 border-b border-ink/15 py-6 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_auto] sm:items-center sm:gap-8 md:py-8"
+                >
+                  <p className="type-stat font-display text-[clamp(1.5rem,2vw,2.25rem)]">
+                    {row.term}
+                  </p>
+                  <p className="type-body-sm col-span-2 text-ink/55 sm:col-span-1 sm:col-start-2">
+                    {row.bonus}
+                  </p>
+                  <p className="type-card-title font-display text-right font-medium text-ink sm:col-start-3">
+                    {row.price}
+                  </p>
+                </div>
+              ))}
+            </RevealStagger>
           </div>
-          <p className="type-body-sm mt-6 max-w-[52ch] text-ink/55">{content.longTerm.highlight}</p>
+
+          <Reveal>
+            <p className="type-body-sm mt-8 max-w-[52ch] border-l-2 border-wine pl-5 text-ink/70 sm:pl-7">
+              {content.longTerm.highlight}
+            </p>
+          </Reveal>
         </div>
       </section>
 
-      <section className="bg-cream py-16 sm:py-20 md:py-28">
+      {/* 8. Savings */}
+      <section className="bg-ivory py-16 sm:py-20 md:py-28">
         <div className="container-x mx-auto max-w-[1440px]">
           <Reveal>
             <SectionEyebrow>Экономия</SectionEyebrow>
             <h2 className="type-section-title font-display max-w-[16ch]">
               {content.savings.title}
             </h2>
-            <p className="type-body-sm mt-5 text-ink/55">{content.savings.lead}</p>
+            <p className="type-body-sm mt-5 max-w-[46ch] text-ink/55">{content.savings.lead}</p>
           </Reveal>
 
-          <div className="mt-10 hidden overflow-x-auto border-t border-ink/15 md:mt-14 md:block">
-            <table className="w-full min-w-[36rem] text-left">
+          <div className="mt-10 hidden border-t border-ink md:mt-14 md:block">
+            <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-ink/15">
-                  <th className="type-label py-4 pr-4 font-mono font-normal uppercase text-ink/35">
+                  <th className="type-label py-4 pr-6 font-mono font-normal uppercase text-ink/35">
                     Услуга
                   </th>
-                  <th className="type-label py-4 pr-4 font-mono font-normal uppercase text-ink/35">
-                    Разово
+                  <th className="type-label py-4 pr-6 font-mono font-normal uppercase text-ink/35">
+                    Разовая цена
                   </th>
                   <th className="type-label py-4 font-mono font-normal uppercase text-ink/35">
-                    В пакете
+                    В пакете (8 ч)
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {content.savings.rows.map((row) => (
                   <tr key={row.service} className="border-b border-ink/10">
-                    <td className="type-body-sm py-5 pr-4 text-ink/80">{row.service}</td>
-                    <td className="type-body-sm py-5 pr-4 text-ink/55">{row.oneOff}</td>
-                    <td className="type-body-sm py-5 text-ink/80">{row.inPackage}</td>
+                    <td className="type-body-sm py-6 pr-6 text-ink/80">{row.service}</td>
+                    <td className="type-body-sm py-6 pr-6 tabular-nums text-ink/45">
+                      {row.oneOff}
+                    </td>
+                    <td className="type-body-sm py-6 font-medium tabular-nums text-ink">
+                      {row.inPackage}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          <div className="mt-8 space-y-3 md:hidden">
-            {content.savings.rows.map((row, index) => (
-              <article key={row.service} className="border border-ink/12 bg-ivory p-5">
-                <div className="flex items-start gap-3">
-                  <span className="type-label mt-1 shrink-0 font-mono text-ink/30">{pad(index)}</span>
-                  <h3 className="type-card-title font-display font-medium">{row.service}</h3>
-                </div>
-                <dl className="mt-5 grid grid-cols-2 gap-px bg-ink/10">
-                  <div className="bg-cream p-3">
+          <div className="mt-8 border-t border-ink md:hidden">
+            {content.savings.rows.map((row) => (
+              <article key={row.service} className="border-b border-ink/15 py-5">
+                <h3 className="type-card-title font-display font-medium">{row.service}</h3>
+                <dl className="mt-4 grid grid-cols-2 gap-6">
+                  <div>
                     <dt className="type-label font-mono uppercase text-ink/35">Разово</dt>
-                    <dd className="type-body-sm mt-1 text-ink/70">{row.oneOff}</dd>
+                    <dd className="type-body-sm mt-1 tabular-nums text-ink/70">{row.oneOff}</dd>
                   </div>
-                  <div className="bg-cream p-3">
+                  <div>
                     <dt className="type-label font-mono uppercase text-wine">В пакете</dt>
-                    <dd className="type-body-sm mt-1 text-ink/80">{row.inPackage}</dd>
+                    <dd className="type-body-sm mt-1 tabular-nums text-ink/80">{row.inPackage}</dd>
                   </div>
                 </dl>
               </article>
             ))}
           </div>
 
-          <div className="mt-8 grid gap-4 border border-ink/12 bg-ivory p-6 sm:grid-cols-3 md:p-8">
-            <div>
-              <p className="type-label font-mono uppercase text-ink/35">Разово за 8 ч</p>
-              <p className="type-card-title font-display mt-2 font-medium">{content.savings.totalOneOff}</p>
+          <div className="mt-8 grid border border-ink sm:grid-cols-3">
+            <div className="border-b border-ink/10 bg-cream px-6 py-7 sm:border-b-0 sm:border-r sm:border-ink/10 md:px-8 md:py-9">
+              <p className="type-label font-mono uppercase text-ink/35">Итого разово</p>
+              <p className="type-stat font-display mt-3 text-[clamp(1.5rem,2vw,2rem)]">
+                {content.savings.totalOneOff}
+              </p>
             </div>
-            <div>
+            <div className="border-b border-ink/10 bg-cream px-6 py-7 sm:border-b-0 sm:border-r sm:border-ink/10 md:px-8 md:py-9">
               <p className="type-label font-mono uppercase text-ink/35">По абонементу</p>
-              <p className="type-card-title font-display mt-2 font-medium">{content.savings.totalPackage}</p>
+              <p className="type-stat font-display mt-3 text-[clamp(1.5rem,2vw,2rem)]">
+                {content.savings.totalPackage}
+              </p>
             </div>
-            <div>
-              <p className="type-label font-mono uppercase text-wine">Ваша экономия</p>
-              <p className="type-card-title font-display mt-2 font-medium text-wine">
+            <div className="bg-wine px-6 py-7 text-ivory md:px-8 md:py-9">
+              <p className="type-label font-mono uppercase text-ivory/55">Ваша экономия</p>
+              <p className="type-stat font-display mt-3 text-[clamp(1.5rem,2vw,2rem)] text-ivory">
                 {content.savings.save}
               </p>
             </div>
@@ -391,67 +522,85 @@ export default function SubscriptionServicePage() {
         </div>
       </section>
 
-      <section className="bg-ivory py-16 sm:py-20 md:py-28">
+      {/* 9. Extras */}
+      <section className="bg-cream py-16 sm:py-20 md:py-28">
         <div className="container-x mx-auto max-w-[1440px]">
           <Reveal>
             <SectionEyebrow>Вне пакета</SectionEyebrow>
             <h2 className="type-section-title font-display max-w-[14ch]">
               {content.extras.title}
             </h2>
-            <p className="type-body-sm mt-5 max-w-[46ch] text-ink/55">{content.extras.lead}</p>
+            <p className="type-body-sm mt-5 max-w-[48ch] text-ink/55">{content.extras.lead}</p>
           </Reveal>
 
-          <ul className="mt-10 border-t border-ink/15 md:mt-14">
-            {content.extras.items.map((item, index) => (
-              <li
+          <RevealStagger className="mt-10 border-t border-ink md:mt-14">
+            {content.extras.items.map((item) => (
+              <div
                 key={item}
-                className="grid grid-cols-[2.75rem_minmax(0,1fr)] gap-4 border-b border-ink/15 py-5 md:grid-cols-[4rem_minmax(0,1fr)] md:gap-8 md:py-6"
+                data-reveal-item
+                className="flex gap-4 border-b border-ink/15 py-5 md:py-6"
               >
-                <span className="type-label font-mono text-ink/30">{pad(index)}</span>
-                <p className="type-body-sm text-ink/75">{item}</p>
-              </li>
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-wine" aria-hidden />
+                <p className="type-body-sm max-w-[60ch] text-ink/75">{item}</p>
+              </div>
             ))}
-          </ul>
+          </RevealStagger>
 
-          <p className="type-body-sm mt-6 max-w-[60ch] text-ink/45">{content.extras.warning}</p>
-          <div className="mt-6">
-            <MessengerButton>Узнать стоимость</MessengerButton>
-          </div>
+          <Reveal>
+            <div className="grid border-b border-ink lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+              <p className="type-body-sm max-w-[58ch] py-8 text-ink/55 lg:pr-12">
+                {content.extras.warning}
+              </p>
+              <div className="border-t border-ink/15 py-8 lg:border-l lg:border-t-0 lg:pl-10">
+                <MessengerButton>{content.extras.cta}</MessengerButton>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </section>
 
-      <section className="relative overflow-hidden bg-ink py-16 text-ivory sm:py-20 md:py-28">
-        <SectionConstellation tone="wine" opacity={0.04} />
-        <div className="container-x relative z-10 mx-auto max-w-[1440px]">
+      {/* 10. Process */}
+      <section className="bg-ink py-16 text-ivory sm:py-20 md:py-28">
+        <div className="container-x mx-auto max-w-[1440px]">
           <Reveal>
-            <SectionEyebrow light>Как мы работаем</SectionEyebrow>
-            <h2 className="type-section-title font-display max-w-[12ch]">Пять шагов</h2>
+            <SectionEyebrow light>Процесс</SectionEyebrow>
+            <h2 className="type-section-title font-display max-w-[12ch]">
+              Как мы работаем
+            </h2>
           </Reveal>
 
-          <ol className="mt-12 border-t border-ivory/15 md:mt-16">
+          <RevealStagger className="mt-12 border-t border-ivory/15 md:mt-16">
             {content.process.map((step, index) => (
-              <li
+              <article
                 key={step.title}
-                className="grid gap-3 border-b border-ivory/15 py-6 md:grid-cols-[5rem_minmax(10rem,16rem)_minmax(0,1fr)] md:gap-10 md:py-7"
+                data-reveal-item
+                className="grid gap-4 border-b border-ivory/15 py-7 md:grid-cols-[6rem_minmax(11rem,16rem)_minmax(0,1fr)] md:items-center md:gap-10 md:py-9"
               >
-                <span className="type-label font-mono text-ivory/35">{pad(index)}</span>
+                <span className="type-stat text-stroke-ivory font-display">
+                  {pad(index)}
+                </span>
                 <h3 className="type-card-title font-display font-medium">{step.title}</h3>
-                <p className="type-body-sm text-ivory/60">{step.text}</p>
-              </li>
+                <p className="type-body-sm max-w-[44ch] text-ivory/55">{step.text}</p>
+              </article>
             ))}
-          </ol>
+          </RevealStagger>
         </div>
       </section>
 
+      {/* 11. FAQ */}
       <section className="bg-cream py-16 sm:py-20 md:py-28">
-        <div className="container-x mx-auto grid max-w-[1440px] gap-10 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] lg:gap-16 xl:gap-24">
+        <div className="container-x mx-auto grid max-w-[1440px] gap-12 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] lg:gap-20 xl:gap-28">
           <Reveal>
-            <SectionEyebrow>Вопрос / ответ</SectionEyebrow>
-            <h2 className="type-section-title font-display max-w-[10ch]">До подключения</h2>
-            <MessengerButton className="mt-8">Получить консультацию</MessengerButton>
+            <div>
+              <SectionEyebrow>Вопрос / ответ</SectionEyebrow>
+              <h2 className="type-section-title font-display max-w-[10ch]">
+                Часто задаваемые вопросы
+              </h2>
+              <MessengerButton className="mt-8">Получить консультацию</MessengerButton>
+            </div>
           </Reveal>
 
-          <div className="border-t border-ink/15">
+          <div className="border-t border-ink">
             {content.faq.map((item, index) => {
               const open = openFaq === index;
               return (
@@ -459,11 +608,15 @@ export default function SubscriptionServicePage() {
                   <button
                     type="button"
                     onClick={() => setOpenFaq(open ? -1 : index)}
-                    className="grid w-full grid-cols-[minmax(0,1fr)_1.5rem] items-start gap-x-4 py-6 text-left outline-none transition-colors hover:text-wine focus-visible:bg-ivory focus-visible:text-wine md:py-7"
+                    className="grid w-full grid-cols-[minmax(0,1fr)_1.25rem] items-start gap-x-5 py-6 text-left outline-none transition-colors hover:text-wine focus-visible:bg-ivory focus-visible:text-wine md:py-7"
                     aria-expanded={open}
                   >
-                    <h3 className="type-service-title font-display font-medium">{item.question}</h3>
-                    <span className="type-label text-center text-ink/45">{open ? "−" : "+"}</span>
+                    <h3 className="type-service-title font-display font-medium leading-[1.2]">
+                      {item.question}
+                    </h3>
+                    <span className="type-label pt-1 text-center text-ink/40" aria-hidden>
+                      {open ? "−" : "+"}
+                    </span>
                   </button>
                   <AccordionPanel open={open} className="max-w-[52ch] pb-7">
                     <p className="type-body-sm text-ink/60">{item.answer}</p>
@@ -475,26 +628,37 @@ export default function SubscriptionServicePage() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden bg-wine py-16 text-ivory sm:py-20 md:py-24">
+      {/* 12. Finale */}
+      <section className="relative overflow-hidden bg-wine py-16 text-ivory sm:py-20 md:py-28">
         <ContactSky />
         <div className="container-x relative z-10 mx-auto max-w-[1440px]">
           <Reveal>
-            <h2 className="type-section-title font-display max-w-[16ch]">
-              {content.finale.title}
-            </h2>
-            <p className="type-body mt-5 max-w-[36ch] text-ivory/70">{content.finale.text}</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
-              <MessengerButton className="bg-ivory text-wine">Выбрать пакет</MessengerButton>
-              <MessengerButton className="border border-ivory/30 bg-transparent text-ivory">
-                Получить консультацию
-              </MessengerButton>
+            <div className="grid gap-12 lg:grid-cols-[minmax(0,1.25fr)_minmax(14rem,0.75fr)] lg:items-end lg:gap-16">
+              <div>
+                <h2 className="type-section-title font-display max-w-[16ch]">
+                  {content.finale.title}
+                </h2>
+                <p className="type-body mt-5 max-w-[40ch] text-ivory/70">
+                  {content.finale.text}
+                </p>
+                <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                  <MessengerButton className="!bg-ivory !text-wine hover:!bg-cream">
+                    {content.finale.primaryCta}
+                  </MessengerButton>
+                  <MessengerButton className="border border-ivory/30 !bg-transparent !text-ivory hover:!bg-ivory/10">
+                    {content.finale.secondaryCta}
+                  </MessengerButton>
+                </div>
+              </div>
+              <div className="border-t border-ivory/20 pt-8 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
+                <p className="type-label mb-4 font-mono uppercase text-ivory/45">
+                  Читайте также
+                </p>
+                <TextLink href={content.finale.article.href} light>
+                  {content.finale.article.label}
+                </TextLink>
+              </div>
             </div>
-            <Link
-              href={content.finale.article.href}
-              className="type-label mt-8 inline-flex font-mono uppercase text-ivory/55 transition-colors hover:text-ivory"
-            >
-              {content.finale.article.label} →
-            </Link>
           </Reveal>
         </div>
       </section>

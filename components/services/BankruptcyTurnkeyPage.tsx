@@ -269,38 +269,53 @@ export default function BankruptcyTurnkeyPage() {
         </div>
       </section>
 
-      <section className="bg-cream py-16 sm:py-20 md:py-28">
-        <div className="container-x mx-auto max-w-[1440px]">
+      <section className="relative overflow-hidden bg-ink py-16 text-ivory sm:py-20 md:py-28">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-40"
+          aria-hidden
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, rgba(251,248,241,0.04) 1px, transparent 1px)",
+            backgroundSize: "clamp(5rem, 9vw, 10rem) 100%",
+          }}
+        />
+        <div className="container-x relative z-10 mx-auto max-w-[1440px]">
           <Reveal>
-            <SectionEyebrow>База знаний</SectionEyebrow>
-            <h2 className="type-section-title font-display max-w-[16ch]">
+            <SectionEyebrow light>База знаний</SectionEyebrow>
+            <h2 className="type-section-title font-display max-w-[16ch] text-ivory">
               {content.education.title}
             </h2>
           </Reveal>
 
-          <ul className="mt-10 border-t border-ink/15 md:mt-14">
-            {content.education.articles.map((title, index) => (
-              <li key={title} className="border-b border-ink/15">
-                <Link
-                  href="/knowledge"
-                  className="group grid grid-cols-[2.75rem_minmax(0,1fr)_auto] items-start gap-3 py-5 transition-colors hover:text-wine sm:items-center sm:gap-4 md:grid-cols-[4rem_minmax(0,1fr)_auto] md:gap-8 md:py-6"
-                >
-                  <span className="type-label font-mono text-ink/30 group-hover:text-wine/50">
-                    {pad(index)}
-                  </span>
-                  <span className="type-service-title font-display font-medium">{title}</span>
-                  <span className="type-label pt-1 font-mono uppercase text-ink/35 group-hover:text-wine sm:pt-0">
-                    <span className="sm:hidden">→</span>
-                    <span className="hidden sm:inline">Читать →</span>
-                  </span>
-                </Link>
-              </li>
-            ))}
+          <ul className="mt-12 border-t border-ivory/15 md:mt-16">
+            <RevealStagger>
+              {content.education.articles.map((title, index) => (
+                <li key={title} data-reveal-item className="border-b border-ivory/15">
+                  <Link
+                    href="/knowledge"
+                    className="group grid grid-cols-[3rem_minmax(0,1fr)_auto] items-start gap-3 py-6 transition-colors sm:items-center sm:gap-5 md:grid-cols-[5rem_minmax(0,1fr)_auto] md:gap-10 md:py-8"
+                  >
+                    <span className="type-stat font-display text-ivory/25 transition-colors duration-300 group-hover:text-ivory/55">
+                      {pad(index)}
+                    </span>
+                    <span className="type-service-title font-display font-medium text-ivory transition-colors duration-300 group-hover:text-ivory">
+                      {title}
+                    </span>
+                    <span className="type-label inline-flex items-center gap-2 pt-1 font-mono uppercase text-ivory/35 transition-colors duration-300 group-hover:text-ivory sm:pt-0">
+                      <span className="sm:hidden">→</span>
+                      <span className="hidden sm:inline">Читать →</span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </RevealStagger>
           </ul>
 
           <Reveal>
-            <div className="mt-8 md:mt-10">
-              <TextLink href={content.education.allHref}>Все статьи</TextLink>
+            <div className="mt-10 border-t border-ivory/15 pt-8 md:mt-12 md:pt-10">
+              <TextLink href={content.education.allHref} light>
+                Все статьи
+              </TextLink>
             </div>
           </Reveal>
         </div>
