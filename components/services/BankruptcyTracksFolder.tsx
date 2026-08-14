@@ -1,9 +1,7 @@
 "use client";
 
 import Reveal from "@/components/Reveal";
-import Arrow from "@/components/Arrow";
-import MagneticButton from "@/components/MagneticButton";
-import { MESSENGER_HREF } from "@/lib/services/messenger";
+import LeadButton from "@/components/contact/LeadButton";
 import { SectionEyebrow } from "@/components/services/ui";
 
 type TrackLink = {
@@ -84,10 +82,8 @@ export default function BankruptcyTracksFolder({
                           </p>
                         </div>
                         <div className="text-left">
-                          <MagneticButton
-                            href={MESSENGER_HREF}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <LeadButton
+                            serviceName={track.title}
                             className={
                               featured
                                 ? "type-label h-12 max-w-full justify-center bg-ivory px-5 font-mono uppercase text-wine transition-colors hover:bg-cream sm:px-7"
@@ -95,8 +91,7 @@ export default function BankruptcyTracksFolder({
                             }
                           >
                             {CTA_LABEL}
-                            <Arrow className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
-                          </MagneticButton>
+                          </LeadButton>
                         </div>
                       </div>
 

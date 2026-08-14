@@ -19,6 +19,9 @@
 - `AUTH_SECRET` — случайная строка длиной не менее 32 символов для подписи сессий и CAPTCHA.
 - `BLOB_READ_WRITE_TOKEN` — токен Vercel Blob для production на Vercel.
 - `UPLOAD_DIR` — постоянная директория загрузок на обычном Node.js-хостинге.
+- `CONTACT_TO_EMAIL` — куда приходят заявки с формы.
+- `CONTACT_FROM_EMAIL` — отправитель (обычно совпадает с SMTP-ящиком).
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` — SMTP для Nodemailer (Яндекс / Mail.ru).
 
 Символы `$` в bcrypt-хэше внутри локального `.env` экранируются как `\$`. В панели Vercel значение вводится без обратных слешей.
 

@@ -4,6 +4,7 @@ import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import CustomCursor from "@/components/CustomCursor";
+import { ContactFormProvider } from "@/components/contact/ContactFormProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -26,10 +27,12 @@ export default function RootLayout({
   return (
     <html lang="ru" className={inter.variable} suppressHydrationWarning>
       <body className="font-sans antialiased" suppressHydrationWarning>
-        <SmoothScroll>
-          {children}
-          <CustomCursor />
-        </SmoothScroll>
+        <ContactFormProvider>
+          <SmoothScroll>
+            {children}
+            <CustomCursor />
+          </SmoothScroll>
+        </ContactFormProvider>
       </body>
     </html>
   );

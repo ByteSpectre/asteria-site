@@ -5,8 +5,7 @@ import Image from "next/image";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { PROCESS_STEPS } from "@/lib/data";
 import Reveal from "@/components/Reveal";
-import MagneticButton from "@/components/MagneticButton";
-import Arrow from "@/components/Arrow";
+import LeadButton from "@/components/contact/LeadButton";
 import Star from "@/components/Star";
 import SectionConstellation from "@/components/SectionConstellation";
 
@@ -96,13 +95,9 @@ export default function Process() {
                   <p className="type-stat-step mb-4 font-display text-ivory/90">
                     {String(active + 1).padStart(2, "0")}
                   </p>
-                  <MagneticButton
-                    href="#contacts"
-                    className="type-label h-12 w-full bg-ivory px-6 font-mono uppercase text-ink sm:w-auto"
-                  >
+                  <LeadButton className="type-label h-12 w-full bg-ivory px-6 font-mono uppercase text-ink sm:w-auto">
                     Консультация
-                    <Arrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                  </MagneticButton>
+                  </LeadButton>
                 </div>
               </div>
             </Reveal>

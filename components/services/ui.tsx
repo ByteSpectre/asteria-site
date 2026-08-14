@@ -1,9 +1,8 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import Arrow from "@/components/Arrow";
-import MagneticButton from "@/components/MagneticButton";
 import Star from "@/components/Star";
-import { MESSENGER_HREF } from "@/lib/services/messenger";
+import LeadButton from "@/components/contact/LeadButton";
 
 export function pad(index: number) {
   return String(index + 1).padStart(2, "0");
@@ -80,20 +79,20 @@ export function ServiceBreadcrumb({
 export function MessengerButton({
   children,
   className = "",
+  serviceName,
 }: {
   children: ReactNode;
   className?: string;
+  /** If set, opens service-order form with this title locked. */
+  serviceName?: string;
 }) {
   return (
-    <MagneticButton
-      href={MESSENGER_HREF}
-      target="_blank"
-      rel="noopener noreferrer"
+    <LeadButton
+      serviceName={serviceName}
       className={`type-label min-h-12 max-w-full w-full justify-center bg-wine px-5 py-3 text-center font-mono leading-tight uppercase text-ivory outline-none transition-colors focus-visible:ring-2 focus-visible:ring-wine focus-visible:ring-offset-2 focus-visible:ring-offset-cream sm:w-auto sm:px-6 ${className}`}
     >
       {children}
-      <Arrow className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
-    </MagneticButton>
+    </LeadButton>
   );
 }
 
@@ -112,10 +111,10 @@ export function TextLink({
 
   if (href === "messenger") {
     return (
-      <a href={MESSENGER_HREF} target="_blank" rel="noopener noreferrer" className={className}>
+      <LeadButton showArrow={false} className={className}>
         {children}
         <Arrow className="h-3.5 w-3.5" />
-      </a>
+      </LeadButton>
     );
   }
 

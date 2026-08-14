@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { NAV_LINKS, SOCIAL_LINKS } from "@/lib/data";
 import type { ServiceNavItem } from "@/lib/services/catalog";
+import LeadButton from "@/components/contact/LeadButton";
 
 function SocialIcons({
   light = false,
@@ -128,11 +129,11 @@ export default function Header({ services = [] }: { services?: ServiceNavItem[] 
           casePopupOpen
             ? "pointer-events-none -translate-y-full opacity-0"
             : open
-              ? "border-b border-ink/8 bg-ivory"
+              ? "border-b border-ink/8 bg-cream"
               : scrolled
                 ? light
                   ? "border-b border-ivory/10 bg-ink/55 backdrop-blur-md"
-                  : "border-b border-ink/8 bg-ivory/90 backdrop-blur-md"
+                  : "border-b border-ink/8 bg-cream/90 backdrop-blur-md"
                 : "border-b border-transparent bg-transparent"
         }`}
       >
@@ -199,7 +200,7 @@ export default function Header({ services = [] }: { services?: ServiceNavItem[] 
                     : "invisible pointer-events-none -translate-y-1 opacity-0"
                 }`}
               >
-                <div className="border border-ink/10 bg-ivory shadow-[0_18px_40px_rgba(22,19,16,0.08)]">
+                <div className="border border-ink/10 bg-cream shadow-[0_18px_40px_rgba(22,19,16,0.08)]">
                   {services.length ? (
                     <ul className="py-2">
                       {services.map((service) => (
@@ -281,7 +282,7 @@ export default function Header({ services = [] }: { services?: ServiceNavItem[] 
         aria-modal="true"
         aria-label="Мобильное меню"
         aria-hidden={!open}
-        className={`fixed inset-0 z-[90] bg-ivory transition-[opacity,visibility] duration-300 lg:hidden ${
+        className={`fixed inset-0 z-[90] bg-cream transition-[opacity,visibility] duration-300 lg:hidden ${
           open
             ? "visible opacity-100"
             : "invisible pointer-events-none opacity-0"
@@ -350,13 +351,13 @@ export default function Header({ services = [] }: { services?: ServiceNavItem[] 
               <p className="eyebrow text-ink/40">Мессенджеры</p>
               <SocialIcons />
             </div>
-            <a
-              href="/#contacts"
+            <LeadButton
+              showArrow={false}
               onClick={() => setOpen(false)}
-              className="type-label inline-flex h-12 cursor-pointer items-center justify-center bg-wine px-5 font-mono uppercase text-ivory"
+              className="type-label h-12 bg-wine px-5 font-mono uppercase text-ivory"
             >
               Консультация
-            </a>
+            </LeadButton>
           </div>
         </nav>
       </div>

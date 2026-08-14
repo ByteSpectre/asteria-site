@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Arrow from "@/components/Arrow";
+import LeadButton from "@/components/contact/LeadButton";
 import MagneticButton from "@/components/MagneticButton";
 import Reveal from "@/components/Reveal";
 import RevealStagger from "@/components/RevealStagger";
@@ -189,15 +190,14 @@ function PricingSection({ items }: { items: ServicePriceItem[] }) {
                 <h3 className="type-service-title font-display font-medium">{item.title}</h3>
                 <p className="type-body-sm text-ivory/80">{item.price}</p>
                 <div className="flex justify-end">
-                  <a
-                    href="/#contacts"
+                  <LeadButton
+                    serviceName={item.title}
                     className="type-label inline-flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden border border-ivory/25 font-mono uppercase text-ivory transition-[width,padding,background-color,border-color,color,gap] duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:w-[13.5rem] group-hover:gap-2 group-hover:border-ivory group-hover:bg-ivory group-hover:px-5 group-hover:text-wine"
                   >
                     <span className="hidden whitespace-nowrap group-hover:inline">
                       Заказать услугу
                     </span>
-                    <Arrow className="h-4 w-4 shrink-0" />
-                  </a>
+                  </LeadButton>
                 </div>
               </article>
             ))}
@@ -225,13 +225,12 @@ function PricingSection({ items }: { items: ServicePriceItem[] }) {
                 </button>
                 <AccordionPanel open={open} className="pb-6 pl-11 sm:pl-12">
                   <p className="type-body-sm text-ivory/75">{item.price}</p>
-                  <MagneticButton
-                    href="/#contacts"
+                  <LeadButton
+                    serviceName={item.title}
                     className="type-label mt-5 h-12 bg-ivory px-6 font-mono uppercase text-wine"
                   >
                     Заказать услугу
-                    <Arrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                  </MagneticButton>
+                  </LeadButton>
                 </AccordionPanel>
               </article>
             );
@@ -460,13 +459,11 @@ export function ServiceTemplate({
             <div className="flex h-full flex-col">
               <SectionEyebrow light>Вопрос / ответ</SectionEyebrow>
               <h2 className="type-section-title font-display max-w-[10ch]">До начала работы</h2>
-              <MagneticButton
-                href="/#contacts"
+              <LeadButton
                 className="type-label mt-8 font-mono uppercase text-ivory/80 hover:text-ivory lg:mt-auto lg:pt-16"
               >
                 Задать свой вопрос
-                <Arrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </MagneticButton>
+              </LeadButton>
             </div>
           </Reveal>
           <RevealStagger className="border-t border-ivory/20">

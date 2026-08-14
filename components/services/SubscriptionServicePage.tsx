@@ -32,7 +32,7 @@ export default function SubscriptionServicePage() {
   return (
     <ServicePageShell>
       {/* 1. Hero */}
-      <section className="border-t border-ink">
+      <section className="border-t border-ink bg-cream">
         <div className="container-x mx-auto max-w-[1440px]">
           <Reveal>
             <ServiceBreadcrumb
@@ -72,7 +72,7 @@ export default function SubscriptionServicePage() {
       </section>
 
       {/* 2. Comparison — contract verdict stamps */}
-      <section className="bg-ivory py-16 sm:py-20 md:py-28">
+      <section className="bg-cream py-16 sm:py-20 md:py-28">
         <div className="container-x mx-auto max-w-[1440px]">
           <Reveal>
             <SectionEyebrow>Сравнение</SectionEyebrow>
@@ -304,7 +304,7 @@ export default function SubscriptionServicePage() {
                     className={
                       featured
                         ? "bg-ivory text-ink"
-                        : "bg-wine-deep text-ivory lg:bg-wine"
+                        : "bg-wine-deep text-ivory"
                     }
                   >
                     <div className="grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
@@ -348,6 +348,7 @@ export default function SubscriptionServicePage() {
                           </p>
                         </div>
                         <MessengerButton
+                          serviceName={pack.name}
                           className={
                             featured
                               ? "!bg-wine !text-ivory hover:!bg-wine-deep"

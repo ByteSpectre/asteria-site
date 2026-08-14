@@ -3,8 +3,7 @@
 import { useRef, type MouseEvent } from "react";
 import Image from "next/image";
 import { gsap, useGSAP } from "@/lib/gsap";
-import MagneticButton from "@/components/MagneticButton";
-import Arrow from "@/components/Arrow";
+import LeadButton from "@/components/contact/LeadButton";
 import { STATS } from "@/lib/data";
 
 const HERO_STATS = [STATS[0], STATS[1]] as [
@@ -176,13 +175,9 @@ export default function Hero() {
           </h1>
 
           <div data-hero-cta className="flex shrink-0 flex-col gap-3 opacity-0 lg:items-end">
-            <MagneticButton
-              href="#contacts"
-              className="type-label h-12 min-w-[220px] bg-ivory px-7 font-mono uppercase text-ink transition-colors duration-300 hover:bg-cream"
-            >
+            <LeadButton className="type-label h-12 min-w-[220px] bg-ivory px-7 font-mono uppercase text-ink transition-colors duration-300 hover:bg-cream">
               Консультация
-              <Arrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </MagneticButton>
+            </LeadButton>
           </div>
         </div>
 
