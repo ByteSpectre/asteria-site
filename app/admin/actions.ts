@@ -165,6 +165,7 @@ export async function saveServiceAction(input: ServiceInput) {
   }
 
   revalidatePath("/admin/services");
+  revalidatePath("/");
   revalidatePath("/services");
   revalidatePath(`/services/${slug}`);
   redirect("/admin/services");
@@ -172,7 +173,15 @@ export async function saveServiceAction(input: ServiceInput) {
 
 export async function deleteServiceAction(id: string) {
   await requireAdmin();
+  const service = await getDb().service.findUnique({
+    where: { id: contentIdSchema.parse(id) },
+    select: { slug: true },
+  });
   await getDb().service.delete({ where: { id: contentIdSchema.parse(id) } });
   revalidatePath("/admin/services");
+  revalidatePath("/");
   revalidatePath("/services");
+  if (service?.slug) {
+    revalidatePath(`/services/${service.slug}`);
+  }
 }
