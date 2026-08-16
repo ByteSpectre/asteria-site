@@ -32,11 +32,38 @@ export function ContactFormProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
+
+    const scrollbarWidth = Math.max(
+      0,
+      window.innerWidth - document.documentElement.clientWidth,
+    );
+    const previousOverflow = document.body.style.overflow;
+    const previousPaddingRight = document.body.style.paddingRight;
+    const previousCompensation = document.documentElement.style.getPropertyValue(
+      "--scrollbar-compensation",
+    );
+
     document.body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+      document.documentElement.style.setProperty(
+        "--scrollbar-compensation",
+        `${scrollbarWidth}px`,
+      );
+    }
     document.body.classList.add("contact-form-open");
+
     return () => {
-      document.body.style.overflow = prev;
+      document.body.style.overflow = previousOverflow;
+      document.body.style.paddingRight = previousPaddingRight;
+      if (previousCompensation) {
+        document.documentElement.style.setProperty(
+          "--scrollbar-compensation",
+          previousCompensation,
+        );
+      } else {
+        document.documentElement.style.removeProperty("--scrollbar-compensation");
+      }
       document.body.classList.remove("contact-form-open");
     };
   }, [open]);
