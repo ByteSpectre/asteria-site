@@ -35,12 +35,15 @@ export function isSafePreviewImageUrl(value: string) {
   const url = value.trim();
   if (!url) return true;
   if (!isSafeContentUrl(url)) return false;
+  if (/\.svg(\?|$)/i.test(url)) return false;
   if (url.startsWith("/")) {
     return url.startsWith("/api/uploads/") || url.startsWith("/images/");
   }
   try {
     const parsed = new URL(url);
-    return parsed.protocol === "http:" || parsed.protocol === "https:";
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return false;
+    // Prefer first-party / blob hosts; still allow https images from CMS pastes.
+    return true;
   } catch {
     return false;
   }

@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "@blocknote/core/fonts/inter.css";
-import "@blocknote/mantine/style.css";
-import SmoothScroll from "@/components/SmoothScroll";
-import CustomCursor from "@/components/CustomCursor";
-import { ContactFormProvider } from "@/components/contact/ContactFormProvider";
+import SiteChrome from "@/components/SiteChrome";
 import "./globals.css";
 
 const inter = Inter({
@@ -27,12 +23,7 @@ export default function RootLayout({
   return (
     <html lang="ru" className={inter.variable} suppressHydrationWarning>
       <body className="font-sans antialiased" suppressHydrationWarning>
-        <ContactFormProvider>
-          <SmoothScroll>
-            {children}
-            <CustomCursor />
-          </SmoothScroll>
-        </ContactFormProvider>
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );

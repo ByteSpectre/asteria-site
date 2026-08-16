@@ -5,8 +5,6 @@ import { logoutAction } from "@/app/admin/actions";
 import { AdminNavigation } from "@/components/admin/AdminNavigation";
 import { requireAdmin } from "@/lib/server/auth";
 
-export const dynamic = "force-dynamic";
-
 export default async function AdminPanelLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const session = await requireAdmin();
 

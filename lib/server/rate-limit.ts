@@ -11,35 +11,41 @@ export async function consumeRateLimit(options: {
   const fingerprint = await getClientFingerprint(options.extra ?? "");
   const key = `${options.scope}:${fingerprint}`;
   const now = Date.now();
+  const resetAt = new Date(now + options.windowMs);
   const db = getDb();
 
-  const existing = await db.rateLimit.findUnique({ where: { key } });
+  // Single round-trip upsert to cut captcha/contact latency on serverless.
+  const rows = await db.$queryRaw<Array<{ count: number; resetAt: Date }>>`
+    INSERT INTO "RateLimit" ("key", "count", "resetAt", "updatedAt")
+    VALUES (${key}, 1, ${resetAt}, NOW())
+    ON CONFLICT ("key") DO UPDATE SET
+      "count" = CASE
+        WHEN "RateLimit"."resetAt" <= NOW() THEN 1
+        ELSE "RateLimit"."count" + 1
+      END,
+      "resetAt" = CASE
+        WHEN "RateLimit"."resetAt" <= NOW() THEN ${resetAt}
+        ELSE "RateLimit"."resetAt"
+      END,
+      "updatedAt" = NOW()
+    RETURNING "count", "resetAt"
+  `;
 
-  if (!existing || existing.resetAt.getTime() <= now) {
-    const resetAt = new Date(now + options.windowMs);
-    await db.rateLimit.upsert({
-      where: { key },
-      create: { key, count: 1, resetAt },
-      update: { count: 1, resetAt },
-    });
+  const entry = rows[0];
+  if (!entry) {
     return { allowed: true as const, remaining: options.max - 1 };
   }
 
-  if (existing.count >= options.max) {
+  if (entry.count > options.max) {
     return {
       allowed: false as const,
-      retryAfter: existing.resetAt,
+      retryAfter: entry.resetAt,
       remaining: 0,
     };
   }
 
-  const updated = await db.rateLimit.update({
-    where: { key },
-    data: { count: { increment: 1 } },
-  });
-
   return {
     allowed: true as const,
-    remaining: Math.max(0, options.max - updated.count),
+    remaining: Math.max(0, options.max - entry.count),
   };
 }

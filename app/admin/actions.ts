@@ -2,7 +2,7 @@
 
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import type { Prisma } from "@/app/generated/prisma/client";
 import { parseArticleInput, parseServiceInput, type ArticleInput, type ServiceInput } from "@/lib/content-validation";
 import { joinCategoryList, parseCategoryList } from "@/lib/category-list";
@@ -168,6 +168,7 @@ export async function saveServiceAction(input: ServiceInput) {
   revalidatePath("/");
   revalidatePath("/services");
   revalidatePath(`/services/${slug}`);
+  revalidateTag("service-nav", "max");
   redirect("/admin/services");
 }
 
@@ -184,4 +185,5 @@ export async function deleteServiceAction(id: string) {
   if (service?.slug) {
     revalidatePath(`/services/${service.slug}`);
   }
+  revalidateTag("service-nav", "max");
 }

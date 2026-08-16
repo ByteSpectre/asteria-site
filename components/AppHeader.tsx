@@ -1,10 +1,14 @@
-import { connection } from "next/server";
+import { unstable_cache } from "next/cache";
 import Header from "@/components/Header";
 import { listServiceNavItems } from "@/lib/server/service-nav";
 
+const getCachedServiceNav = unstable_cache(
+  async () => listServiceNavItems(),
+  ["service-nav-items"],
+  { revalidate: 120, tags: ["service-nav"] },
+);
+
 export default async function AppHeader() {
-  // Keep service nav fresh on every request (homepage must not freeze CMS list at build).
-  await connection();
-  const services = await listServiceNavItems();
+  const services = await getCachedServiceNav();
   return <Header services={services} />;
 }

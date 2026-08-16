@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import { AsteriaEditor } from "@/components/editor/AsteriaEditor";
+import { isSafePreviewImageUrl } from "@/lib/safe-url";
 
 type ArticleDetailProps = {
   title: string;
@@ -21,6 +22,9 @@ export function ArticleDetail({
   publishedLabel,
   content,
 }: ArticleDetailProps) {
+  const safePreview =
+    previewImage && isSafePreviewImageUrl(previewImage) ? previewImage : null;
+
   return (
     <article className="container-x mx-auto max-w-[1440px]">
       <Reveal>
@@ -32,23 +36,31 @@ export function ArticleDetail({
         </Link>
       </Reveal>
 
-      {previewImage ? (
+      {safePreview ? (
         <Reveal delay={0.06} className="mt-10">
           <div className="aspect-[21/9] overflow-hidden border border-ink/8 bg-cream">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={previewImage} alt="" className="h-full w-full object-cover" />
+            <img src={safePreview} alt="" className="h-full w-full object-cover" />
           </div>
         </Reveal>
       ) : null}
 
-      <Reveal delay={previewImage ? 0.1 : 0.06}>
-        <header className={previewImage ? "mt-8 border-b border-ink/10 pb-10" : "mt-10 border-b border-ink/10 pb-10"}>
+      <Reveal delay={safePreview ? 0.1 : 0.06}>
+        <header
+          className={
+            safePreview
+              ? "mt-8 border-b border-ink/10 pb-10"
+              : "mt-10 border-b border-ink/10 pb-10"
+          }
+        >
           <p className="eyebrow text-wine">{category}</p>
           <h1 className="mt-5 text-[clamp(3rem,7vw,7rem)] leading-[0.92] tracking-[-0.075em]">
             {title}
           </h1>
           {excerpt ? (
-            <p className="mt-7 max-w-[58ch] text-lg leading-relaxed text-ink/55">{excerpt}</p>
+            <p className="mt-7 max-w-[58ch] text-lg leading-relaxed text-ink/55">
+              {excerpt}
+            </p>
           ) : null}
           <p className="mt-7 text-[10px] uppercase tracking-[0.08em] text-ink/32">
             {publishedLabel} · Астерия

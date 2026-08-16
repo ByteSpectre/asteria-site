@@ -9,6 +9,7 @@ import { normalizeArticleContent } from "@/lib/article-content";
 import { joinCategoryList, parseCategoryList } from "@/lib/category-list";
 import { getArticleValidationMessage } from "@/lib/content-validation";
 import { normalizeImageUrl } from "@/lib/editor-images";
+import { isSafePreviewImageUrl } from "@/lib/safe-url";
 
 type ArticleEditorFormProps = {
   categories: string[];
@@ -397,7 +398,7 @@ export function ArticleEditorForm({ categories, article }: ArticleEditorFormProp
 
           <div className="mt-4 grid gap-4 lg:grid-cols-[240px_1fr]">
             <div className="aspect-[16/10] overflow-hidden border border-ink/10 bg-cream">
-              {previewImage ? (
+              {previewImage && isSafePreviewImageUrl(previewImage) ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={previewImage} alt="" className="h-full w-full object-cover" />
               ) : (

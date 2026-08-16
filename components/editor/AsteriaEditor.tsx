@@ -1,6 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import "@blocknote/core/fonts/inter.css";
+import "@blocknote/mantine/style.css";
 import type { ArticleContentValue } from "@/lib/article-content";
 
 type AsteriaEditorProps = {

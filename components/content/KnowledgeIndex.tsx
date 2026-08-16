@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import Reveal from "@/components/Reveal";
 import RevealStagger from "@/components/RevealStagger";
 import { parseCategoryList } from "@/lib/category-list";
+import { isSafePreviewImageUrl } from "@/lib/safe-url";
 
 export type KnowledgeArticleCard = {
   id: string;
@@ -77,7 +78,7 @@ export function KnowledgeIndex({ articles }: KnowledgeIndexProps) {
                 className="group flex flex-col outline-none transition-opacity hover:opacity-95"
               >
                 <div className="relative aspect-[16/10] overflow-hidden border border-ink/8 bg-cream">
-                  {article.previewImage ? (
+                  {article.previewImage && isSafePreviewImageUrl(article.previewImage) ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={article.previewImage}
