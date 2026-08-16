@@ -5,32 +5,39 @@ import { put } from "@vercel/blob";
 import { fileTypeFromBuffer } from "file-type";
 import { NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/server/auth";
-import { EDITOR_UPLOAD_TYPES, getUploadDirectory, MAX_EDITOR_UPLOAD_BYTES } from "@/lib/server/uploads";
+import { consumeRateLimit } from "@/lib/server/rate-limit";
+import {
+  EDITOR_UPLOAD_TYPES,
+  getUploadDirectory,
+  isTrustedUploadOrigin,
+  MAX_ADMIN_UPLOADS_PER_DAY,
+  MAX_EDITOR_UPLOAD_BYTES,
+} from "@/lib/server/uploads";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function isSameOrigin(request: Request) {
-  const origin = request.headers.get("origin");
-  const host = (request.headers.get("x-forwarded-host") || request.headers.get("host"))?.split(",")[0]?.trim();
-  const protocol = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() || new URL(request.url).protocol.slice(0, -1);
-  if (!origin || !host) return false;
-
-  try {
-    const originUrl = new URL(origin);
-    return originUrl.host === host && originUrl.protocol === `${protocol}:`;
-  } catch {
-    return false;
-  }
-}
-
 export async function POST(request: Request) {
-  if (!isSameOrigin(request)) {
+  if (!isTrustedUploadOrigin(request.headers.get("origin"))) {
     return NextResponse.json({ error: "Недоверенный источник запроса" }, { status: 403 });
   }
 
-  if (!(await getAdminSession())) {
+  const session = await getAdminSession();
+  if (!session) {
     return NextResponse.json({ error: "Требуется вход в панель управления" }, { status: 401 });
+  }
+
+  const quota = await consumeRateLimit({
+    scope: "admin-upload",
+    max: MAX_ADMIN_UPLOADS_PER_DAY,
+    windowMs: 24 * 60 * 60 * 1000,
+    extra: session.login,
+  });
+  if (!quota.allowed) {
+    return NextResponse.json(
+      { error: "Превышен дневной лимит загрузок. Повторите завтра." },
+      { status: 429 },
+    );
   }
 
   const formData = await request.formData();
@@ -52,7 +59,10 @@ export async function POST(request: Request) {
   const content = Buffer.from(await file.arrayBuffer());
   const detectedType = await fileTypeFromBuffer(content);
   if (!detectedType || detectedType.mime !== file.type) {
-    return NextResponse.json({ error: "Содержимое файла не соответствует заявленному формату" }, { status: 415 });
+    return NextResponse.json(
+      { error: "Содержимое файла не соответствует заявленному формату" },
+      { status: 415 },
+    );
   }
 
   const fileName = `${randomUUID()}${extension}`;

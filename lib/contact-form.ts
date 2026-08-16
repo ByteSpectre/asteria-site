@@ -63,6 +63,8 @@ export const contactLeadSchema = z
     companyWebsite: z.string().max(0).optional(),
     // Form open timestamp (ms) — reject instant bots
     openedAt: z.coerce.number().int().positive(),
+    // Bound to encrypted form cookie
+    nonce: z.string().trim().min(8).max(64),
   })
   .superRefine((data, ctx) => {
     if (data.mode === "service") {

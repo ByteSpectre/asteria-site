@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { parseCategoryList } from "@/lib/category-list";
+import { isSafePreviewImageUrl, sanitizeContentUrls } from "@/lib/safe-url";
 
 const priceItemSchema = z.object({
   title: z.string().trim(),
@@ -46,6 +47,10 @@ export const articleInputSchema = z.object({
     .string()
     .trim()
     .max(2000, "Ссылка на превью слишком длинная.")
+    .refine(
+      (value) => !value || isSafePreviewImageUrl(value),
+      "Недопустимая ссылка на превью. Используйте https:// или загрузку с сайта.",
+    )
     .optional()
     .default(""),
   content: z
@@ -53,7 +58,8 @@ export const articleInputSchema = z.object({
       error: "Добавьте содержимое статьи.",
     })
     .min(1, "Добавьте содержимое статьи.")
-    .max(1000, "Статья слишком большая — уменьшите объём текста."),
+    .max(1000, "Статья слишком большая — уменьшите объём текста.")
+    .transform((value) => sanitizeContentUrls(value) as Record<string, unknown>[]),
   published: z.boolean(),
 });
 

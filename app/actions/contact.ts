@@ -7,6 +7,7 @@ import {
 import { sendContactLeadEmail } from "@/lib/server/contact-mail";
 import {
   assertContactSubmissionTiming,
+  consumeContactFormToken,
   consumeContactRateLimit,
   issueContactFormToken,
   verifyContactCaptcha,
@@ -50,6 +51,7 @@ export async function submitContactLeadAction(
     captcha: sanitizeText(String(formData.get("captcha") ?? ""), 8),
     companyWebsite: honeypot,
     openedAt: String(formData.get("openedAt") ?? ""),
+    nonce: sanitizeText(String(formData.get("nonce") ?? ""), 64),
   });
 
   if (!parsed.success) {
@@ -57,7 +59,10 @@ export async function submitContactLeadAction(
     return { error: message, refresh };
   }
 
-  const timing = await assertContactSubmissionTiming(parsed.data.openedAt);
+  const timing = await assertContactSubmissionTiming(
+    parsed.data.openedAt,
+    parsed.data.nonce,
+  );
   if (!timing.ok) {
     return { error: timing.error, refresh };
   }
@@ -81,5 +86,6 @@ export async function submitContactLeadAction(
     return { error: mail.error, refresh };
   }
 
+  await consumeContactFormToken();
   return { ok: true, refresh };
 }

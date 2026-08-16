@@ -8,7 +8,12 @@ type LeadMailPayload = {
 };
 
 function getToEmail() {
-  return process.env.CONTACT_TO_EMAIL?.trim() || "sdtagirov2005@gmail.com";
+  const email = process.env.CONTACT_TO_EMAIL?.trim();
+  if (email) return email;
+  if (process.env.NODE_ENV !== "production") {
+    return "dev-inbox@localhost";
+  }
+  return null;
 }
 
 function getFromEmail(smtpUser: string) {
@@ -186,14 +191,23 @@ export async function sendContactLeadEmail(payload: LeadMailPayload) {
     time,
   });
 
+  if (!to) {
+    console.error("[contact-lead] CONTACT_TO_EMAIL is not configured");
+    return {
+      ok: false as const,
+      error: "Не удалось отправить заявку. Попробуйте позже.",
+    };
+  }
+
   if (!smtp) {
     if (process.env.NODE_ENV !== "production") {
       console.info("[contact-lead:dev]", { to, subject, text });
       return { ok: true as const, mocked: true as const };
     }
+    console.error("[contact-lead] SMTP is not configured");
     return {
       ok: false as const,
-      error: "Почтовая отправка не настроена (SMTP_HOST / SMTP_USER / SMTP_PASS).",
+      error: "Не удалось отправить заявку. Попробуйте позже.",
     };
   }
 

@@ -30,6 +30,7 @@ export default function ContactFormModal({ open, mode, onClose }: Props) {
   const [phone, setPhone] = useState("");
   const [captcha, setCaptcha] = useState("");
   const [openedAt, setOpenedAt] = useState(0);
+  const [nonce, setNonce] = useState("");
   const [captchaKey, setCaptchaKey] = useState(0);
   const [done, setDone] = useState(false);
 
@@ -49,9 +50,15 @@ export default function ContactFormModal({ open, mode, onClose }: Props) {
     void (async () => {
       try {
         const token = await prepareContactFormAction();
-        if (!cancelled) setOpenedAt(token.openedAt);
+        if (!cancelled) {
+          setOpenedAt(token.openedAt);
+          setNonce(token.nonce);
+        }
       } catch {
-        if (!cancelled) setOpenedAt(Date.now());
+        if (!cancelled) {
+          setOpenedAt(Date.now());
+          setNonce("");
+        }
       }
       if (!cancelled) setCaptchaKey((value) => value + 1);
     })();
@@ -134,6 +141,7 @@ export default function ContactFormModal({ open, mode, onClose }: Props) {
           <form action={formAction} className="px-5 py-6 sm:px-7 sm:py-8" autoComplete="on">
             <input type="hidden" name="mode" value={isService ? "service" : "consultation"} />
             <input type="hidden" name="openedAt" value={openedAt || ""} />
+            <input type="hidden" name="nonce" value={nonce} />
             <div
               aria-hidden
               className="pointer-events-none absolute -left-[9999px] h-0 w-0 overflow-hidden opacity-0"

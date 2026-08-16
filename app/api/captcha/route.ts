@@ -1,6 +1,7 @@
 import { randomBytes, randomInt } from "node:crypto";
 import { NextResponse } from "next/server";
 import { createCaptchaToken } from "@/lib/server/auth";
+import { consumeRateLimit } from "@/lib/server/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -21,6 +22,15 @@ function escapeXml(value: string) {
 }
 
 export async function GET() {
+  const limit = await consumeRateLimit({
+    scope: "admin-captcha",
+    max: 30,
+    windowMs: 60 * 1000,
+  });
+  if (!limit.allowed) {
+    return new NextResponse("Too Many Requests", { status: 429 });
+  }
+
   const code = createCode();
   const token = await createCaptchaToken(code);
   const seed = randomBytes(8).toString("hex");

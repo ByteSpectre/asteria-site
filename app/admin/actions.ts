@@ -34,7 +34,7 @@ export async function loginAction(_previous: LoginState, formData: FormData): Pr
     if (locked) {
       return { error: "Слишком много попыток. Повторите вход через 15 минут.", refresh: Date.now() };
     }
-    return { error: "Код с изображения введён неверно или устарел.", refresh: Date.now() };
+    return { error: "Неверный ввод. Проверьте данные и код с изображения.", refresh: Date.now() };
   }
 
   const expectedLogin = process.env.ADMIN_LOGIN?.trim().toLowerCase();
@@ -49,7 +49,7 @@ export async function loginAction(_previous: LoginState, formData: FormData): Pr
     if (locked) {
       return { error: "Слишком много попыток. Повторите вход через 15 минут.", refresh: Date.now() };
     }
-    return { error: "Неверный логин или пароль.", refresh: Date.now() };
+    return { error: "Неверный ввод. Проверьте данные и код с изображения.", refresh: Date.now() };
   }
 
   await clearLoginFailures(attempt.key);

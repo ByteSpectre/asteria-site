@@ -1,5 +1,4 @@
-import { createHash } from "node:crypto";
-import { headers } from "next/headers";
+import { getClientFingerprint } from "@/lib/server/client-ip";
 import { getDb } from "@/lib/server/db";
 
 const MAX_FAILURES = 5;
@@ -7,12 +6,7 @@ const LOCK_DURATION_MS = 15 * 60 * 1000;
 const FAILURE_WINDOW_MS = 15 * 60 * 1000;
 
 async function getThrottleKey() {
-  const requestHeaders = await headers();
-  const forwardedFor = requestHeaders.get("x-forwarded-for")?.split(",")[0]?.trim();
-  const clientAddress = forwardedFor || requestHeaders.get("x-real-ip")?.trim() || "unknown";
-  return createHash("sha256")
-    .update(clientAddress.slice(0, 128))
-    .digest("hex");
+  return getClientFingerprint("login");
 }
 
 export async function canAttemptLogin() {
@@ -25,26 +19,31 @@ export async function canAttemptLogin() {
   }
 
   if (entry.lockedUntil || entry.updatedAt.getTime() < Date.now() - FAILURE_WINDOW_MS) {
-    await getDb().loginThrottle.delete({ where: { key } });
+    await getDb().loginThrottle.delete({ where: { key } }).catch(() => undefined);
   }
 
   return { allowed: true, key } as const;
 }
 
 export async function recordLoginFailure(key: string) {
-  const entry = await getDb().loginThrottle.upsert({
-    where: { key },
-    create: { key, failures: 1 },
-    update: { failures: { increment: 1 } },
-  });
+  const lockedUntil = new Date(Date.now() + LOCK_DURATION_MS);
 
-  if (entry.failures < MAX_FAILURES) return false;
+  // Atomic increment + lock to reduce TOCTOU races under concurrent attempts.
+  await getDb().$executeRaw`
+    INSERT INTO "LoginThrottle" ("key", "failures", "lockedUntil", "updatedAt")
+    VALUES (${key}, 1, NULL, NOW())
+    ON CONFLICT ("key") DO UPDATE SET
+      "failures" = "LoginThrottle"."failures" + 1,
+      "lockedUntil" = CASE
+        WHEN "LoginThrottle"."failures" + 1 >= ${MAX_FAILURES}
+          THEN ${lockedUntil}
+        ELSE "LoginThrottle"."lockedUntil"
+      END,
+      "updatedAt" = NOW()
+  `;
 
-  await getDb().loginThrottle.update({
-    where: { key },
-    data: { lockedUntil: new Date(Date.now() + LOCK_DURATION_MS) },
-  });
-  return true;
+  const entry = await getDb().loginThrottle.findUnique({ where: { key } });
+  return Boolean(entry?.lockedUntil && entry.lockedUntil.getTime() > Date.now());
 }
 
 export async function clearLoginFailures(key: string) {

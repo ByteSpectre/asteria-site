@@ -1,7 +1,8 @@
 import { createHash, randomBytes } from "node:crypto";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { EncryptJWT, jwtDecrypt } from "jose";
 import { createCaptchaToken } from "@/lib/server/auth";
+import { consumeRateLimit } from "@/lib/server/rate-limit";
 
 const CONTACT_CAPTCHA_COOKIE = "asteria_contact_captcha";
 const CONTACT_FORM_COOKIE = "asteria_contact_form";
@@ -11,9 +12,6 @@ const TOKEN_AUDIENCE = "asteria-contact";
 const MIN_FILL_MS = 2500;
 const RATE_WINDOW_MS = 15 * 60 * 1000;
 const RATE_MAX = 5;
-
-type RateEntry = { count: number; resetAt: number };
-const rateMap = new Map<string, RateEntry>();
 
 function getSecretKey() {
   const secret = process.env.AUTH_SECRET;
@@ -25,14 +23,6 @@ function getSecretKey() {
 
 function getEncryptionKey() {
   return createHash("sha256").update(getSecretKey()).digest();
-}
-
-async function clientKey() {
-  const requestHeaders = await headers();
-  const forwardedFor = requestHeaders.get("x-forwarded-for")?.split(",")[0]?.trim();
-  const ip = forwardedFor || requestHeaders.get("x-real-ip")?.trim() || "unknown";
-  const ua = requestHeaders.get("user-agent")?.slice(0, 160) ?? "";
-  return createHash("sha256").update(`${ip}|${ua}`).digest("hex");
 }
 
 export async function issueContactFormToken() {
@@ -89,7 +79,7 @@ export async function verifyContactCaptcha(answer: string) {
   }
 }
 
-export async function assertContactSubmissionTiming(openedAt: number) {
+export async function assertContactSubmissionTiming(openedAt: number, nonce: string) {
   const store = await cookies();
   const token = store.get(CONTACT_FORM_COOKIE)?.value;
   if (!token) return { ok: false as const, error: "Обновите форму и попробуйте снова." };
@@ -101,10 +91,14 @@ export async function assertContactSubmissionTiming(openedAt: number) {
       issuer: TOKEN_ISSUER,
       audience: TOKEN_AUDIENCE,
     });
-    if (payload.kind !== "contact-form" || typeof payload.openedAt !== "number") {
+    if (
+      payload.kind !== "contact-form" ||
+      typeof payload.openedAt !== "number" ||
+      typeof payload.nonce !== "string"
+    ) {
       return { ok: false as const, error: "Обновите форму и попробуйте снова." };
     }
-    if (payload.openedAt !== openedAt) {
+    if (payload.openedAt !== openedAt || payload.nonce !== nonce) {
       return { ok: false as const, error: "Обновите форму и попробуйте снова." };
     }
     if (Date.now() - payload.openedAt < MIN_FILL_MS) {
@@ -116,21 +110,15 @@ export async function assertContactSubmissionTiming(openedAt: number) {
   }
 }
 
+export async function consumeContactFormToken() {
+  const store = await cookies();
+  store.delete(CONTACT_FORM_COOKIE);
+}
+
 export async function consumeContactRateLimit() {
-  const key = await clientKey();
-  const now = Date.now();
-  const entry = rateMap.get(key);
-
-  if (!entry || entry.resetAt < now) {
-    rateMap.set(key, { count: 1, resetAt: now + RATE_WINDOW_MS });
-    return { allowed: true as const };
-  }
-
-  if (entry.count >= RATE_MAX) {
-    return { allowed: false as const, retryAfter: new Date(entry.resetAt) };
-  }
-
-  entry.count += 1;
-  rateMap.set(key, entry);
-  return { allowed: true as const };
+  return consumeRateLimit({
+    scope: "contact-lead",
+    max: RATE_MAX,
+    windowMs: RATE_WINDOW_MS,
+  });
 }
