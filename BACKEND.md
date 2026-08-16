@@ -13,7 +13,8 @@
 
 ## Переменные окружения
 
-- `DATABASE_URL` — строка подключения к PostgreSQL.
+- `DATABASE_URL` — PostgreSQL для runtime (на Supabase — Transaction pooler `:6543`).
+- `DIRECT_URL` — прямое подключение для `prisma migrate` (`db.<project>.supabase.co:5432`). Без него migrate через pooler зависает, поэтому build пропускает migrate, пока `DIRECT_URL` не задан.
 - `ADMIN_LOGIN` — логин единственного администратора.
 - `ADMIN_PASSWORD_HASH` — bcrypt-хэш пароля, открытый пароль хранить нельзя.
 - `AUTH_SECRET` — случайная строка длиной не менее 32 символов для подписи сессий и CAPTCHA.
