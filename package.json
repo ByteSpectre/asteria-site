@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:deploy": "prisma migrate deploy",
+    "db:deploy": "node scripts/migrate-if-direct.mjs",
     "db:studio": "prisma studio",
     "db:seed-services": "tsx scripts/seed-featured-services.ts",
     "postinstall": "prisma generate"

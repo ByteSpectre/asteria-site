@@ -4,28 +4,19 @@ import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
 /**
- * Prisma CLI (migrate/db push) must use a direct Postgres connection.
- * Supabase transaction pooler (:6543) hangs on advisory locks during migrate.
- * Runtime app code keeps using DATABASE_URL (pooled) via PrismaPg adapter.
+ * Prisma CLI loads this config for every command, including `prisma generate`
+ * (postinstall). Do not throw here — generate does not need a live DB.
+ *
+ * For migrate/db push prefer DIRECT_URL: Supabase transaction pooler (:6543)
+ * hangs on advisory locks. Runtime still uses DATABASE_URL via PrismaPg.
  */
-function migrationDatabaseUrl() {
-  const direct = process.env.DIRECT_URL?.trim();
-  const databaseUrl = process.env.DATABASE_URL?.trim();
-  const url = direct || databaseUrl;
-
-  if (!url) {
-    throw new Error("DATABASE_URL (or DIRECT_URL) is required for Prisma CLI.");
-  }
-
-  if (!direct && /:6543\b/.test(url) && /pooler\.supabase\.com/i.test(url)) {
-    throw new Error(
-      "DATABASE_URL points at Supabase transaction pooler (:6543). " +
-        "Set DIRECT_URL to the direct DB URL (db.<project>.supabase.co:5432) " +
-        "or the session pooler (:5432) for prisma migrate deploy.",
-    );
-  }
-
-  return url;
+function cliDatabaseUrl() {
+  return (
+    process.env.DIRECT_URL?.trim() ||
+    process.env.DATABASE_URL?.trim() ||
+    // Placeholder so `prisma generate` works when env is not injected yet.
+    "postgresql://prisma:prisma@127.0.0.1:5432/prisma?schema=public"
+  );
 }
 
 export default defineConfig({
@@ -34,6 +25,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: migrationDatabaseUrl(),
+    url: cliDatabaseUrl(),
   },
 });

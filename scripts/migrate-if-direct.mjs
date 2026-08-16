@@ -16,6 +16,14 @@ if (!direct) {
   process.exit(0);
 }
 
+if (/:6543\b/.test(direct) && /pooler\.supabase\.com/i.test(direct)) {
+  console.error(
+    "[build] DIRECT_URL still points at Supabase transaction pooler (:6543).\n" +
+      "Use db.<project>.supabase.co:5432 or session pooler :5432.",
+  );
+  process.exit(1);
+}
+
 const result = spawnSync("npx", ["prisma", "migrate", "deploy"], {
   stdio: "inherit",
   shell: true,
