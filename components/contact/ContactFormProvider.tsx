@@ -19,6 +19,48 @@ type ContactFormContextValue = {
 
 const ContactFormContext = createContext<ContactFormContextValue | null>(null);
 
+function lockPageScroll() {
+  const scrollbarWidth = Math.max(
+    0,
+    window.innerWidth - document.documentElement.clientWidth,
+  );
+
+  const previous = {
+    bodyOverflow: document.body.style.overflow,
+    htmlOverflow: document.documentElement.style.overflow,
+    bodyPaddingRight: document.body.style.paddingRight,
+    compensation: document.documentElement.style.getPropertyValue(
+      "--scrollbar-compensation",
+    ),
+  };
+
+  document.documentElement.style.overflow = "hidden";
+  document.body.style.overflow = "hidden";
+
+  if (scrollbarWidth > 0) {
+    const pad = `${scrollbarWidth}px`;
+    document.body.style.paddingRight = pad;
+    document.documentElement.style.setProperty("--scrollbar-compensation", pad);
+  }
+
+  document.body.classList.add("contact-form-open");
+
+  return () => {
+    document.documentElement.style.overflow = previous.htmlOverflow;
+    document.body.style.overflow = previous.bodyOverflow;
+    document.body.style.paddingRight = previous.bodyPaddingRight;
+    if (previous.compensation) {
+      document.documentElement.style.setProperty(
+        "--scrollbar-compensation",
+        previous.compensation,
+      );
+    } else {
+      document.documentElement.style.removeProperty("--scrollbar-compensation");
+    }
+    document.body.classList.remove("contact-form-open");
+  };
+}
+
 export function ContactFormProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<ContactFormMode>({ type: "consultation" });
@@ -32,40 +74,7 @@ export function ContactFormProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!open) return;
-
-    const scrollbarWidth = Math.max(
-      0,
-      window.innerWidth - document.documentElement.clientWidth,
-    );
-    const previousOverflow = document.body.style.overflow;
-    const previousPaddingRight = document.body.style.paddingRight;
-    const previousCompensation = document.documentElement.style.getPropertyValue(
-      "--scrollbar-compensation",
-    );
-
-    document.body.style.overflow = "hidden";
-    if (scrollbarWidth > 0) {
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-      document.documentElement.style.setProperty(
-        "--scrollbar-compensation",
-        `${scrollbarWidth}px`,
-      );
-    }
-    document.body.classList.add("contact-form-open");
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.body.style.paddingRight = previousPaddingRight;
-      if (previousCompensation) {
-        document.documentElement.style.setProperty(
-          "--scrollbar-compensation",
-          previousCompensation,
-        );
-      } else {
-        document.documentElement.style.removeProperty("--scrollbar-compensation");
-      }
-      document.body.classList.remove("contact-form-open");
-    };
+    return lockPageScroll();
   }, [open]);
 
   const value = useMemo(

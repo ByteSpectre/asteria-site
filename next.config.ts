@@ -31,14 +31,19 @@ const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
   {
-    key: "Strict-Transport-Security",
-    value: "max-age=63072000; includeSubDomains; preload",
-  },
-  {
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(), payment=()",
   },
 ];
+
+// HSTS only for real HTTPS deployments — never on http://127.0.0.1 (WSL/local).
+const siteUrl = process.env.SITE_URL?.trim() ?? "";
+if (siteUrl.startsWith("https://")) {
+  securityHeaders.push({
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains; preload",
+  });
+}
 
 const nextConfig: NextConfig = {
   async headers() {

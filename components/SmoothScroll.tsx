@@ -65,7 +65,10 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
     lenis.on("scroll", ScrollTrigger.update);
 
     const syncLenisWithPopup = () => {
-      if (document.body.classList.contains("case-popup-open")) {
+      if (
+        document.body.classList.contains("case-popup-open") ||
+        document.body.classList.contains("contact-form-open")
+      ) {
         lenis.stop();
       } else {
         lenis.start();

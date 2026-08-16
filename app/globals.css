@@ -76,10 +76,6 @@ body {
   font-style: normal;
 }
 
-html {
-  scrollbar-gutter: stable;
-}
-
 /* Keep fixed header aligned when body scroll lock removes the scrollbar. */
 body.contact-form-open header.fixed {
   padding-right: var(--scrollbar-compensation, 0px);

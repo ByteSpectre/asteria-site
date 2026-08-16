@@ -14,38 +14,47 @@ export async function consumeRateLimit(options: {
   const resetAt = new Date(now + options.windowMs);
   const db = getDb();
 
-  // Single round-trip upsert to cut captcha/contact latency on serverless.
-  const rows = await db.$queryRaw<Array<{ count: number; resetAt: Date }>>`
-    INSERT INTO "RateLimit" ("key", "count", "resetAt", "updatedAt")
-    VALUES (${key}, 1, ${resetAt}, NOW())
-    ON CONFLICT ("key") DO UPDATE SET
-      "count" = CASE
-        WHEN "RateLimit"."resetAt" <= NOW() THEN 1
-        ELSE "RateLimit"."count" + 1
-      END,
-      "resetAt" = CASE
-        WHEN "RateLimit"."resetAt" <= NOW() THEN ${resetAt}
-        ELSE "RateLimit"."resetAt"
-      END,
-      "updatedAt" = NOW()
-    RETURNING "count", "resetAt"
-  `;
+  try {
+    // Single round-trip upsert to cut captcha/contact latency on serverless.
+    const rows = await db.$queryRaw<Array<{ count: number; resetAt: Date }>>`
+      INSERT INTO "RateLimit" ("key", "count", "resetAt", "updatedAt")
+      VALUES (${key}, 1, ${resetAt}, NOW())
+      ON CONFLICT ("key") DO UPDATE SET
+        "count" = CASE
+          WHEN "RateLimit"."resetAt" <= NOW() THEN 1
+          ELSE "RateLimit"."count" + 1
+        END,
+        "resetAt" = CASE
+          WHEN "RateLimit"."resetAt" <= NOW() THEN ${resetAt}
+          ELSE "RateLimit"."resetAt"
+        END,
+        "updatedAt" = NOW()
+      RETURNING "count", "resetAt"
+    `;
 
-  const entry = rows[0];
-  if (!entry) {
-    return { allowed: true as const, remaining: options.max - 1 };
-  }
+    const entry = rows[0];
+    if (!entry) {
+      return { allowed: true as const, remaining: options.max - 1 };
+    }
 
-  if (entry.count > options.max) {
+    if (entry.count > options.max) {
+      return {
+        allowed: false as const,
+        retryAfter: entry.resetAt,
+        remaining: 0,
+      };
+    }
+
     return {
-      allowed: false as const,
-      retryAfter: entry.resetAt,
-      remaining: 0,
+      allowed: true as const,
+      remaining: Math.max(0, options.max - entry.count),
     };
+  } catch (error) {
+    // Dev / not-yet-migrated DB: don't break captcha/contact forms.
+    console.error(
+      "[rate-limit] unavailable",
+      error instanceof Error ? error.message : "unknown",
+    );
+    return { allowed: true as const, remaining: options.max };
   }
-
-  return {
-    allowed: true as const,
-    remaining: Math.max(0, options.max - entry.count),
-  };
 }

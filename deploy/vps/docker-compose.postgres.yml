@@ -1,0 +1,25 @@
+# Опционально: только PostgreSQL на VPS через Docker
+# Если Postgres ставите через ISPmanager / apt — этот файл не нужен.
+#
+# docker compose -f deploy/vps/docker-compose.postgres.yml up -d
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: asteria
+      POSTGRES_USER: asteria
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_ME_DB_PASSWORD}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - asteria_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U asteria -d asteria"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  asteria_pg_data:

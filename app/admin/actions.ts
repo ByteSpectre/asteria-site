@@ -8,6 +8,7 @@ import { parseArticleInput, parseServiceInput, type ArticleInput, type ServiceIn
 import { joinCategoryList, parseCategoryList } from "@/lib/category-list";
 import { slugify } from "@/lib/content";
 import { createAdminSession, destroyAdminSession, requireAdmin, verifyCaptcha } from "@/lib/server/auth";
+import { getAdminPasswordHash } from "@/lib/server/admin-credentials";
 import { getDb } from "@/lib/server/db";
 import { canAttemptLogin, clearLoginFailures, recordLoginFailure } from "@/lib/server/login-throttle";
 import { z } from "zod";
@@ -34,11 +35,17 @@ export async function loginAction(_previous: LoginState, formData: FormData): Pr
     if (locked) {
       return { error: "Слишком много попыток. Повторите вход через 15 минут.", refresh: Date.now() };
     }
-    return { error: "Неверный ввод. Проверьте данные и код с изображения.", refresh: Date.now() };
+    const localHttp = (process.env.SITE_URL ?? "").startsWith("http://");
+    return {
+      error: localHttp
+        ? "Неверный код с изображения (или cookie капчи не сохранилась). Обновите код и попробуйте снова."
+        : "Неверный ввод. Проверьте данные и код с изображения.",
+      refresh: Date.now(),
+    };
   }
 
   const expectedLogin = process.env.ADMIN_LOGIN?.trim().toLowerCase();
-  const passwordHash = process.env.ADMIN_PASSWORD_HASH;
+  const passwordHash = getAdminPasswordHash();
   if (!expectedLogin || !passwordHash) {
     return { error: "Учётная запись администратора не настроена.", refresh: Date.now() };
   }
@@ -49,7 +56,13 @@ export async function loginAction(_previous: LoginState, formData: FormData): Pr
     if (locked) {
       return { error: "Слишком много попыток. Повторите вход через 15 минут.", refresh: Date.now() };
     }
-    return { error: "Неверный ввод. Проверьте данные и код с изображения.", refresh: Date.now() };
+    const localHttp = (process.env.SITE_URL ?? "").startsWith("http://");
+    return {
+      error: localHttp
+        ? "Неверный логин или пароль."
+        : "Неверный ввод. Проверьте данные и код с изображения.",
+      refresh: Date.now(),
+    };
   }
 
   await clearLoginFailures(attempt.key);

@@ -21,6 +21,14 @@ function getSecretKey() {
   return new TextEncoder().encode(secret);
 }
 
+/** Secure cookies only over HTTPS (SITE_URL). HTTP WSL/local must stay false. */
+export function useSecureCookies() {
+  const siteUrl = process.env.SITE_URL?.trim() ?? "";
+  if (siteUrl.startsWith("https://")) return true;
+  if (siteUrl.startsWith("http://")) return false;
+  return process.env.NODE_ENV === "production";
+}
+
 function getEncryptionKey() {
   return createHash("sha256").update(getSecretKey()).digest();
 }
@@ -40,8 +48,8 @@ export async function createAdminSession(login: string) {
   const store = await cookies();
   store.set(SESSION_COOKIE, token, {
     httpOnly: true,
-    sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    secure: useSecureCookies(),
     path: "/",
     maxAge: 60 * 60 * 8,
   });
@@ -92,8 +100,8 @@ export async function setCaptchaCookie(token: string) {
   const store = await cookies();
   store.set(CAPTCHA_COOKIE, token, {
     httpOnly: true,
-    sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    secure: useSecureCookies(),
     path: "/",
     maxAge: 60 * 5,
   });

@@ -1,25 +1,50 @@
+import { readFileSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
 import { spawnSync } from "node:child_process";
+
+/** Load root .env into process.env without adding a dotenv dependency. */
+function loadEnvFile() {
+  const path = resolve(process.cwd(), ".env");
+  if (!existsSync(path)) return;
+  for (const line of readFileSync(path, "utf8").split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eq = trimmed.indexOf("=");
+    if (eq <= 0) continue;
+    const key = trimmed.slice(0, eq).trim();
+    let value = trimmed.slice(eq + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    if (process.env[key] === undefined) {
+      process.env[key] = value;
+    }
+  }
+}
+
+loadEnvFile();
 
 /**
  * Supabase transaction pooler (:6543) hangs on `prisma migrate deploy`.
- * Migrations must use DIRECT_URL (db.<ref>.supabase.co:5432 or session pooler :5432).
- * Skip migrate in build when DIRECT_URL is missing so deploys don't stall.
+ * Prefer DIRECT_URL; on VPS / local Postgres DATABASE_URL alone is enough.
  */
-const direct = process.env.DIRECT_URL?.trim();
+const connection =
+  process.env.DIRECT_URL?.trim() || process.env.DATABASE_URL?.trim();
 
-if (!direct) {
+if (!connection) {
   console.warn(
-    "[build] DIRECT_URL is not set — skipping prisma migrate deploy.\n" +
-      "Add DIRECT_URL in Vercel (Supabase → Database → Direct connection :5432),\n" +
-      "then redeploy so future migrations apply automatically.",
+    "[migrate] DATABASE_URL / DIRECT_URL not set — skipping prisma migrate deploy.",
   );
   process.exit(0);
 }
 
-if (/:6543\b/.test(direct) && /pooler\.supabase\.com/i.test(direct)) {
+if (/:6543\b/.test(connection) && /pooler\.supabase\.com/i.test(connection)) {
   console.error(
-    "[build] DIRECT_URL still points at Supabase transaction pooler (:6543).\n" +
-      "Use db.<project>.supabase.co:5432 or session pooler :5432.",
+    "[migrate] Connection still points at Supabase transaction pooler (:6543).\n" +
+      "On VPS use local Postgres. On Supabase set DIRECT_URL to :5432.",
   );
   process.exit(1);
 }

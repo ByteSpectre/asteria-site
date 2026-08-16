@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { EncryptJWT, jwtDecrypt } from "jose";
-import { createCaptchaToken } from "@/lib/server/auth";
+import { createCaptchaToken, useSecureCookies } from "@/lib/server/auth";
 import { consumeRateLimit } from "@/lib/server/rate-limit";
 
 const CONTACT_CAPTCHA_COOKIE = "asteria_contact_captcha";
@@ -40,7 +40,7 @@ export async function issueContactFormToken() {
   store.set(CONTACT_FORM_COOKIE, token, {
     httpOnly: true,
     sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
+    secure: useSecureCookies(),
     path: "/",
     maxAge: 60 * 30,
   });
@@ -54,7 +54,7 @@ export async function setContactCaptchaCookie(answer: string) {
   store.set(CONTACT_CAPTCHA_COOKIE, token, {
     httpOnly: true,
     sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
+    secure: useSecureCookies(),
     path: "/",
     maxAge: 60 * 5,
   });

@@ -1,6 +1,6 @@
 import { randomBytes, randomInt } from "node:crypto";
 import { NextResponse } from "next/server";
-import { createCaptchaToken } from "@/lib/server/auth";
+import { createCaptchaToken, useSecureCookies } from "@/lib/server/auth";
 import { consumeRateLimit } from "@/lib/server/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -59,10 +59,17 @@ export async function GET() {
       "X-Content-Type-Options": "nosniff",
     },
   });
+
+  // Local HTTP only: expose answer for WSL/e2e debugging (never on https SITE_URL).
+  const siteUrl = process.env.SITE_URL?.trim() ?? "";
+  if (siteUrl.startsWith("http://127.0.0.1") || siteUrl.startsWith("http://localhost")) {
+    response.headers.set("X-Debug-Captcha", code);
+  }
+
   response.cookies.set("asteria_admin_captcha", token, {
     httpOnly: true,
-    sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    secure: useSecureCookies(),
     path: "/",
     maxAge: 60 * 5,
   });
