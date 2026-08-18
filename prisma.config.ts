@@ -13,6 +13,7 @@ import { defineConfig } from "prisma/config";
 function cliDatabaseUrl() {
   return (
     process.env.DIRECT_URL?.trim() ||
+    process.env.POSTGRES_URL_NON_POOLING?.trim() ||
     process.env.DATABASE_URL?.trim() ||
     // Placeholder so `prisma generate` works when env is not injected yet.
     "postgresql://prisma:prisma@127.0.0.1:5432/prisma?schema=public"

@@ -29,14 +29,17 @@ loadEnvFile();
 
 /**
  * Supabase transaction pooler (:6543) hangs on `prisma migrate deploy`.
- * Prefer DIRECT_URL; on VPS / local Postgres DATABASE_URL alone is enough.
+ * Prefer DIRECT_URL; on Vercel + Supabase integration use POSTGRES_URL_NON_POOLING.
+ * On VPS / local Postgres DATABASE_URL alone is enough.
  */
 const connection =
-  process.env.DIRECT_URL?.trim() || process.env.DATABASE_URL?.trim();
+  process.env.DIRECT_URL?.trim() ||
+  process.env.POSTGRES_URL_NON_POOLING?.trim() ||
+  process.env.DATABASE_URL?.trim();
 
 if (!connection) {
   console.warn(
-    "[migrate] DATABASE_URL / DIRECT_URL not set — skipping prisma migrate deploy.",
+    "[migrate] No DIRECT_URL, POSTGRES_URL_NON_POOLING, or DATABASE_URL — skipping prisma migrate deploy.",
   );
   process.exit(0);
 }

@@ -21,11 +21,12 @@ function getSecretKey() {
   return new TextEncoder().encode(secret);
 }
 
-/** Secure cookies only over HTTPS (SITE_URL). HTTP WSL/local must stay false. */
+/** Secure cookies on HTTPS (Vercel, VPS behind Nginx). HTTP only for local/WSL. */
 export function useSecureCookies() {
   const siteUrl = process.env.SITE_URL?.trim() ?? "";
   if (siteUrl.startsWith("https://")) return true;
   if (siteUrl.startsWith("http://")) return false;
+  if (process.env.VERCEL === "1" || process.env.VERCEL === "true") return true;
   return process.env.NODE_ENV === "production";
 }
 

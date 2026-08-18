@@ -1,5 +1,7 @@
 # Перенос Астерии на VPS (чистый Ubuntu)
 
+> **Сейчас на Vercel?** См. [`../DEPLOY.md`](../DEPLOY.md) — один репозиторий для Vercel и VPS.
+
 Инструкция для **Ubuntu 22.04 / 24.04 без панели** (без ISPmanager).  
 Стек: **Nginx → PM2 → Next.js (127.0.0.1:3000)**, **PostgreSQL** на том же сервере, файлы в `UPLOAD_DIR`.  
 Supabase и Vercel Blob не нужны.

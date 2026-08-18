@@ -1,6 +1,6 @@
-# Auto-deploy to VPS on every push to main (like Vercel).
-# Secrets: VPS_HOST, VPS_USER, VPS_SSH_KEY; optional VPS_PORT (default 22).
-# One-time server setup: deploy/vps/INSTRUCTION.md → «Автодеплой с GitHub».
+# Auto-deploy to VPS on push to main when GitHub Secrets are set.
+# Without VPS_HOST / VPS_USER / VPS_SSH_KEY the job is skipped (Vercel-only is fine).
+# Setup: deploy/vps/INSTRUCTION.md → «Автодеплой с GitHub»; overview: deploy/DEPLOY.md
 
 name: Deploy VPS
 
@@ -16,6 +16,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: ${{ secrets.VPS_HOST != '' && secrets.VPS_USER != '' && secrets.VPS_SSH_KEY != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
@@ -28,11 +29,6 @@ jobs:
           VPS_PORT: ${{ secrets.VPS_PORT }}
         run: |
           set -euo pipefail
-
-          if [[ -z "${VPS_HOST:-}" || -z "${VPS_USER:-}" || -z "${VPS_SSH_KEY:-}" ]]; then
-            echo "Missing GitHub secrets: VPS_HOST, VPS_USER, VPS_SSH_KEY"
-            exit 1
-          fi
 
           PORT="${VPS_PORT:-22}"
           APP_DIR="/var/www/asteria"
