@@ -1,4 +1,2 @@
-# Keep shell / PM2 configs Unix-safe for WSL / Linux VPS
 *.sh text eol=lf
 deploy/vps/*.sh text eol=lf
-deploy/vps/*.cjs text eol=lf

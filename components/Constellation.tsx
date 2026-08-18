@@ -31,6 +31,10 @@ const EDGES: [number, number][] = [
 ];
 
 /** Stop lines before the label/node halo so text stays clear. */
+function roundCoord(n: number) {
+  return Math.round(n * 1000) / 1000;
+}
+
 function edgePoints(a: (typeof STARS)[number], b: (typeof STARS)[number], pad = 26) {
   const dx = b.x - a.x;
   const dy = b.y - a.y;
@@ -38,10 +42,10 @@ function edgePoints(a: (typeof STARS)[number], b: (typeof STARS)[number], pad = 
   const ux = dx / len;
   const uy = dy / len;
   return {
-    x1: a.x + ux * pad,
-    y1: a.y + uy * pad,
-    x2: b.x - ux * pad,
-    y2: b.y - uy * pad,
+    x1: roundCoord(a.x + ux * pad),
+    y1: roundCoord(a.y + uy * pad),
+    x2: roundCoord(b.x - ux * pad),
+    y2: roundCoord(b.y - uy * pad),
   };
 }
 

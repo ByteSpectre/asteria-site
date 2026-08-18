@@ -15,6 +15,10 @@ export const metadata: Metadata = {
   title: "Астерия — юридическое агентство. Защищаем в судах и сделках",
   description:
     "Юридическое агентство Астерия защищает интересы людей и бизнеса в судах и сделках. 300+ дел доведено до результата, 95% решений в пользу клиента. Онлайн по всей России, первая консультация бесплатно.",
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
+  },
 };
 
 export default function RootLayout({

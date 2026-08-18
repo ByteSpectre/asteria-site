@@ -21,6 +21,36 @@ Supabase и Vercel Blob не нужны.
 
 ---
 
+## Быстрый старт: Cloud-init (Timeweb)
+
+При создании сервера вставьте содержимое [`cloud-init.sh`](./cloud-init.sh) в поле **Cloud-init**. Скрипт ставит Node 22, Postgres, Nginx, PM2, клонирует репозиторий, собирает сайт и пишет пароль админки.
+
+1. ОС: **Ubuntu 24.04** (или 22.04), **2 vCPU / 4 ГБ**, публичный IPv4, **без панели**.
+2. Cloud-init: весь файл `deploy/vps/cloud-init.sh` (при другом GitHub-репо поправьте `REPO_URL` в начале).
+3. Дождитесь статуса сервера **Running** + 5–10 минут на сборку.
+4. SSH:
+
+```bash
+cat /root/asteria-bootstrap.txt
+```
+
+Там URL по IP, логин и пароль админки.
+
+5. DNS: A `@` и `www` → IP сервера.
+6. Домен и SSL:
+
+```bash
+nano /var/www/asteria/.env   # SITE_URL=https://hekl.ru и SMTP
+certbot --nginx -d hekl.ru -d www.hekl.ru
+pm2 reload /var/www/asteria/deploy/vps/ecosystem.config.cjs --update-env
+```
+
+Если репозиторий **приватный**, cloud-init с HTTPS-клоном не сработает — либо сделайте репо публичным на время установки, либо после создания сервера клонируйте по SSH вручную (разделы 3–6 ниже).
+
+Лог установки: `/var/log/asteria-cloud-init.log`.
+
+---
+
 ## 2. DNS до Certbot
 
 Пока DNS не отдаёт IP сервера, Let's Encrypt не выпустит сертификат.
@@ -335,6 +365,7 @@ pg_dump -U asteria -h 127.0.0.1 asteria > backup-$(date +%F).sql
 | `postgres-init.sql` | создание БД |
 | `docker-compose.postgres.yml` | Postgres в Docker (опционально) |
 | `deploy.sh` | установка / обновление |
+| `cloud-init.sh` | автоустановка при создании VPS (Timeweb) |
 | `.github/workflows/deploy-vps.yml` | автодеплой при push в `main` |
 
 ---
