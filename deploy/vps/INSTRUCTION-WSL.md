@@ -16,7 +16,7 @@
 | `deploy.sh` / PM2 | те же команды локально |
 | Nginx + HTTPS | пока не обязательны; сайт на `http://127.0.0.1:3000` |
 
-Если здесь всё ок — на VPS останется в основном домен, SSL и панель ISPmanager.
+Если здесь всё ок — на VPS останутся домен, Nginx, SSL и тот же стек (см. [INSTRUCTION.md](./INSTRUCTION.md)).
 
 ---
 
@@ -247,6 +247,6 @@ docker compose down
 
 1. Те же Node 22 + Postgres + `.env` (уже с `https://домен` и `TRUST_PROXY=true`).
 2. Тот же `npm ci` → `db:deploy` → `build` → PM2.
-3. Добавляется только Nginx / ISPmanager и SSL.
+3. Добавляются Nginx, Certbot/SSL и `SITE_URL=https://...` (без панели).
 
 Шаблон env для WSL: [env.wsl.example](./env.wsl.example).

@@ -1,5 +1,5 @@
 # Опционально: только PostgreSQL на VPS через Docker
-# Если Postgres ставите через ISPmanager / apt — этот файл не нужен.
+# Если Postgres ставите через apt — этот файл не нужен.
 #
 # docker compose -f deploy/vps/docker-compose.postgres.yml up -d
 

@@ -1,86 +1,120 @@
-# Перенос Астерии на VPS (REG.RU + ISPmanager 6)
+# Перенос Астерии на VPS (чистый Ubuntu)
 
-Всё необходимое лежит в папке `deploy/vps/`. Сайт — **Next.js** (Node.js), база — **PostgreSQL на том же сервере**, файлы — в `UPLOAD_DIR`, без Supabase и без Vercel Blob.
+Инструкция для **Ubuntu 22.04 / 24.04 без панели** (без ISPmanager).  
+Стек: **Nginx → PM2 → Next.js (127.0.0.1:3000)**, **PostgreSQL** на том же сервере, файлы в `UPLOAD_DIR`.  
+Supabase и Vercel Blob не нужны.
 
-**Перед VPS** проверьте стек локально в WSL: [INSTRUCTION-WSL.md](./INSTRUCTION-WSL.md).
+Локальная проверка перед VPS: [INSTRUCTION-WSL.md](./INSTRUCTION-WSL.md).
 
 ---
 
-## 1. Что купить / подготовить
+## 1. Что нужно
 
 | Нужно | Рекомендация |
 |--------|----------------|
 | VPS | Ubuntu 22.04 / 24.04, **от 4 GB RAM**, 2 vCPU |
-| Панель | ISPmanager 6 (у REG.RU часто идёт с тарифом) |
-| Домен | A-запись на IP VPS |
-| Node.js | **20 LTS или 22** |
-| PostgreSQL | 15+ (через панель или `apt`) |
+| SSH | root или пользователь с `sudo` |
+| Домен | A-записи `@` и `www` → IP VPS (DNS у регистратора / DNSAdmin) |
+| ПО | Node.js 22, Nginx, PostgreSQL 15+, Certbot, PM2 |
 
-Обычный «виртуальный хостинг» (только PHP) **не подойдёт**.
+Обычный shared-хостинг (только PHP) **не подойдёт**.
 
 ---
 
-## 2. Установка ПО на сервер
+## 2. DNS до Certbot
 
-Подключитесь по SSH (`root` или пользователь с sudo).
-
-### 2.1. Node.js 22
+Пока DNS не отдаёт IP сервера, Let's Encrypt не выпустит сертификат.
 
 ```bash
-curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-apt-get install -y nodejs
+dig ваш-домен.ru A +short
+dig www.ваш-домен.ru A +short
+```
+
+Должен быть IP вашего VPS (без лишних чужих A-записей).
+
+---
+
+## 3. Установка ПО
+
+```bash
+sudo apt-get update
+sudo apt-get install -y curl ca-certificates gnupg ufw
+```
+
+### 3.1. Node.js 22
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
 node -v   # v22.x
 npm -v
 ```
 
-### 2.2. PM2 (процесс сайта)
+### 3.2. PM2
 
 ```bash
-npm i -g pm2
+sudo npm i -g pm2
 pm2 startup
 # выполните команду, которую выведет pm2
 ```
 
-### 2.3. PostgreSQL
-
-**Вариант A — через ISPmanager:**  
-«Базы данных» → PostgreSQL → создать БД `asteria`, пользователя `asteria`, запомнить пароль.
-
-**Вариант B — вручную:**
+### 3.3. PostgreSQL
 
 ```bash
-apt-get install -y postgresql postgresql-contrib
-sudo -u postgres psql -f /var/www/asteria/deploy/vps/postgres-init.sql
-# перед этим замените CHANGE_ME_DB_PASSWORD в SQL-файле
+sudo apt-get install -y postgresql postgresql-contrib
+sudo systemctl enable --now postgresql
 ```
 
-### 2.4. Nginx
-
-Обычно уже есть с ISPmanager. Если нет:
+Создайте БД (пароль замените):
 
 ```bash
-apt-get install -y nginx
+sudo -u postgres psql <<'SQL'
+CREATE USER asteria WITH PASSWORD 'CHANGE_ME_DB_PASSWORD';
+CREATE DATABASE asteria OWNER asteria;
+\c asteria
+GRANT ALL ON SCHEMA public TO asteria;
+ALTER SCHEMA public OWNER TO asteria;
+SQL
+```
+
+Или после клона репозитория отредактируйте и выполните `deploy/vps/postgres-init.sql`.
+
+Опционально Postgres в Docker: `deploy/vps/docker-compose.postgres.yml`.
+
+### 3.4. Nginx + Certbot
+
+```bash
+sudo apt-get install -y nginx certbot python3-certbot-nginx
+sudo systemctl enable --now nginx
+```
+
+### 3.5. Файрвол (рекомендуется)
+
+```bash
+sudo ufw allow OpenSSH
+sudo ufw allow 'Nginx Full'
+sudo ufw enable
+sudo ufw status
 ```
 
 ---
 
-## 3. Код проекта на сервер
+## 4. Код проекта
 
 ```bash
-mkdir -p /var/www/asteria
+sudo mkdir -p /var/www/asteria
+sudo chown -R "$USER:$USER" /var/www/asteria
 cd /var/www
-# замените URL на ваш репозиторий
 git clone https://github.com/ByteSpectre/asteria-site.git asteria
 cd /var/www/asteria
 ```
 
-Если репозиторий приватный — используйте SSH-ключ или deploy token.
-
-Альтернатива без git: залить архив проекта (без `node_modules` и `.next`) по SFTP в `/var/www/asteria`.
+Приватный репозиторий — SSH-ключ или deploy token.  
+Без git: залейте архив (без `node_modules` и `.next`) в `/var/www/asteria`.
 
 ---
 
-## 4. Файл окружения `.env`
+## 5. Файл `.env`
 
 ```bash
 cd /var/www/asteria
@@ -88,37 +122,34 @@ cp deploy/vps/env.production.example .env
 nano .env
 ```
 
-Обязательно заполните:
+Обязательно:
 
-1. **`DATABASE_URL` и `DIRECT_URL`** — один и тот же URL к Postgres на `127.0.0.1:5432`
-2. **`ADMIN_PASSWORD_HASH_B64`** — bcrypt в base64 (сырой hash с `$` Next.js ломает):
-   ```bash
-   node -e "require('bcryptjs').hash('ВАШ_ПАРОЛЬ',12).then(h=>console.log(Buffer.from(h).toString('base64')))"
-   ```
-3. **`AUTH_SECRET`** — длинная случайная строка (≥ 32 символа)
-4. **`SITE_URL`** — `https://ваш-домен.ru` (без слэша в конце)
-5. **`TRUST_PROXY=true`** — обязательно за Nginx / ISPmanager
-6. **`UPLOAD_DIR=/var/www/asteria/storage/uploads`**
-7. **SMTP_*** — почта для заявок с формы
-
-Сгенерировать хэш пароля админки (base64):
+| Переменная | Значение |
+|------------|----------|
+| `DATABASE_URL` / `DIRECT_URL` | один URL к Postgres на `127.0.0.1:5432` |
+| `ADMIN_LOGIN` | логин админки |
+| `ADMIN_PASSWORD_HASH_B64` | bcrypt в **base64** (см. ниже) |
+| `AUTH_SECRET` | ≥ 32 символа |
+| `SITE_URL` | `https://ваш-домен.ru` (без `/` в конце) |
+| `TRUST_PROXY` | `true` (сайт за Nginx) |
+| `UPLOAD_DIR` | `/var/www/asteria/storage/uploads` |
+| `BLOB_READ_WRITE_TOKEN` | пусто |
+| SMTP_* | почта формы заявок |
 
 ```bash
+# Хэш пароля админки (base64). Сырой bcrypt с $ Next.js dotenv ломает.
 cd /var/www/asteria
-node -e "require('bcryptjs').hash('ВАШ_ПАРОЛЬ', 12).then(h=>console.log(Buffer.from(h).toString('base64')))"
+npm ci   # если bcryptjs ещё нет
+node -e "require('bcryptjs').hash('ВАШ_ПАРОЛЬ',12).then(h=>console.log(Buffer.from(h).toString('base64')))"
+
+openssl rand -hex 32   # AUTH_SECRET
 ```
 
-Случайный `AUTH_SECRET`:
-
-```bash
-openssl rand -hex 32
-```
-
-В `.env` используйте `ADMIN_PASSWORD_HASH_B64="..."`. Не кладите «сырой» bcrypt в `ADMIN_PASSWORD_HASH` — dotenv в Next.js портит символы `$`.
+В `.env`: `ADMIN_PASSWORD_HASH_B64="..."` — не кладите «сырой» `$2b$12$...` в `ADMIN_PASSWORD_HASH`.
 
 ---
 
-## 5. Первый запуск
+## 6. Первый запуск приложения
 
 ```bash
 cd /var/www/asteria
@@ -126,15 +157,7 @@ chmod +x deploy/vps/deploy.sh
 bash deploy/vps/deploy.sh
 ```
 
-Скрипт:
-
-- создаст `storage/uploads` и `storage/logs`
-- установит зависимости (`npm ci`)
-- применит миграции Prisma
-- соберёт Next.js
-- запустит приложение через PM2 на `127.0.0.1:3000`
-
-Проверка:
+Скрипт создаёт `storage/`, ставит зависимости, миграции, сборку и PM2 на `127.0.0.1:3000`.
 
 ```bash
 pm2 status
@@ -143,97 +166,176 @@ curl -I http://127.0.0.1:3000
 
 ---
 
-## 6. Домен и HTTPS в ISPmanager 6
+## 7. Nginx + HTTPS
 
-1. Создайте сайт (WWW-домен) с вашим доменом.
-2. Направьте трафик на Node.js **порт 3000** (прокси / «обработчик Node.js» — название зависит от версии панели).
-3. Включите SSL Let's Encrypt для домена.
-4. Убедитесь, что в прокси передаются заголовки:
-   - `Host`
-   - `X-Real-IP`
-   - `X-Forwarded-For`
-   - `X-Forwarded-Proto`
-
-Если панель даёт править Nginx вручную — образец: `deploy/vps/nginx.asteria.conf`.
-
-На голом Nginx без панели:
+### 7.1. Конфиг сайта
 
 ```bash
-cp deploy/vps/nginx.asteria.conf /etc/nginx/sites-available/asteria
-# замените example.ru на ваш домен
-ln -s /etc/nginx/sites-available/asteria /etc/nginx/sites-enabled/
-nginx -t && systemctl reload nginx
-certbot --nginx -d ваш-домен.ru -d www.ваш-домен.ru
+sudo cp /var/www/asteria/deploy/vps/nginx.asteria.conf /etc/nginx/sites-available/asteria
+sudo nano /etc/nginx/sites-available/asteria
 ```
 
-После выпуска SSL снова проверьте `SITE_URL=https://...` и перезапустите:
+Замените `example.ru` на ваш домен (оба `server_name`).
 
 ```bash
-pm2 reload asteria --update-env
+sudo ln -sf /etc/nginx/sites-available/asteria /etc/nginx/sites-enabled/asteria
+# если мешает дефолтный сайт:
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo nginx -t && sudo systemctl reload nginx
 ```
 
----
+Проверка по HTTP: `http://ваш-домен.ru` (пока без SSL тоже должен открываться через прокси).
 
-## 7. Права на загрузки
+### 7.2. Let's Encrypt
 
 ```bash
-mkdir -p /var/www/asteria/storage/uploads
-chown -R $USER:$USER /var/www/asteria/storage
-# если PM2 от другого пользователя — выдайте ему запись в storage/
+sudo certbot --nginx -d ваш-домен.ru -d www.ваш-домен.ru
+```
+
+Если ошибка DNS (`SERVFAIL` / неверный IP) — сначала почините A-записи, потом снова Certbot.
+
+После SSL в `.env` должно быть `SITE_URL=https://ваш-домен.ru`, затем:
+
+```bash
+cd /var/www/asteria
+pm2 reload deploy/vps/ecosystem.config.cjs --update-env
 ```
 
 ---
 
-## 8. Что проверить после запуска
+## 8. Права на загрузки
 
-- Главная: `https://домен.ru`
-- Админка: `https://домен.ru/admin/login`
-- Создание услуги / статьи
-- Загрузка картинки в редакторе
-- Кнопка «Заказать консультацию» → письмо на `CONTACT_TO_EMAIL`
+```bash
+mkdir -p /var/www/asteria/storage/uploads /var/www/asteria/storage/logs
+chown -R "$USER:$USER" /var/www/asteria/storage
+chmod -R u+rwX /var/www/asteria/storage
+```
+
+---
+
+## 9. Проверка после запуска
+
+- https://домен.ru  
+- https://домен.ru/admin/login  
+- создание услуги / статьи  
+- загрузка картинки в редакторе  
+- форма консультации (если SMTP заполнен)  
 - `pm2 logs asteria`
 
 ---
 
-## 9. Обновление сайта
+## 10. Обновление
+
+### Вручную
 
 ```bash
 cd /var/www/asteria
-git pull
+git pull origin main
 bash deploy/vps/deploy.sh
 ```
 
+### Автодеплой с GitHub (как Vercel)
+
+При каждом **push в `main`** GitHub Actions подключается по SSH и запускает `deploy/vps/deploy.sh`.
+
+Workflow: `.github/workflows/deploy-vps.yml`
+
+#### 10.1. Пользователь для деплоя на VPS
+
+Рекомендуется отдельный пользователь (не root):
+
+```bash
+sudo adduser --disabled-password --gecos "" deploy
+sudo usermod -aG sudo deploy   # опционально; для деплоя sudo не нужен
+sudo chown -R deploy:deploy /var/www/asteria
+```
+
+#### 10.2. Git на сервере (read-only deploy key)
+
+```bash
+sudo -u deploy bash
+ssh-keygen -t ed25519 -C "asteria-vps-git" -f ~/.ssh/id_ed25519 -N ""
+cat ~/.ssh/id_ed25519.pub
+```
+
+Публичный ключ → GitHub: **Settings → Deploy keys → Add deploy key** (только **Read**).
+
+```bash
+cd /var/www/asteria
+git remote -v
+# если HTTPS — переключите на SSH:
+git remote set-url origin git@github.com:ByteSpectre/asteria-site.git
+ssh -T git@github.com
+git fetch origin main
+```
+
+#### 10.3. SSH-ключ для GitHub Actions
+
+На **своём ПК** (не на сервере):
+
+```bash
+ssh-keygen -t ed25519 -C "github-actions-asteria" -f github_actions_deploy -N ""
+```
+
+- **Публичный** ключ (`github_actions_deploy.pub`) → на VPS:
+
+```bash
+sudo mkdir -p /home/deploy/.ssh
+sudo bash -c 'cat github_actions_deploy.pub >> /home/deploy/.ssh/authorized_keys'
+sudo chown -R deploy:deploy /home/deploy/.ssh
+sudo chmod 700 /home/deploy/.ssh
+sudo chmod 600 /home/deploy/.ssh/authorized_keys
+```
+
+- **Приватный** ключ (`github_actions_deploy`) → в GitHub репозитория:  
+  **Settings → Secrets and variables → Actions → New repository secret**
+
+| Secret | Значение |
+|--------|----------|
+| `VPS_HOST` | IP или домен сервера |
+| `VPS_USER` | `deploy` |
+| `VPS_SSH_KEY` | содержимое **приватного** ключа целиком |
+| `VPS_PORT` | `22` (если другой порт SSH) |
+
+#### 10.4. Проверка
+
+1. Сделайте commit и **push в `main`**.
+2. GitHub → **Actions** → workflow **Deploy VPS**.
+3. На сервере: `pm2 status`, сайт открывается.
+
+Ручной запуск без push: **Actions → Deploy VPS → Run workflow**.
+
+Файл `.env` на сервере **не** в Git — workflow его не трогает.
+
 ---
 
-## 10. Резервные копии
+## 11. Резервные копии
 
-Делайте бэкап минимум двух вещей:
-
-1. **База PostgreSQL**
+1. База:
 
 ```bash
 pg_dump -U asteria -h 127.0.0.1 asteria > backup-$(date +%F).sql
 ```
 
-2. **Файлы** — каталог `/var/www/asteria/storage/uploads`
-
-Файл `.env` храните отдельно и **не** коммитьте в Git.
+2. Файлы: `/var/www/asteria/storage/uploads`  
+3. Файл `.env` — храните отдельно, **не** коммитьте в Git.
 
 ---
 
-## 11. Содержимое папки `deploy/vps`
+## 12. Файлы в `deploy/vps`
 
 | Файл | Назначение |
 |------|------------|
-| `INSTRUCTION.md` | эта инструкция (VPS) |
-| `INSTRUCTION-WSL.md` | локальная проверка в WSL Ubuntu |
-| `CHECKLIST.md` | короткий чеклист |
-| `env.production.example` | шаблон `.env` для VPS |
+| `INSTRUCTION.md` | эта инструкция (чистый Ubuntu) |
+| `INSTRUCTION-WSL.md` | локальная проверка в WSL |
+| `env.production.example` | шаблон `.env` |
 | `env.wsl.example` | шаблон `.env` для WSL |
-| `ecosystem.config.cjs` | конфиг PM2 |
-| `nginx.asteria.conf` | пример Nginx |
-| `postgres-init.sql` | создание БД/пользователя |
+| `ecosystem.config.cjs` | PM2 |
+| `nginx.asteria.conf` | Nginx |
+| `postgres-init.sql` | создание БД |
+| `docker-compose.postgres.yml` | Postgres в Docker (опционально) |
 | `deploy.sh` | установка / обновление |
+| `.github/workflows/deploy-vps.yml` | автодеплой при push в `main` |
 
 ---
 
@@ -241,17 +343,22 @@ pg_dump -U asteria -h 127.0.0.1 asteria > backup-$(date +%F).sql
 
 | Симптом | Что сделать |
 |---------|-------------|
-| `pm2` online, сайт 502 | Nginx не проксирует на `127.0.0.1:3000` |
-| Ошибка БД при сборке | Проверьте `DATABASE_URL` / пароль / что Postgres слушает |
-| Админ-логин не работает | Пересоздайте `ADMIN_PASSWORD_HASH`, сверьте `ADMIN_LOGIN` |
-| Картинки не грузятся | Права на `UPLOAD_DIR`, пустой `BLOB_READ_WRITE_TOKEN` |
-| Rate limit / CSRF | `SITE_URL` = точный https-домен, `TRUST_PROXY=true` |
-| Письма не уходят | SMTP: app-password Gmail / пароль почты, порт 465 |
+| `pm2` online, снаружи 502 | Nginx не проксирует на `127.0.0.1:3000`; `nginx -t`, `systemctl status nginx` |
+| Certbot: DNS / SERVFAIL | A-записи домена на IP VPS; подождать DNS |
+| `Missing .env` | `.env` должен лежать в корне проекта (`/var/www/asteria/.env`) |
+| Ошибка БД | `DATABASE_URL`, пароль, `systemctl status postgresql` |
+| Админ не входит | `ADMIN_PASSWORD_HASH_B64` (не сырой hash), `SITE_URL=https://...` |
+| Картинки не грузятся | права на `UPLOAD_DIR`, пустой `BLOB_READ_WRITE_TOKEN` |
+| CSRF / загрузки | точный `SITE_URL`, `TRUST_PROXY=true` |
+| Письма не уходят | SMTP app-password, порт 465 |
+| Actions: Permission denied (publickey) | `VPS_SSH_KEY`, `authorized_keys`, пользователь `deploy` |
+| Actions: git fetch failed | Deploy key на GitHub, `git remote` на SSH |
+| Actions: Missing .env | `.env` только на сервере, не в репозитории |
 
 ---
 
 ## Важно
 
-- Supabase **не нужен** — Postgres на VPS.
-- Vercel Blob **не нужен** — локальный `UPLOAD_DIR`.
-- Сайт слушает только localhost:3000; снаружи — Nginx + SSL.
+- Панель управления **не нужна** — достаточно SSH + Nginx + PM2 + Postgres.  
+- Сайт слушает только `127.0.0.1:3000`; снаружи — Nginx + SSL.  
+- DNS можно вести у регистратора / DNSAdmin; ISPmanager для этого проекта не требуется.

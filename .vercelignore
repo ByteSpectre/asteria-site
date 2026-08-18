@@ -11,5 +11,4 @@ screenshots
 .env
 .env.local
 docker-compose.yml
-BACKEND.md
 prisma/migrations
