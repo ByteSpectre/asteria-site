@@ -86,14 +86,71 @@ export default function ContactFormModal({ open, mode, onClose }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  if (!open) return null;
+  const [mounted, setMounted] = useState(open);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      const show = window.setTimeout(() => setVisible(true), 20);
+      return () => window.clearTimeout(show);
+    }
+    setVisible(false);
+    const hide = window.setTimeout(() => setMounted(false), 400);
+    return () => window.clearTimeout(hide);
+  }, [open]);
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    const scrollbarWidth = Math.max(
+      0,
+      window.innerWidth - document.documentElement.clientWidth,
+    );
+    const previous = {
+      bodyOverflow: document.body.style.overflow,
+      htmlOverflow: document.documentElement.style.overflow,
+      bodyPaddingRight: document.body.style.paddingRight,
+      compensation: document.documentElement.style.getPropertyValue(
+        "--scrollbar-compensation",
+      ),
+    };
+
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+      const pad = `${scrollbarWidth}px`;
+      document.body.style.paddingRight = pad;
+      document.documentElement.style.setProperty("--scrollbar-compensation", pad);
+    }
+    document.body.classList.add("contact-form-open");
+
+    return () => {
+      document.documentElement.style.overflow = previous.htmlOverflow;
+      document.body.style.overflow = previous.bodyOverflow;
+      document.body.style.paddingRight = previous.bodyPaddingRight;
+      if (previous.compensation) {
+        document.documentElement.style.setProperty(
+          "--scrollbar-compensation",
+          previous.compensation,
+        );
+      } else {
+        document.documentElement.style.removeProperty("--scrollbar-compensation");
+      }
+      document.body.classList.remove("contact-form-open");
+    };
+  }, [mounted]);
+
+  if (!mounted) return null;
 
   return (
     <div className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center">
       <button
         type="button"
         aria-label="Закрыть"
-        className="absolute inset-0 bg-ink/55 backdrop-blur-[2px]"
+        className={`absolute inset-0 bg-ink/85 backdrop-blur-[4px] transition-opacity duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+          visible ? "opacity-100" : "opacity-0"
+        }`}
         onClick={onClose}
       />
 
@@ -102,7 +159,11 @@ export default function ContactFormModal({ open, mode, onClose }: Props) {
         aria-modal="true"
         aria-labelledby="contact-form-title"
         data-lenis-prevent
-        className="relative z-10 w-full max-w-lg border border-ink/10 bg-ivory text-ink shadow-[0_24px_80px_rgba(22,19,16,0.28)] sm:mx-6"
+        className={`relative z-10 w-full max-w-lg border border-ink/10 bg-ivory text-ink shadow-[0_24px_80px_rgba(22,19,16,0.45)] transition-[opacity,transform] duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transform-none motion-reduce:transition-none sm:mx-6 ${
+          visible
+            ? "translate-y-0 opacity-100"
+            : "translate-y-8 opacity-0 sm:translate-y-5"
+        }`}
       >
         <div className="flex items-center justify-between border-b border-ink/10 px-5 py-4 sm:px-7">
           <div>
