@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { gsap, useGSAP } from "@/lib/gsap";
 import Reveal from "@/components/Reveal";
 import RevealStagger from "@/components/RevealStagger";
 import ContactSky from "@/components/ContactSky";
@@ -28,6 +29,28 @@ const content = SUBSCRIPTION_CONTENT;
  */
 export default function SubscriptionServicePage() {
   const [openFaq, setOpenFaq] = useState(0);
+  const processRoot = useRef<HTMLElement>(null);
+  const [activeStep, setActiveStep] = useState(0);
+
+  useGSAP(
+    () => {
+      const steps = gsap.utils.toArray<HTMLElement>("[data-step]");
+      if (!steps.length) return;
+
+      steps.forEach((step, i) => {
+        gsap.to(step, {
+          scrollTrigger: {
+            trigger: step,
+            start: "top 55%",
+            end: "bottom 55%",
+            onEnter: () => setActiveStep(i),
+            onEnterBack: () => setActiveStep(i),
+          },
+        });
+      });
+    },
+    { scope: processRoot },
+  );
 
   return (
     <ServicePageShell>
@@ -561,23 +584,33 @@ export default function SubscriptionServicePage() {
       </section>
 
       {/* 10. Process */}
-      <section className="bg-ink py-16 text-ivory sm:py-20 md:py-28">
+      <section ref={processRoot} className="bg-ink py-16 text-ivory sm:py-20 md:py-28">
         <div className="container-x mx-auto max-w-[1440px]">
-          <Reveal>
-            <SectionEyebrow light>Процесс</SectionEyebrow>
-            <h2 className="type-section-title font-display max-w-[12ch]">
-              Как мы работаем
-            </h2>
-          </Reveal>
+          <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+            <Reveal>
+              <SectionEyebrow light>Процесс</SectionEyebrow>
+              <h2 className="type-section-title font-display max-w-[12ch]">
+                Как мы работаем
+              </h2>
+            </Reveal>
+            <Reveal delay={0.1} className="flex flex-col justify-end">
+              <p className="type-body-sm max-w-[48ch] text-ivory/55">{content.processLead}</p>
+            </Reveal>
+          </div>
 
           <RevealStagger className="mt-12 border-t border-ivory/15 md:mt-16">
             {content.process.map((step, index) => (
               <article
                 key={step.title}
                 data-reveal-item
-                className="grid gap-4 border-b border-ivory/15 py-7 md:grid-cols-[6rem_minmax(11rem,16rem)_minmax(0,1fr)] md:items-center md:gap-10 md:py-9"
+                data-step
+                className="grid gap-4 border-b border-ivory/15 py-7 md:grid-cols-3 md:items-center md:gap-10 md:py-9"
               >
-                <span className="type-stat text-stroke-ivory font-display">
+                <span
+                  className={`type-stat font-display transition-all duration-500 ${
+                    activeStep === index ? "text-ivory" : "text-stroke-ivory opacity-50"
+                  }`}
+                >
                   {pad(index)}
                 </span>
                 <h3 className="type-card-title font-display font-medium">{step.title}</h3>

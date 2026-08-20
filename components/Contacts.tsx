@@ -10,7 +10,7 @@ import Star from "@/components/Star";
 import ContactSky from "@/components/ContactSky";
 
 const MESSENGERS = [
-  { label: "Telegram", href: "https://t.me/", icon: "/images/icon-msg-2.svg" },
+  { label: "Telegram", href: "https://t.me/+79953013834", icon: "/images/icon-msg-2.svg" },
   {
     label: "WhatsApp",
     href: "https://wa.me/79953013834",
