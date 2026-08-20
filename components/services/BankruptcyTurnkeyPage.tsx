@@ -5,6 +5,7 @@ import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import RevealStagger from "@/components/RevealStagger";
 import Arrow from "@/components/Arrow";
+import Star from "@/components/Star";
 import MagneticButton from "@/components/MagneticButton";
 import BankruptcyTracksFolder from "@/components/services/BankruptcyTracksFolder";
 import {
@@ -25,53 +26,53 @@ const content = BANKRUPTCY_CONTENT;
 export default function BankruptcyTurnkeyPage() {
   return (
     <ServicePageShell>
+      {/* 1. Hero */}
       <section className="border-t border-ink">
         <div className="container-x mx-auto max-w-[1440px]">
           <Reveal>
             <ServiceBreadcrumb category={BANKRUPTCY_META.category} title={BANKRUPTCY_META.title} />
           </Reveal>
 
-          <div className="grid gap-8 border-y border-ink pb-10 pt-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:gap-16 lg:pb-16 lg:pt-10">
-            <Reveal>
+          <div className="grid gap-0 border-y border-ink lg:grid-cols-[minmax(0,1.35fr)_minmax(16rem,0.65fr)]">
+            <Reveal className="flex flex-col justify-center gap-6 pb-10 pt-8 lg:gap-8 lg:pb-16 lg:pr-16 lg:pt-12">
               <SectionEyebrow>{content.hero.eyebrow}</SectionEyebrow>
-              <h1 className="service-hero-title max-w-[18ch] text-ink lg:max-w-[15ch]">
+              <h1 className="service-hero-title max-w-[15ch] text-ink">
                 {content.hero.title}
               </h1>
-            </Reveal>
-
-            <Reveal
-              delay={0.08}
-              className="flex min-w-0 flex-col justify-end border-t border-ink/15 pt-7 lg:border-t-0 lg:pt-0"
-            >
-              <ul className="space-y-4">
-                {content.hero.promises.map((item) => (
-                  <li key={item} className="flex gap-3 type-body-sm text-ink/75">
-                    <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-wine" aria-hidden />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
+              <div className="pt-1">
                 <MessengerButton>{content.hero.cta}</MessengerButton>
               </div>
               <Link
                 href={content.hero.softLink.href}
-                className="type-body-sm mt-5 break-words text-ink/45 underline-offset-4 transition-colors hover:text-wine hover:underline"
+                className="type-body-sm break-words text-ink/45 underline-offset-4 transition-colors hover:text-wine hover:underline"
               >
                 {content.hero.softLink.label}
               </Link>
             </Reveal>
-          </div>
 
-          <Reveal>
-            <p className="type-body-sm max-w-[72ch] py-6 text-ink/45 lg:py-7">
-              {content.hero.disclaimer}
-            </p>
-          </Reveal>
+            <Reveal
+              delay={0.08}
+              className="flex flex-col justify-center gap-8 border-t border-ink/15 bg-wine px-6 py-9 text-ivory sm:px-8 sm:py-10 lg:border-l lg:border-t-0 lg:border-ink lg:px-10 lg:py-16"
+            >
+              <p className="type-label font-mono uppercase text-ivory/50">Что получите</p>
+              <ul className="space-y-4">
+                {content.hero.promises.map((item) => (
+                  <li key={item} className="flex gap-3 type-body-sm text-ivory/80">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-ivory/60" aria-hidden />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="type-label font-mono uppercase text-ivory/40">
+                Рассрочка · от 16 900 ₽/мес
+              </p>
+            </Reveal>
+          </div>
         </div>
       </section>
 
-      <section className="bg-ivory py-16 sm:py-20 md:py-28">
+      {/* 2. Pillars — same pattern as template services */}
+      <section className="bg-cream py-16 sm:py-20 md:py-28 lg:py-32">
         <div className="container-x mx-auto max-w-[1440px]">
           <Reveal>
             <SectionEyebrow>Почему мы</SectionEyebrow>
@@ -80,24 +81,92 @@ export default function BankruptcyTurnkeyPage() {
             </h2>
           </Reveal>
 
-          <div className="mt-12 border-t border-ink/15 md:mt-16">
-            <RevealStagger>
+          {/* Mobile timeline */}
+          <div className="relative mt-12 md:hidden">
+            <div aria-hidden className="absolute top-2 bottom-2 left-5 w-px bg-wine/20" />
+            <div className="space-y-8">
+              {content.pillars.map((item, index) => {
+                const last = index === content.pillars.length - 1;
+                return (
+                  <Reveal key={item.title} delay={index * 0.05}>
+                    <article className="relative pl-16">
+                      <span
+                        className={`type-label absolute top-0 left-0 flex h-10 w-10 items-center justify-center rounded-full font-mono ${
+                          last
+                            ? "border border-wine bg-wine text-ivory"
+                            : "border border-wine/30 bg-cream text-wine"
+                        }`}
+                      >
+                        {last ? <Star className="h-3.5 w-3.5" /> : pad(index)}
+                      </span>
+                      <h3 className="type-card-title font-display font-medium text-ink">
+                        {item.title}
+                      </h3>
+                      <p className="type-body-sm mt-2 max-w-[34ch] text-ink/60">{item.text}</p>
+                    </article>
+                  </Reveal>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Desktop quadrants */}
+          <div className="relative mt-16 hidden md:block">
+            <div aria-hidden className="absolute inset-x-0 top-1/2 h-px bg-wine/20" />
+            <div aria-hidden className="absolute inset-y-0 left-1/2 w-px bg-wine/20" />
+
+            <div className="grid grid-cols-2">
               {content.pillars.map((item, index) => (
-                <article
-                  key={item.title}
-                  data-reveal-item
-                  className="grid gap-3 border-b border-ink/15 py-7 text-left md:grid-cols-[4rem_minmax(12rem,0.85fr)_minmax(0,1.6fr)] md:items-start md:gap-8 md:py-8"
-                >
-                  <span className="type-label font-mono text-wine">{pad(index)}</span>
-                  <h3 className="type-card-title font-display font-medium">{item.title}</h3>
-                  <p className="type-body-sm max-w-[54ch] text-left text-ink/60">{item.text}</p>
-                </article>
+                <Reveal key={item.title} delay={index * 0.06}>
+                  <article
+                    className={`relative flex min-h-[250px] overflow-hidden lg:min-h-[290px] ${
+                      index === 0
+                        ? "items-start justify-start pr-20 pb-16"
+                        : index === 1
+                          ? "items-start justify-end pb-16 pl-20 text-right"
+                          : index === 2
+                            ? "items-end justify-start pt-16 pr-20"
+                            : "items-end justify-end pt-16 pl-20 text-right"
+                    }`}
+                  >
+                    <span
+                      aria-hidden
+                      className={`absolute font-display text-[8rem] leading-none tracking-[-0.08em] text-wine/[0.06] lg:text-[10rem] ${
+                        index % 2 === 0 ? "left-0" : "right-0"
+                      } ${index < 2 ? "top-0" : "bottom-0"}`}
+                    >
+                      {index + 1}
+                    </span>
+                    <div className="relative z-10 max-w-[25rem]">
+                      <span className="type-label font-mono uppercase text-wine/55">
+                        Пункт {pad(index)}
+                      </span>
+                      <h3 className="type-card-title font-display mt-4 font-medium text-ink">
+                        {item.title}
+                      </h3>
+                      <p className={`type-body-sm mt-3 text-ink/60 ${index % 2 ? "ml-auto" : ""}`}>
+                        {item.text}
+                      </p>
+                    </div>
+                  </article>
+                </Reveal>
               ))}
-            </RevealStagger>
+            </div>
+
+            <div
+              aria-hidden
+              className="absolute top-1/2 left-1/2 z-20 flex h-32 w-32 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-wine text-ivory shadow-[0_0_0_12px_var(--color-cream)] lg:h-40 lg:w-40"
+            >
+              <Star className="h-7 w-7 text-ivory/90 lg:h-9 lg:w-9" />
+              <span className="type-micro mt-3 font-mono uppercase tracking-[0.12em] text-ivory/55">
+                Астерия
+              </span>
+            </div>
           </div>
         </div>
       </section>
 
+      {/* 3. Manifesto */}
       <section className="relative overflow-hidden py-16 text-ivory sm:py-20 md:py-28">
         <Image
           src="/images/bankruptcy-essence-bg.png"
@@ -131,6 +200,7 @@ export default function BankruptcyTurnkeyPage() {
 
       <BankruptcyTracksFolder tracks={content.tracks} />
 
+      {/* 4. Consequences — 4 vertical cards */}
       <section
         id="posledstviya"
         data-testid="bankruptcy-consequences"
@@ -147,128 +217,49 @@ export default function BankruptcyTurnkeyPage() {
         />
 
         <div className="container-x relative mx-auto max-w-[1440px]">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)] lg:items-end lg:gap-16">
-            <Reveal>
-              <SectionEyebrow light>После процедуры</SectionEyebrow>
-              <h2 className="type-section-title font-display max-w-[14ch] text-ivory">
-                Последствия банкротства
-              </h2>
-            </Reveal>
+          <Reveal>
+            <SectionEyebrow light>После процедуры</SectionEyebrow>
+            <h2 className="type-section-title font-display max-w-[14ch] text-ivory">
+              {content.consequences.title}
+            </h2>
+            <p className="type-body-sm mt-5 max-w-[46ch] text-ivory/60">
+              {content.consequences.lead}
+            </p>
+          </Reveal>
 
-            <Reveal delay={0.08} className="lg:pb-1">
-              <div className="border-l border-ivory/25 pl-5 sm:pl-7">
-                <p className="type-label font-mono uppercase text-ivory/55">
-                  После завершения процедуры
-                </p>
-                <p className="type-body-sm mt-4 max-w-[42ch] text-ivory/70">
-                  {content.consequences.intro}
-                </p>
-              </div>
-            </Reveal>
-          </div>
-
-          <div
-            data-testid="consequence-cards"
-            className="mt-12 bg-white text-ink md:mt-16"
-          >
-            {(() => {
-              const groups = [
-                {
-                  kind: "freedom" as const,
-                  label: content.consequences.freedomsLabel,
-                  marker: "Можно",
-                },
-                {
-                  kind: "limit" as const,
-                  label: content.consequences.limitsLabel,
-                  marker: "Сроки",
-                },
-              ];
-
-              return (
-                <>
-                  <div className="grid border-b border-ink/10 lg:grid-cols-2">
-                    {groups.map((group) => (
-                      <div
-                        key={group.kind}
-                        className={`flex min-h-[3.5rem] items-center justify-between gap-6 px-5 py-5 sm:px-7 sm:py-6 lg:px-10 xl:px-12 ${
-                          group.kind === "freedom" ? "lg:border-r lg:border-ink/10" : ""
-                        }`}
-                      >
-                        <p className="type-label font-mono uppercase text-ink/45">{group.label}</p>
-                        <span className="type-label shrink-0 border border-ink/15 px-3 py-1.5 font-mono uppercase text-ink/55">
-                          {group.marker}
-                        </span>
-                      </div>
-                    ))}
+          <div className="mt-12 grid gap-px bg-ivory/15 sm:grid-cols-2 lg:grid-cols-4 md:mt-16">
+            {content.consequences.rows.map((row, index) => (
+              <Reveal key={row.title} delay={index * 0.05}>
+                <article className="flex h-full min-h-[16rem] flex-col justify-between gap-8 bg-wine-deep px-6 py-8 sm:px-7 sm:py-9">
+                  <span className="type-label font-mono text-ivory/35">{pad(index)}</span>
+                  <div>
+                    <h3 className="type-card-title font-display font-medium leading-[1.2] text-ivory">
+                      {row.title}
+                    </h3>
+                    <p className="type-body-sm mt-4 text-ivory/60">{row.text}</p>
                   </div>
-
-                  <div className="grid lg:grid-cols-2">
-                    {groups.map((group) => (
-                      <div
-                        key={group.kind}
-                        className={`bg-white px-5 py-6 sm:px-7 sm:py-8 lg:px-10 lg:py-10 xl:px-12 ${
-                          group.kind === "freedom" ? "lg:border-r lg:border-ink/10" : ""
-                        }`}
-                      >
-                        <RevealStagger className="grid gap-4">
-                          {content.consequences.rows
-                            .filter((row) => row.kind === group.kind)
-                            .map((row) => (
-                              <article
-                                key={row.title}
-                                data-reveal-item
-                                className="group bg-white py-5 text-ink sm:py-6"
-                              >
-                                <div className="flex items-start justify-between gap-4">
-                                  <p className="font-display text-[42px] leading-[1.1] !font-normal tracking-[-0.06em] text-ink whitespace-nowrap">
-                                    {row.fact}
-                                  </p>
-                                  <p className="type-label shrink-0 text-right font-mono uppercase leading-none text-ink/45">
-                                    {row.factLabel}
-                                  </p>
-                                </div>
-                                <h3 className="type-card-title font-display mt-5 font-medium leading-[1.2] text-wine">
-                                  {row.title}
-                                </h3>
-                                <p className="type-body-sm mt-3 max-w-[48ch] text-ink/65">{row.text}</p>
-                              </article>
-                            ))}
-                        </RevealStagger>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              );
-            })()}
+                </article>
+              </Reveal>
+            ))}
           </div>
 
           <Reveal>
-            <div className="grid border-b border-ivory/20 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-stretch">
-              <div className="py-8 lg:pr-12 lg:py-10">
-                <p className="type-label font-mono uppercase text-ivory/55">Важно знать до старта</p>
-                <p className="type-body-sm mt-4 max-w-[72ch] text-ivory/65">
-                  {content.consequences.reminder}
-                </p>
-              </div>
-
-              <div className="flex flex-col items-start gap-5 border-t border-ivory/20 py-8 lg:min-w-[22rem] lg:justify-center lg:border-l lg:border-t-0 lg:py-10 lg:pl-10">
-                <MessengerButton className="!bg-ivory !text-wine-deep hover:!bg-cream focus-visible:!ring-ivory focus-visible:!ring-offset-wine-deep">
-                  Обсудить мою ситуацию
-                </MessengerButton>
-                <Link
-                  href={content.consequences.article.href}
-                  className="type-label group inline-flex min-h-11 items-center gap-2 font-mono uppercase text-ivory/60 transition-colors hover:text-ivory focus-visible:outline-ivory"
-                >
-                  {content.consequences.article.label}
-                  <Arrow className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
-                </Link>
-              </div>
+            <div className="mt-12 flex flex-col gap-6 border-t border-ivory/15 pt-8 sm:flex-row sm:items-center sm:gap-8 md:mt-16 md:pt-10">
+              <MessengerButton className="!bg-ivory !text-wine-deep hover:!bg-cream focus-visible:!ring-ivory focus-visible:!ring-offset-wine-deep">
+                {content.consequences.cta}
+              </MessengerButton>
+              <TextLink href={content.consequences.article.href} light>
+                {content.consequences.article.label}
+              </TextLink>
             </div>
+            <p className="type-body-sm mt-8 max-w-[64ch] border-l-2 border-ivory/25 pl-5 text-ivory/55 sm:pl-7">
+              {content.consequences.warning}
+            </p>
           </Reveal>
         </div>
       </section>
 
+      {/* 5. Education */}
       <section className="relative overflow-hidden bg-ink py-16 text-ivory sm:py-20 md:py-28">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
@@ -312,7 +303,7 @@ export default function BankruptcyTurnkeyPage() {
           </ul>
 
           <Reveal>
-            <div className="mt-10 border-t border-ivory/15 pt-8 md:mt-12 md:pt-10">
+            <div className="mt-10 pt-8 md:mt-12 md:pt-10">
               <TextLink href={content.education.allHref} light>
                 Все статьи
               </TextLink>

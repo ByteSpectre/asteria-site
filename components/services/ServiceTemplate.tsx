@@ -273,19 +273,28 @@ function PrinciplesSection({
         <div className="relative md:hidden">
           <div aria-hidden className="absolute top-2 bottom-2 left-5 w-px bg-wine/20" />
           <div className="space-y-8">
-            {items.map((item, index) => (
-              <Reveal key={item.title} delay={index * 0.05}>
-                <article className="relative pl-16">
-                  <span className="type-label absolute top-0 left-0 flex h-10 w-10 items-center justify-center rounded-full border border-wine/30 bg-cream font-mono text-wine">
-                    {pad(index)}
-                  </span>
-                  <h3 className="type-card-title font-display font-medium text-ink">
-                    {item.title}
-                  </h3>
-                  <p className="type-body-sm mt-2 max-w-[34ch] text-ink/60">{item.text}</p>
-                </article>
-              </Reveal>
-            ))}
+            {items.map((item, index) => {
+              const last = index === items.length - 1;
+              return (
+                <Reveal key={item.title} delay={index * 0.05}>
+                  <article className="relative pl-16">
+                    <span
+                      className={`type-label absolute top-0 left-0 flex h-10 w-10 items-center justify-center rounded-full font-mono ${
+                        last
+                          ? "border border-wine bg-wine text-ivory"
+                          : "border border-wine/30 bg-cream text-wine"
+                      }`}
+                    >
+                      {last ? <Star className="h-3.5 w-3.5" /> : pad(index)}
+                    </span>
+                    <h3 className="type-card-title font-display font-medium text-ink">
+                      {item.title}
+                    </h3>
+                    <p className="type-body-sm mt-2 max-w-[34ch] text-ink/60">{item.text}</p>
+                  </article>
+                </Reveal>
+              );
+            })}
           </div>
         </div>
 
