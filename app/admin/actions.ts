@@ -1,14 +1,12 @@
 "use server";
 
-import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { revalidatePath, revalidateTag } from "next/cache";
 import type { Prisma } from "@/app/generated/prisma/client";
 import { parseArticleInput, parseServiceInput, type ArticleInput, type ServiceInput } from "@/lib/content-validation";
 import { joinCategoryList, parseCategoryList } from "@/lib/category-list";
 import { slugify } from "@/lib/content";
-import { createAdminSession, destroyAdminSession, requireAdmin, verifyCaptcha } from "@/lib/server/auth";
-import { getAdminPasswordHash } from "@/lib/server/admin-credentials";
+import { createAdminSession, destroyAdminSession, ensureAdminBootstrap, requireAdmin, verifyAdminCredentials, verifyCaptcha } from "@/lib/server/auth";
 import { getDb } from "@/lib/server/db";
 import { canAttemptLogin, clearLoginFailures, recordLoginFailure } from "@/lib/server/login-throttle";
 import { z } from "zod";
@@ -44,14 +42,9 @@ export async function loginAction(_previous: LoginState, formData: FormData): Pr
     };
   }
 
-  const expectedLogin = process.env.ADMIN_LOGIN?.trim().toLowerCase();
-  const passwordHash = getAdminPasswordHash();
-  if (!expectedLogin || !passwordHash) {
-    return { error: "Учётная запись администратора не настроена.", refresh: Date.now() };
-  }
-
-  const validPassword = await bcrypt.compare(password, passwordHash);
-  if (login !== expectedLogin || !validPassword) {
+  await ensureAdminBootstrap();
+  const user = await verifyAdminCredentials(login, password);
+  if (!user) {
     const locked = await recordLoginFailure(attempt.key, attempt.accountKey);
     if (locked) {
       return { error: "Слишком много попыток. Повторите вход через 15 минут.", refresh: Date.now() };
@@ -66,7 +59,7 @@ export async function loginAction(_previous: LoginState, formData: FormData): Pr
   }
 
   await clearLoginFailures(attempt.key, attempt.accountKey);
-  await createAdminSession(expectedLogin);
+  await createAdminSession(user);
   redirect("/admin/knowledge");
 }
 

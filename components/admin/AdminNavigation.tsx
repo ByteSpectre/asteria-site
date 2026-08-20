@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { BookOpenText, BriefcaseBusiness } from "lucide-react";
+import { BookOpenText, BriefcaseBusiness, Users } from "lucide-react";
 
 const items = [
   { href: "/admin/knowledge", label: "База знаний", icon: BookOpenText },
   { href: "/admin/services", label: "Услуги", icon: BriefcaseBusiness },
+  { href: "/admin/admins", label: "Администраторы", icon: Users },
 ];
 
 export function AdminNavigation() {

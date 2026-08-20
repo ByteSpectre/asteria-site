@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
-import { getAdminPasswordHash } from "@/lib/server/admin-credentials";
-import { createAdminSession, verifyCaptcha } from "@/lib/server/auth";
+import { createAdminSession, ensureAdminBootstrap, verifyAdminCredentials, verifyCaptcha } from "@/lib/server/auth";
+import { getDb } from "@/lib/server/db";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -42,35 +41,24 @@ export async function POST(request: Request) {
       siteUrl: process.env.SITE_URL,
       nodeEnv: process.env.NODE_ENV,
       hasAuthSecret: Boolean(process.env.AUTH_SECRET && process.env.AUTH_SECRET.length >= 32),
-      hasHash: Boolean(getAdminPasswordHash()),
     });
   }
 
-  const expectedLogin = process.env.ADMIN_LOGIN?.trim().toLowerCase();
-  const passwordHash = getAdminPasswordHash();
-  if (!expectedLogin || !passwordHash) {
+  await ensureAdminBootstrap();
+  const adminCount = await getDb().adminUser.count();
+  if (adminCount === 0) {
     return NextResponse.json({
       ok: false,
       step: "env",
-      rawHashLen: process.env.ADMIN_PASSWORD_HASH?.length ?? 0,
-      hasB64: Boolean(process.env.ADMIN_PASSWORD_HASH_B64?.trim()),
+      hint: "no admin users in DB and no env bootstrap credentials",
     });
   }
 
-  const validPassword = await bcrypt.compare(password, passwordHash);
-  if (login !== expectedLogin || !validPassword) {
-    return NextResponse.json({
-      ok: false,
-      step: "credentials",
-      loginMatch: login === expectedLogin,
-      passwordMatch: validPassword,
-      hashLen: passwordHash.length,
-      hashPrefix: passwordHash.slice(0, 7),
-      hashDollars: (passwordHash.match(/\$/g) ?? []).length,
-      passwordLen: password.length,
-    });
+  const user = await verifyAdminCredentials(login, password);
+  if (!user) {
+    return NextResponse.json({ ok: false, step: "credentials" });
   }
 
-  await createAdminSession(expectedLogin);
+  await createAdminSession(user);
   return NextResponse.json({ ok: true, step: "done" });
 }

@@ -32,6 +32,7 @@ export default function ContactFormModal({ open, mode, onClose }: Props) {
   const [openedAt, setOpenedAt] = useState(0);
   const [nonce, setNonce] = useState("");
   const [captchaKey, setCaptchaKey] = useState(0);
+  const [captchaFresh, setCaptchaFresh] = useState(false);
   const [done, setDone] = useState(false);
 
   const isService = mode.type === "service";
@@ -319,7 +320,7 @@ export default function ContactFormModal({ open, mode, onClose }: Props) {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     key={captchaKey}
-                    src={`/api/contact-captcha?v=${captchaKey}`}
+                    src={`/api/contact-captcha?v=${captchaKey}${captchaFresh ? "&fresh=1" : ""}`}
                     alt="Проверочный код"
                     width={190}
                     height={64}
@@ -329,6 +330,7 @@ export default function ContactFormModal({ open, mode, onClose }: Props) {
                     type="button"
                     onClick={() => {
                       setCaptcha("");
+                      setCaptchaFresh(true);
                       setCaptchaKey((value) => value + 1);
                     }}
                     className="type-label h-16 shrink-0 border border-ink/15 px-4 font-mono uppercase text-ink/50 transition-colors hover:border-ink/35 hover:text-ink"

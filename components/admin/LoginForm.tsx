@@ -26,7 +26,7 @@ export function LoginForm() {
         <div className="grid grid-cols-[minmax(0,1fr)_190px_44px] gap-2">
           <input name="captcha" inputMode="text" autoComplete="off" maxLength={5} required aria-label="Код с изображения" className="h-16 min-w-0 border border-ink/15 bg-transparent px-4 text-center text-lg uppercase tracking-[0.18em] outline-none focus:border-ink/15 focus-visible:outline-none focus-visible:ring-0" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img key={captchaKey} src={`/api/captcha?v=${captchaKey}`} alt="Проверочный код" width={190} height={64} className="h-16 w-[190px] border border-ink/10 object-cover" />
+          <img key={captchaKey} src={`/api/captcha?v=${captchaKey}${captchaVersion > 1 ? "&fresh=1" : ""}`} alt="Проверочный код" width={190} height={64} className="h-16 w-[190px] border border-ink/10 object-cover" />
           <button type="button" onClick={() => setCaptchaVersion((value) => value + 1)} aria-label="Обновить код" className="flex h-16 items-center justify-center border border-ink/15 text-ink/45 transition-colors hover:border-wine hover:text-wine">
             <RefreshCw size={16} strokeWidth={1.5} />
           </button>

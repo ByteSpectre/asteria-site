@@ -643,9 +643,6 @@ export default function SubscriptionServicePage() {
                   {content.finale.text}
                 </p>
                 <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-                  <MessengerButton className="!bg-ivory !text-wine hover:!bg-cream">
-                    {content.finale.primaryCta}
-                  </MessengerButton>
                   <MessengerButton className="border border-ivory/30 !bg-transparent !text-ivory hover:!bg-ivory/10">
                     {content.finale.secondaryCta}
                   </MessengerButton>

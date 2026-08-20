@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { issueAdminCaptcha } from "@/lib/server/auth";
-import { createCaptchaCode, renderCaptchaSvg } from "@/lib/server/captcha-image";
+import { resolveAdminCaptchaCode } from "@/lib/server/auth";
+import { renderCaptchaSvg } from "@/lib/server/captcha-image";
 import { consumeRateLimit } from "@/lib/server/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(request: Request) {
   const limit = await consumeRateLimit({
     scope: "admin-captcha",
     max: 30,
@@ -16,8 +16,8 @@ export async function GET() {
     return new NextResponse("Too Many Requests", { status: 429 });
   }
 
-  const code = createCaptchaCode();
-  await issueAdminCaptcha(code);
+  const fresh = new URL(request.url).searchParams.has("fresh");
+  const code = await resolveAdminCaptchaCode(fresh);
 
   const svg = renderCaptchaSvg(code, {
     background: "#f5f1e8",

@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { createCaptchaCode, renderCaptchaSvg } from "@/lib/server/captcha-image";
-import { setContactCaptcha } from "@/lib/server/contact-security";
+import { renderCaptchaSvg } from "@/lib/server/captcha-image";
+import { resolveContactCaptchaCode } from "@/lib/server/contact-security";
 import { consumeRateLimit } from "@/lib/server/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(request: Request) {
   const limit = await consumeRateLimit({
     scope: "contact-captcha",
     max: 30,
@@ -16,8 +16,8 @@ export async function GET() {
     return new NextResponse("Too Many Requests", { status: 429 });
   }
 
-  const code = createCaptchaCode();
-  await setContactCaptcha(code);
+  const fresh = new URL(request.url).searchParams.has("fresh");
+  const code = await resolveContactCaptchaCode(fresh);
 
   const svg = renderCaptchaSvg(code, {
     background: "#fbf8f1",

@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { EncryptJWT, jwtDecrypt } from "jose";
-import { issueCaptcha, secureCookies, verifyCaptchaAnswer } from "@/lib/server/auth";
+import { issueCaptcha, resolveCaptchaCode, secureCookies, verifyCaptchaAnswer } from "@/lib/server/auth";
 import { getDb } from "@/lib/server/db";
 import { consumeGlobalRateLimit, consumeRateLimit } from "@/lib/server/rate-limit";
 
@@ -71,6 +71,15 @@ export async function setContactCaptcha(answer: string) {
     answer,
     audience: "contact",
     sameSite: "strict",
+  });
+}
+
+export async function resolveContactCaptchaCode(fresh: boolean) {
+  return resolveCaptchaCode({
+    cookieName: CONTACT_CAPTCHA_COOKIE,
+    audience: "contact",
+    sameSite: "strict",
+    fresh,
   });
 }
 
