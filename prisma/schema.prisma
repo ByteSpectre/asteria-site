@@ -77,3 +77,22 @@ model RateLimit {
 
   @@index([resetAt])
 }
+
+model CaptchaChallenge {
+  id         String   @id @default(cuid())
+  answerHash String
+  audience   String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+model ContactFormToken {
+  nonce     String   @id
+  openedAt  BigInt
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}

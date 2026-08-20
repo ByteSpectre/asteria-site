@@ -1,8 +1,9 @@
 import { createHash, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { EncryptJWT, jwtDecrypt } from "jose";
-import { createCaptchaToken, useSecureCookies } from "@/lib/server/auth";
-import { consumeRateLimit } from "@/lib/server/rate-limit";
+import { issueCaptcha, secureCookies, verifyCaptchaAnswer } from "@/lib/server/auth";
+import { getDb } from "@/lib/server/db";
+import { consumeGlobalRateLimit, consumeRateLimit } from "@/lib/server/rate-limit";
 
 const CONTACT_CAPTCHA_COOKIE = "asteria_contact_captcha";
 const CONTACT_FORM_COOKIE = "asteria_contact_form";
@@ -10,8 +11,11 @@ const TOKEN_ISSUER = "asteria-site";
 const TOKEN_AUDIENCE = "asteria-contact";
 
 const MIN_FILL_MS = 2500;
+const FORM_TOKEN_TTL_MS = 30 * 60 * 1000;
 const RATE_WINDOW_MS = 15 * 60 * 1000;
 const RATE_MAX = 5;
+const GLOBAL_RATE_WINDOW_MS = 60 * 60 * 1000;
+const GLOBAL_RATE_MAX = 30;
 
 function getSecretKey() {
   const secret = process.env.AUTH_SECRET;
@@ -27,7 +31,20 @@ function getEncryptionKey() {
 
 export async function issueContactFormToken() {
   const openedAt = Date.now();
-  const nonce = randomBytes(12).toString("hex");
+  const nonce = randomBytes(16).toString("hex");
+
+  const db = getDb();
+  await db.contactFormToken.create({
+    data: {
+      nonce,
+      openedAt: BigInt(openedAt),
+      expiresAt: new Date(openedAt + FORM_TOKEN_TTL_MS),
+    },
+  });
+  db.contactFormToken
+    .deleteMany({ where: { expiresAt: { lt: new Date() } } })
+    .catch(() => undefined);
+
   const token = await new EncryptJWT({ kind: "contact-form", openedAt, nonce })
     .setProtectedHeader({ alg: "dir", enc: "A256GCM" })
     .setIssuer(TOKEN_ISSUER)
@@ -40,49 +57,37 @@ export async function issueContactFormToken() {
   store.set(CONTACT_FORM_COOKIE, token, {
     httpOnly: true,
     sameSite: "strict",
-    secure: useSecureCookies(),
+    secure: secureCookies(),
     path: "/",
-    maxAge: 60 * 30,
+    maxAge: FORM_TOKEN_TTL_MS / 1000,
   });
 
   return { openedAt, nonce };
 }
 
-export async function setContactCaptchaCookie(answer: string) {
-  const token = await createCaptchaToken(answer);
-  const store = await cookies();
-  store.set(CONTACT_CAPTCHA_COOKIE, token, {
-    httpOnly: true,
+export async function setContactCaptcha(answer: string) {
+  return issueCaptcha({
+    cookieName: CONTACT_CAPTCHA_COOKIE,
+    answer,
+    audience: "contact",
     sameSite: "strict",
-    secure: useSecureCookies(),
-    path: "/",
-    maxAge: 60 * 5,
   });
 }
 
 export async function verifyContactCaptcha(answer: string) {
-  const store = await cookies();
-  const token = store.get(CONTACT_CAPTCHA_COOKIE)?.value;
-  store.delete(CONTACT_CAPTCHA_COOKIE);
-  if (!token) return false;
-
-  try {
-    const { payload } = await jwtDecrypt(token, getEncryptionKey(), {
-      keyManagementAlgorithms: ["dir"],
-      contentEncryptionAlgorithms: ["A256GCM"],
-      issuer: "asteria-site",
-      audience: "asteria-admin",
-    });
-    return payload.kind === "captcha" && payload.answer === answer.trim().toUpperCase();
-  } catch {
-    return false;
-  }
+  return verifyCaptchaAnswer({
+    cookieName: CONTACT_CAPTCHA_COOKIE,
+    answer,
+    audience: "contact",
+  });
 }
+
+const FORM_ERROR = { ok: false as const, error: "Обновите форму и попробуйте снова." };
 
 export async function assertContactSubmissionTiming(openedAt: number, nonce: string) {
   const store = await cookies();
   const token = store.get(CONTACT_FORM_COOKIE)?.value;
-  if (!token) return { ok: false as const, error: "Обновите форму и попробуйте снова." };
+  if (!token) return FORM_ERROR;
 
   try {
     const { payload } = await jwtDecrypt(token, getEncryptionKey(), {
@@ -96,17 +101,25 @@ export async function assertContactSubmissionTiming(openedAt: number, nonce: str
       typeof payload.openedAt !== "number" ||
       typeof payload.nonce !== "string"
     ) {
-      return { ok: false as const, error: "Обновите форму и попробуйте снова." };
+      return FORM_ERROR;
     }
     if (payload.openedAt !== openedAt || payload.nonce !== nonce) {
-      return { ok: false as const, error: "Обновите форму и попробуйте снова." };
+      return FORM_ERROR;
     }
     if (Date.now() - payload.openedAt < MIN_FILL_MS) {
       return { ok: false as const, error: "Слишком быстрая отправка. Подождите секунду." };
     }
+
+    // Single-use: the server-side record is consumed on first submission,
+    // so a captured cookie cannot be replayed for further sends.
+    const { count } = await getDb().contactFormToken.deleteMany({
+      where: { nonce: payload.nonce, expiresAt: { gt: new Date() } },
+    });
+    if (count !== 1) return FORM_ERROR;
+
     return { ok: true as const };
   } catch {
-    return { ok: false as const, error: "Обновите форму и попробуйте снова." };
+    return FORM_ERROR;
   }
 }
 
@@ -120,5 +133,15 @@ export async function consumeContactRateLimit() {
     scope: "contact-lead",
     max: RATE_MAX,
     windowMs: RATE_WINDOW_MS,
+  });
+}
+
+// Global cap independent of any client-derived key: even an attacker who
+// rotates IPs cannot push more than GLOBAL_RATE_MAX emails/hour through SMTP.
+export async function consumeContactGlobalRateLimit() {
+  return consumeGlobalRateLimit({
+    scope: "contact-lead",
+    max: GLOBAL_RATE_MAX,
+    windowMs: GLOBAL_RATE_WINDOW_MS,
   });
 }

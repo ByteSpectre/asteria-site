@@ -1,17 +1,9 @@
 import { getDb } from "@/lib/server/db";
 import { getClientFingerprint } from "@/lib/server/client-ip";
 
-export async function consumeRateLimit(options: {
-  scope: string;
-  max: number;
-  windowMs: number;
-  /** Extra material mixed into the client key (e.g. admin login). */
-  extra?: string;
-}) {
-  const fingerprint = await getClientFingerprint(options.extra ?? "");
-  const key = `${options.scope}:${fingerprint}`;
+async function consume(key: string, max: number, windowMs: number) {
   const now = Date.now();
-  const resetAt = new Date(now + options.windowMs);
+  const resetAt = new Date(now + windowMs);
   const db = getDb();
 
   try {
@@ -34,10 +26,10 @@ export async function consumeRateLimit(options: {
 
     const entry = rows[0];
     if (!entry) {
-      return { allowed: true as const, remaining: options.max - 1 };
+      return { allowed: true as const, remaining: max - 1 };
     }
 
-    if (entry.count > options.max) {
+    if (entry.count > max) {
       return {
         allowed: false as const,
         retryAfter: entry.resetAt,
@@ -47,7 +39,7 @@ export async function consumeRateLimit(options: {
 
     return {
       allowed: true as const,
-      remaining: Math.max(0, options.max - entry.count),
+      remaining: Math.max(0, max - entry.count),
     };
   } catch (error) {
     // Dev / not-yet-migrated DB: don't break captcha/contact forms.
@@ -55,6 +47,29 @@ export async function consumeRateLimit(options: {
       "[rate-limit] unavailable",
       error instanceof Error ? error.message : "unknown",
     );
-    return { allowed: true as const, remaining: options.max };
+    return { allowed: true as const, remaining: max };
   }
+}
+
+export async function consumeRateLimit(options: {
+  scope: string;
+  max: number;
+  windowMs: number;
+  /** Extra material mixed into the client key (e.g. admin login). */
+  extra?: string;
+}) {
+  const fingerprint = await getClientFingerprint(options.extra ?? "");
+  return consume(`${options.scope}:${fingerprint}`, options.max, options.windowMs);
+}
+
+/**
+ * Site-wide cap not derived from any client-controlled material — a fallback
+ * ceiling that holds even if per-client keys are rotated or spoofed.
+ */
+export async function consumeGlobalRateLimit(options: {
+  scope: string;
+  max: number;
+  windowMs: number;
+}) {
+  return consume(`${options.scope}:global`, options.max, options.windowMs);
 }

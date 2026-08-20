@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createHash } from "node:crypto";
 import { EncryptJWT, jwtDecrypt, jwtVerify, SignJWT } from "jose";
+import { getDb } from "@/lib/server/db";
 
 const SESSION_COOKIE = "asteria_admin_session";
 const CAPTCHA_COOKIE = "asteria_admin_captcha";
@@ -22,7 +23,7 @@ function getSecretKey() {
 }
 
 /** Secure cookies on HTTPS (Vercel, VPS behind Nginx). HTTP only for local/WSL. */
-export function useSecureCookies() {
+export function secureCookies() {
   const siteUrl = process.env.SITE_URL?.trim() ?? "";
   if (siteUrl.startsWith("https://")) return true;
   if (siteUrl.startsWith("http://")) return false;
@@ -50,7 +51,7 @@ export async function createAdminSession(login: string) {
   store.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: useSecureCookies(),
+    secure: secureCookies(),
     path: "/",
     maxAge: 60 * 60 * 8,
   });
@@ -87,33 +88,72 @@ export async function requireAdmin() {
   return session;
 }
 
-export async function createCaptchaToken(answer: string) {
-  return new EncryptJWT({ answer: answer.toUpperCase(), kind: "captcha" })
+const CAPTCHA_TTL_MS = 5 * 60 * 1000;
+
+export type CaptchaAudience = "admin" | "contact";
+
+function hashCaptchaAnswer(answer: string) {
+  return createHash("sha256").update(answer.trim().toUpperCase()).digest("hex");
+}
+
+/**
+ * Captcha answers live only as server-side hashes. The cookie carries an
+ * encrypted challenge id; the answer itself never leaves the server in any
+ * reversible form, and every challenge is consumed atomically on first use.
+ */
+export async function issueCaptcha(options: {
+  cookieName: string;
+  answer: string;
+  audience: CaptchaAudience;
+  sameSite: "lax" | "strict";
+}) {
+  const db = getDb();
+  const challenge = await db.captchaChallenge.create({
+    data: {
+      answerHash: hashCaptchaAnswer(options.answer),
+      audience: options.audience,
+      expiresAt: new Date(Date.now() + CAPTCHA_TTL_MS),
+    },
+    select: { id: true },
+  });
+
+  db.captchaChallenge
+    .deleteMany({ where: { expiresAt: { lt: new Date() } } })
+    .catch(() => undefined);
+
+  const token = await new EncryptJWT({
+    kind: "captcha",
+    challengeId: challenge.id,
+    captchaAudience: options.audience,
+  })
     .setProtectedHeader({ alg: "dir", enc: "A256GCM" })
     .setIssuer(TOKEN_ISSUER)
     .setAudience(TOKEN_AUDIENCE)
     .setIssuedAt()
     .setExpirationTime("5m")
     .encrypt(getEncryptionKey());
-}
 
-export async function setCaptchaCookie(token: string) {
   const store = await cookies();
-  store.set(CAPTCHA_COOKIE, token, {
+  store.set(options.cookieName, token, {
     httpOnly: true,
-    sameSite: "lax",
-    secure: useSecureCookies(),
+    sameSite: options.sameSite,
+    secure: secureCookies(),
     path: "/",
-    maxAge: 60 * 5,
+    maxAge: CAPTCHA_TTL_MS / 1000,
   });
 }
 
-export async function verifyCaptcha(answer: string) {
+export async function verifyCaptchaAnswer(options: {
+  cookieName: string;
+  answer: string;
+  audience: CaptchaAudience;
+}) {
   const store = await cookies();
-  const token = store.get(CAPTCHA_COOKIE)?.value;
-  store.delete(CAPTCHA_COOKIE);
+  const token = store.get(options.cookieName)?.value;
+  store.delete(options.cookieName);
   if (!token) return false;
 
+  let challengeId: string;
   try {
     const { payload } = await jwtDecrypt(token, getEncryptionKey(), {
       keyManagementAlgorithms: ["dir"],
@@ -121,8 +161,44 @@ export async function verifyCaptcha(answer: string) {
       issuer: TOKEN_ISSUER,
       audience: TOKEN_AUDIENCE,
     });
-    return payload.kind === "captcha" && payload.answer === answer.trim().toUpperCase();
+    if (
+      payload.kind !== "captcha" ||
+      payload.captchaAudience !== options.audience ||
+      typeof payload.challengeId !== "string"
+    ) {
+      return false;
+    }
+    challengeId = payload.challengeId;
   } catch {
     return false;
   }
+
+  const db = getDb();
+  const challenge = await db.captchaChallenge.findUnique({ where: { id: challengeId } });
+  if (
+    !challenge ||
+    challenge.audience !== options.audience ||
+    challenge.expiresAt.getTime() <= Date.now()
+  ) {
+    return false;
+  }
+
+  // Single-use: whoever deletes the row first wins; replays find nothing.
+  const { count } = await db.captchaChallenge.deleteMany({ where: { id: challengeId } });
+  if (count !== 1) return false;
+
+  return challenge.answerHash === hashCaptchaAnswer(options.answer);
+}
+
+export async function issueAdminCaptcha(answer: string) {
+  return issueCaptcha({
+    cookieName: CAPTCHA_COOKIE,
+    answer,
+    audience: "admin",
+    sameSite: "lax",
+  });
+}
+
+export async function verifyCaptcha(answer: string) {
+  return verifyCaptchaAnswer({ cookieName: CAPTCHA_COOKIE, answer, audience: "admin" });
 }

@@ -8,6 +8,7 @@ import { sendContactLeadEmail } from "@/lib/server/contact-mail";
 import {
   assertContactSubmissionTiming,
   consumeContactFormToken,
+  consumeContactGlobalRateLimit,
   consumeContactRateLimit,
   issueContactFormToken,
   verifyContactCaptcha,
@@ -33,6 +34,14 @@ export async function submitContactLeadAction(
   if (!rate.allowed) {
     return {
       error: "Слишком много заявок. Повторите через 15 минут.",
+      refresh,
+    };
+  }
+
+  const globalRate = await consumeContactGlobalRateLimit();
+  if (!globalRate.allowed) {
+    return {
+      error: "Сервис временно перегружен. Попробуйте позже.",
       refresh,
     };
   }

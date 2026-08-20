@@ -71,10 +71,28 @@ export default function ContactFormModal({ open, mode, onClose }: Props) {
   useEffect(() => {
     if (!open) return;
     if (state.ok) setDone(true);
-    if (state.refresh) {
-      setCaptcha("");
-      setCaptchaKey((value) => value + 1);
-    }
+    if (!state.refresh) return;
+
+    setCaptcha("");
+    setCaptchaKey((value) => value + 1);
+
+    // The server consumes the form token on every submission attempt,
+    // so each retry needs a freshly issued token.
+    let cancelled = false;
+    void (async () => {
+      try {
+        const token = await prepareContactFormAction();
+        if (!cancelled) {
+          setOpenedAt(token.openedAt);
+          setNonce(token.nonce);
+        }
+      } catch {
+        // Submit will surface the server error if re-issue failed.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [state, open]);
 
   useEffect(() => {

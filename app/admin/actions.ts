@@ -24,14 +24,14 @@ export async function loginAction(_previous: LoginState, formData: FormData): Pr
   const login = String(formData.get("login") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
   const captcha = String(formData.get("captcha") ?? "");
-  const attempt = await canAttemptLogin();
+  const attempt = await canAttemptLogin(login);
 
   if (!attempt.allowed) {
     return { error: "Слишком много попыток. Повторите вход через 15 минут.", refresh: Date.now() };
   }
 
   if (!(await verifyCaptcha(captcha))) {
-    const locked = await recordLoginFailure(attempt.key);
+    const locked = await recordLoginFailure(attempt.key, attempt.accountKey);
     if (locked) {
       return { error: "Слишком много попыток. Повторите вход через 15 минут.", refresh: Date.now() };
     }
@@ -52,7 +52,7 @@ export async function loginAction(_previous: LoginState, formData: FormData): Pr
 
   const validPassword = await bcrypt.compare(password, passwordHash);
   if (login !== expectedLogin || !validPassword) {
-    const locked = await recordLoginFailure(attempt.key);
+    const locked = await recordLoginFailure(attempt.key, attempt.accountKey);
     if (locked) {
       return { error: "Слишком много попыток. Повторите вход через 15 минут.", refresh: Date.now() };
     }
@@ -65,7 +65,7 @@ export async function loginAction(_previous: LoginState, formData: FormData): Pr
     };
   }
 
-  await clearLoginFailures(attempt.key);
+  await clearLoginFailures(attempt.key, attempt.accountKey);
   await createAdminSession(expectedLogin);
   redirect("/admin/knowledge");
 }

@@ -118,3 +118,6 @@ screenshots/
 *.psd
 *.ai
 *.fig
+
+# Security review memory (sensitive, never commit)
+*---flagged-vulnerabilities*.json
