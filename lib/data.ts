@@ -190,8 +190,8 @@ export const NAV_LINKS = [
 ];
 
 export const SOCIAL_LINKS = [
-  { label: "Max", href: "#", icon: "/images/icon-max.svg" },
-  { label: "Telegram", href: "https://t.me/", icon: "/images/icon-msg-2.svg" },
+  { label: "Max", href: "max.ru", icon: "/images/icon-max.svg" },
+  { label: "Telegram", href: "https://t.me/+79953013834", icon: "/images/icon-msg-2.svg" },
   {
     label: "WhatsApp",
     href: "https://wa.me/79953013834",
