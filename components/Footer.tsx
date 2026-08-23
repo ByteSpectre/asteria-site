@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { CONTACTS } from "@/lib/data";
+import { LEGAL_LINKS } from "@/lib/legal";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -63,11 +64,28 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="type-micro container-x mx-auto flex max-w-[1440px] flex-col gap-2 border-t border-ink/8 py-6 text-ink/40 sm:flex-row sm:items-center sm:justify-between">
-        <p>© {year} Астерия. Все права защищены.</p>
-        <p className="font-mono tracking-[0.04em] uppercase">
-          Первая консультация бесплатно
-        </p>
+      <div className="type-micro container-x mx-auto max-w-[1440px] border-t border-ink/8 py-6">
+        <nav
+          aria-label="Юридические документы"
+          className="flex flex-col gap-3 text-ink/45 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-2"
+        >
+          <Link href={LEGAL_LINKS.privacy.href} className="link-underline hover:text-wine">
+            {LEGAL_LINKS.privacy.label}
+          </Link>
+          <Link href={LEGAL_LINKS.personalData.href} className="link-underline hover:text-wine">
+            {LEGAL_LINKS.personalData.label}
+          </Link>
+          <Link href={LEGAL_LINKS.marketing.href} className="link-underline hover:text-wine">
+            {LEGAL_LINKS.marketing.label}
+          </Link>
+        </nav>
+
+        <div className="mt-6 flex flex-col gap-2 text-ink/40 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {year} Астерия. Все права защищены.</p>
+          <p className="font-mono tracking-[0.04em] uppercase">
+            Первая консультация бесплатно
+          </p>
+        </div>
       </div>
     </footer>
   );

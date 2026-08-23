@@ -185,7 +185,7 @@ export default function Hero() {
           data-hero-sub
           className="type-hero-tagline mt-8 max-w-[40ch] text-ivory/85 opacity-0 md:mt-10 md:max-w-[48ch]"
         >
-          Работаем онлайн по всей России — первая консультация бесплатно.
+          Работаем по всей России — первая консультация бесплатно.
         </p>
 
         <a

@@ -43,7 +43,7 @@ function MemberCard({
 
   return (
     <article
-      className="group"
+      className="group flex h-full flex-col"
       onMouseMove={onMove}
       onMouseLeave={onLeave}
     >
@@ -74,15 +74,16 @@ function MemberCard({
       </div>
 
       {!photoOnly && (
-        <>
-          <div className="mt-4 border-b border-ink/12 pb-4">
+        <div className="mt-4 flex flex-1 flex-col text-left">
+          <div className="flex flex-1 flex-col">
             <h3 className="type-card-title font-display font-medium transition-colors duration-300 group-hover:text-wine">
               {name}
             </h3>
             <p className="mt-1 text-sm leading-snug text-ink/55">{focus}</p>
           </div>
-          <p className="eyebrow mt-3 text-ink/40">{role}</p>
-        </>
+          <div className="mt-4 border-b border-ink/12" />
+          <p className="type-label mt-3 font-mono uppercase text-ink/40">{role}</p>
+        </div>
       )}
     </article>
   );
@@ -188,10 +189,10 @@ export default function Team() {
             </div>
           </Reveal>
 
-          <ul className="grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid items-stretch gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
             {TEAM.map((member, i) => (
-              <li key={member.name}>
-                <Reveal delay={Math.min(i * 0.05, 0.2)}>
+              <li key={member.name} className="h-full">
+                <Reveal delay={Math.min(i * 0.05, 0.2)} className="h-full">
                   <MemberCard
                     name={member.name}
                     role={member.role}

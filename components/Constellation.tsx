@@ -1,41 +1,37 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
+import { ASTERIA_CONSTELLATION } from "@/lib/data";
 
-/** Geometric star chart — brand signature for «Астерия».
- *  Labels sit centered directly above each node. */
-const STARS = [
-  { x: 70, y: 155, r: 3.2, code: "α", name: "Суд" },
-  { x: 200, y: 68, r: 2.8, code: "β", name: "Сделки" },
-  { x: 330, y: 140, r: 3.4, code: "γ", name: "Активы" },
-  { x: 460, y: 52, r: 2.6, code: "δ", name: "Семья" },
-  { x: 590, y: 168, r: 3.2, code: "ε", name: "Бизнес" },
-  { x: 720, y: 78, r: 2.8, code: "ζ", name: "Земля" },
-  { x: 850, y: 152, r: 3.0, code: "η", name: "Труд" },
-  { x: 980, y: 58, r: 2.6, code: "θ", name: "Налоги" },
-  { x: 1110, y: 132, r: 3.6, code: "ι", name: "АЮР" },
-] as const;
+const ZIGZAG_OFFSET = 52;
 
-const EDGES: [number, number][] = [
-  [0, 1],
-  [1, 2],
-  [2, 3],
-  [2, 4],
-  [3, 5],
-  [4, 5],
-  [5, 6],
-  [6, 7],
-  [7, 8],
-  [4, 6],
-];
+const CONSTELLATION_WIDTH = 1440;
+const CONSTELLATION_HEIGHT = 340;
+const STAR_SPACING = 204;
+const STAR_START_X = 108;
+const STAR_CENTER_Y = 154;
+const STAR_RADIUS = 4.5;
+const LABEL_OFFSET = 28;
+const LABEL_SIZE = 16;
+const HIT_SIZE = 64;
+const LINE_WIDTH = 2.5;
+const EDGE_PAD = 30;
 
-/** Stop lines before the label/node halo so text stays clear. */
+const STARS = ASTERIA_CONSTELLATION.map((star, index) => ({
+  ...star,
+  x: STAR_START_X + index * STAR_SPACING,
+  y: STAR_CENTER_Y + (index % 2 === 0 ? -ZIGZAG_OFFSET : ZIGZAG_OFFSET),
+  r: STAR_RADIUS,
+}));
+
+const EDGES: [number, number][] = STARS.slice(0, -1).map((_, index) => [index, index + 1]);
+
 function roundCoord(n: number) {
   return Math.round(n * 1000) / 1000;
 }
 
-function edgePoints(a: (typeof STARS)[number], b: (typeof STARS)[number], pad = 26) {
+function edgePoints(a: (typeof STARS)[number], b: (typeof STARS)[number], pad = EDGE_PAD) {
   const dx = b.x - a.x;
   const dy = b.y - a.y;
   const len = Math.hypot(dx, dy) || 1;
@@ -51,6 +47,8 @@ function edgePoints(a: (typeof STARS)[number], b: (typeof STARS)[number], pad = 
 
 export default function Constellation() {
   const root = useRef<HTMLElement>(null);
+  const detailRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState<number | null>(null);
 
   useGSAP(
     () => {
@@ -92,18 +90,18 @@ export default function Constellation() {
         scale: 1,
         opacity: 1,
         duration: 0.55,
-        stagger: 0.05,
+        stagger: 0.06,
         ease: "back.out(1.6)",
       })
         .to(
           lines,
           {
             strokeDashoffset: 0,
-            duration: 1.1,
-            stagger: 0.06,
+            duration: 1,
+            stagger: 0.05,
             ease: "power2.inOut",
           },
-          0.2,
+          0.15,
         )
         .to(
           labels,
@@ -114,141 +112,166 @@ export default function Constellation() {
             stagger: 0.04,
             ease: "power2.out",
           },
-          0.55,
+          0.45,
         );
-
-      const layer = el.querySelector<SVGGElement>("[data-parallax]");
-      if (!layer || window.matchMedia("(pointer: coarse)").matches) return;
-
-      const onMove = (e: MouseEvent) => {
-        const rect = el.getBoundingClientRect();
-        const nx = (e.clientX - rect.left) / rect.width - 0.5;
-        const ny = (e.clientY - rect.top) / rect.height - 0.5;
-        gsap.to(layer, {
-          x: nx * 14,
-          y: ny * 10,
-          duration: 0.9,
-          ease: "power3.out",
-          overwrite: "auto",
-        });
-      };
-
-      const onLeave = () => {
-        gsap.to(layer, { x: 0, y: 0, duration: 1, ease: "power3.out" });
-      };
-
-      el.addEventListener("mousemove", onMove);
-      el.addEventListener("mouseleave", onLeave);
-
-      return () => {
-        el.removeEventListener("mousemove", onMove);
-        el.removeEventListener("mouseleave", onLeave);
-      };
     },
     { scope: root },
   );
 
+  useGSAP(
+    () => {
+      const panel = detailRef.current;
+      if (!panel) return;
+
+      gsap.fromTo(
+        panel,
+        { autoAlpha: 0, y: 10 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.45,
+          ease: "power3.out",
+        },
+      );
+    },
+    { dependencies: [active], scope: root },
+  );
+
+  const activeStar = active === null ? null : STARS[active];
+
   return (
     <section
       ref={root}
-      aria-label="Карта Астерии"
+      aria-label="Созвездие ценностей Астерии"
       className="relative overflow-hidden border-y border-ink/10 bg-ivory"
     >
       <div className="container-x relative z-10 mx-auto flex max-w-[1440px] flex-col gap-3 pt-10 pb-5 sm:flex-row sm:items-end sm:justify-between sm:gap-6 sm:pt-10 sm:pb-3 md:pt-12">
-        <p className="eyebrow text-ink/45">Atlas · Asteria</p>
+        <p className="eyebrow text-ink/45">A · S · T · E · R · I · A</p>
         <p className="type-label font-mono uppercase text-ink/40 sm:text-right">
-          α 2018 — каталог практик
+          Созвездие ценностей агентства
         </p>
       </div>
 
-      <div className="relative z-10 pb-10 md:container-x md:mx-auto md:max-w-[1440px] md:pb-12">
-        <div className="overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:overflow-visible">
-          <div className="min-w-[920px] px-5 md:min-w-0 md:px-0">
-            <svg
-              viewBox="0 0 1200 260"
-              className="h-[260px] w-full text-wine md:h-auto md:min-h-[200px]"
-              role="img"
-              aria-label="Созвездие практик Астерии"
-              preserveAspectRatio="xMidYMid meet"
-            >
-              <g data-parallax>
-                {/* Lines under nodes so joins stay crisp */}
-                {EDGES.map(([a, b], i) => {
-                  const p = edgePoints(STARS[a], STARS[b]);
-                  return (
-                    <line
-                      key={`e-${i}`}
-                      data-line
-                      x1={p.x1}
-                      y1={p.y1}
-                      x2={p.x2}
-                      y2={p.y2}
-                      stroke="currentColor"
-                      strokeOpacity="0.7"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  );
-                })}
+      <div className="container-x relative z-10 mx-auto max-w-[1440px] pb-8 md:pb-10">
+        <div className="-mx-5 overflow-x-auto overscroll-x-contain px-5 touch-pan-x sm:-mx-8 sm:px-8 2xl:mx-0 2xl:overflow-visible 2xl:px-0">
+          <svg
+            viewBox={`0 0 ${CONSTELLATION_WIDTH} ${CONSTELLATION_HEIGHT}`}
+            width={CONSTELLATION_WIDTH}
+            height={CONSTELLATION_HEIGHT}
+            className="max-w-none shrink-0 text-wine 2xl:h-auto 2xl:w-full 2xl:shrink"
+            role="img"
+            aria-label="Горизонтальное созвездие ASTERIA"
+            preserveAspectRatio="xMidYMid meet"
+            onMouseLeave={() => setActive(null)}
+          >
+          {EDGES.map(([a, b], i) => {
+            const p = edgePoints(STARS[a], STARS[b]);
+            return (
+              <line
+                key={`e-${i}`}
+                data-line
+                x1={p.x1}
+                y1={p.y1}
+                x2={p.x2}
+                y2={p.y2}
+                stroke="currentColor"
+                strokeOpacity={active === null ? 0.7 : a === active || b === active ? 0.95 : 0.35}
+                strokeWidth={LINE_WIDTH}
+                strokeLinecap="round"
+                className="transition-[stroke-opacity] duration-500"
+              />
+            );
+          })}
 
-                {STARS.map((star, i) => (
-                  <g key={star.code}>
-                    <circle
-                      cx={star.x}
-                      cy={star.y}
-                      r={star.r + 5}
-                      fill="#fbf8f1"
-                    />
-                    <circle
-                      data-star
-                      cx={star.x}
-                      cy={star.y}
-                      r={star.r}
-                      fill="currentColor"
-                    />
-                    <circle
-                      cx={star.x}
-                      cy={star.y}
-                      r={star.r + 5}
-                      fill="none"
-                      stroke="currentColor"
-                      strokeOpacity="0.35"
-                      strokeWidth="1.25"
-                    />
-                    <text
-                      data-label
-                      x={star.x}
-                      y={star.y - 18}
-                      textAnchor="middle"
-                      className="font-mono"
-                      fill="currentColor"
-                      fillOpacity="0.85"
-                      fontSize="14"
-                      fontWeight="400"
-                      letterSpacing="0.04em"
-                      paintOrder="stroke fill"
-                      stroke="#fbf8f1"
-                      strokeWidth="8"
-                      strokeLinejoin="round"
-                    >
-                      {star.code} · {star.name}
-                    </text>
-                    <circle
-                      cx={star.x}
-                      cy={star.y}
-                      r={22}
-                      fill="transparent"
-                      data-star-hit={i}
-                    />
-                  </g>
-                ))}
+          {STARS.map((star, index) => {
+            const isActive = active === index;
+            return (
+              <g key={`${star.letter}-${star.name}`}>
+                <circle cx={star.x} cy={star.y} r={star.r + 7} fill="#fbf8f1" />
+                <circle
+                  data-star
+                  cx={star.x}
+                  cy={star.y}
+                  r={star.r}
+                  fill="currentColor"
+                  opacity={active === null || isActive ? 1 : 0.45}
+                  className="transition-opacity duration-500"
+                />
+                <circle
+                  cx={star.x}
+                  cy={star.y}
+                  r={star.r + (isActive ? 11 : 7)}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeOpacity={isActive ? 0.85 : 0.35}
+                  strokeWidth={isActive ? 1.75 : 1.5}
+                  className="transition-all duration-500"
+                />
+                <text
+                  data-label
+                  x={star.x}
+                  y={star.y - LABEL_OFFSET}
+                  textAnchor="middle"
+                  className="font-mono"
+                  fill="currentColor"
+                  fillOpacity={isActive ? 1 : active === null ? 0.85 : 0.45}
+                  fontSize={LABEL_SIZE}
+                  fontWeight="400"
+                  letterSpacing="0.04em"
+                  paintOrder="stroke fill"
+                  stroke="#fbf8f1"
+                  strokeWidth="10"
+                  strokeLinejoin="round"
+                >
+                  {star.letter}
+                </text>
+                <foreignObject
+                  x={star.x - HIT_SIZE / 2}
+                  y={star.y - HIT_SIZE / 2}
+                  width={HIT_SIZE}
+                  height={HIT_SIZE}
+                >
+                  <button
+                    type="button"
+                    aria-label={`${star.name}: ${star.description}`}
+                    aria-pressed={isActive}
+                    className="h-full w-full cursor-pointer rounded-full bg-transparent"
+                    onMouseEnter={() => setActive(index)}
+                    onFocus={() => setActive(index)}
+                    onClick={() => setActive((current) => (current === index ? null : index))}
+                  />
+                </foreignObject>
               </g>
-            </svg>
-          </div>
+            );
+          })}
+          </svg>
         </div>
-        <p className="container-x mt-3 font-mono text-[10px] tracking-[0.04em] text-ink/30 uppercase md:hidden">
-          Листайте карту →
-        </p>
+
+        <div
+          ref={detailRef}
+          aria-live="polite"
+          className="mt-6 min-h-[5.5rem] border-t border-ink/10 pt-6"
+        >
+          {activeStar ? (
+            <>
+              <p className="type-label font-mono uppercase text-wine">
+                {activeStar.letter} · {activeStar.name}
+              </p>
+              <p className="type-body-sm mt-3 max-w-[52ch] text-ink/70">
+                {activeStar.description}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="type-body-sm text-ink/40 md:hidden">
+                Нажмите на звезду, чтобы увидеть описание ценности.
+              </p>
+              <p className="type-body-sm hidden text-ink/40 md:block">
+                Наведите на звезду, чтобы увидеть описание ценности.
+              </p>
+            </>
+          )}
+        </div>
       </div>
     </section>
   );
