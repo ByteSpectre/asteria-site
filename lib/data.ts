@@ -169,7 +169,7 @@ export const FEATURED_PARTNER = {
   role: "Управляющий партнёр · член АЮР",
   focus:
     "Корпоративное право и M&A, банкротство юридических лиц, сделки с недвижимостью",
-  photo: "/images/team-svetlana.png",
+  photo: "/images/team-svetlana.jpg",
   facts: [
     {
       value: "16 лет",

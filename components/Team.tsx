@@ -125,7 +125,6 @@ export default function Team() {
               role={FEATURED_PARTNER.role}
               focus={FEATURED_PARTNER.focus}
               photo={FEATURED_PARTNER.photo}
-              featured
               photoOnly
             />
           </Reveal>
