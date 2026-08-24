@@ -59,6 +59,7 @@ function MemberCard({
             src={photo}
             alt={name}
             fill
+            unoptimized
             sizes={featured || photoOnly ? "(max-width:1024px) 100vw, 42vw" : "(max-width:640px) 100vw, 33vw"}
             className="object-cover object-top"
           />
