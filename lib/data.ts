@@ -184,41 +184,41 @@ export const FEATURED_PARTNER = {
 
 export const TEAM = [
   {
+    name: "Алексей Буллер",
+    role: "Юрист",
+    focus: "Сопровождение бизнеса, арбитражные споры, интеллектуальная собственность",
+    photo: "/images/team-man-3b.jpg",
+  },
+  {
     name: "Евгений Рощупкин",
     role: "Юрист",
     focus:
       "Управление бизнес-процессами, выстраивание долгосрочных отношений с партнёрами и госорганами",
-    photo: "/images/team-man-1.png",
+    photo: "/images/team-man-1.jpg",
   },
   {
     name: "Вячеслав Иванов",
     role: "Юрист",
     focus: "Налоги и имущественные споры",
-    photo: "/images/team-man-2.png",
-  },
-  {
-    name: "Алексей Буллер",
-    role: "Юрист",
-    focus: "Сопровождение бизнеса, арбитражные споры, интеллектуальная собственность",
-    photo: "/images/team-man-3b.png",
+    photo: "/images/team-man-2.jpg",
   },
   {
     name: "Ирина Володина",
     role: "Управляющий партнёр · член АЮР",
     focus: "Трудовые споры, автоюрист, медицинское право",
-    photo: "/images/team-irina.png",
+    photo: "/images/team-irina.jpg",
   },
   {
     name: "Елена Попова",
     role: "Старший юрист · член АЮР",
     focus: "Банкротство физических лиц",
-    photo: "/images/team-elena.png",
+    photo: "/images/team-elena.jpg",
   },
   {
     name: "Инна Карпова",
     role: "Старший юрист · член АЮР",
     focus: "Банкротство физических лиц",
-    photo: "/images/team-inna.png",
+    photo: "/images/team-inna.jpg",
   },
 ];
 
