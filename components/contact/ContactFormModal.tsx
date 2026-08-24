@@ -12,6 +12,7 @@ import {
   submitContactLeadAction,
   type ContactLeadState,
 } from "@/app/actions/contact";
+import { lockPageScroll } from "@/lib/lock-page-scroll";
 
 const initialState: ContactLeadState = { refresh: 0 };
 
@@ -122,40 +123,11 @@ export default function ContactFormModal({ open, mode, onClose }: Props) {
   useEffect(() => {
     if (!mounted) return;
 
-    const scrollbarWidth = Math.max(
-      0,
-      window.innerWidth - document.documentElement.clientWidth,
-    );
-    const previous = {
-      bodyOverflow: document.body.style.overflow,
-      htmlOverflow: document.documentElement.style.overflow,
-      bodyPaddingRight: document.body.style.paddingRight,
-      compensation: document.documentElement.style.getPropertyValue(
-        "--scrollbar-compensation",
-      ),
-    };
-
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-    if (scrollbarWidth > 0) {
-      const pad = `${scrollbarWidth}px`;
-      document.body.style.paddingRight = pad;
-      document.documentElement.style.setProperty("--scrollbar-compensation", pad);
-    }
+    const unlock = lockPageScroll();
     document.body.classList.add("contact-form-open");
 
     return () => {
-      document.documentElement.style.overflow = previous.htmlOverflow;
-      document.body.style.overflow = previous.bodyOverflow;
-      document.body.style.paddingRight = previous.bodyPaddingRight;
-      if (previous.compensation) {
-        document.documentElement.style.setProperty(
-          "--scrollbar-compensation",
-          previous.compensation,
-        );
-      } else {
-        document.documentElement.style.removeProperty("--scrollbar-compensation");
-      }
+      unlock();
       document.body.classList.remove("contact-form-open");
     };
   }, [mounted]);

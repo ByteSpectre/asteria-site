@@ -10,6 +10,7 @@ import RevealStagger from "@/components/RevealStagger";
 import SectionConstellation from "@/components/SectionConstellation";
 import Star from "@/components/Star";
 import { gsap, useGSAP } from "@/lib/gsap";
+import { lockPageScroll } from "@/lib/lock-page-scroll";
 import type {
   ServiceCaseItem,
   ServicePriceItem,
@@ -543,11 +544,11 @@ function CasesSection({ cases }: { cases: ServiceCaseItem[] }) {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") closeCase();
     };
-    document.body.style.overflow = "hidden";
+    const unlock = lockPageScroll();
     document.body.classList.add("case-popup-open");
     window.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = "";
+      unlock();
       document.body.classList.remove("case-popup-open");
       window.removeEventListener("keydown", onKey);
     };
