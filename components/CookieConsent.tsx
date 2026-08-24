@@ -46,11 +46,11 @@ export default function CookieConsent() {
     };
   }, []);
 
-  const accept = () => {
+  const saveChoice = (accepted: boolean) => {
     try {
       localStorage.setItem(
         CONSENT_KEY,
-        JSON.stringify({ accepted: true, at: Date.now() }),
+        JSON.stringify({ accepted, at: Date.now() }),
       );
     } catch {
       // Storage may be blocked; still hide the banner for this session.
@@ -105,13 +105,22 @@ export default function CookieConsent() {
         <p className="type-body-sm mt-4 text-ink/65">{COOKIE_DETAILS_TEXT}</p>
       ) : null}
 
-      <button
-        type="button"
-        onClick={accept}
-        className="type-label mt-5 flex h-11 w-full items-center justify-center bg-wine font-mono uppercase text-white transition-colors hover:bg-wine-deep"
-      >
-        Окей
-      </button>
+      <div className="mt-5 grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => saveChoice(false)}
+          className="type-label flex h-11 items-center justify-center border border-ink/20 bg-transparent font-mono uppercase text-ink/70 transition-colors hover:border-ink/40 hover:text-ink"
+        >
+          Отклонить
+        </button>
+        <button
+          type="button"
+          onClick={() => saveChoice(true)}
+          className="type-label flex h-11 items-center justify-center bg-wine font-mono uppercase text-white transition-colors hover:bg-wine-deep"
+        >
+          Принять
+        </button>
+      </div>
     </div>
   );
 }
