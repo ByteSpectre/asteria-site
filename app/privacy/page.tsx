@@ -1,17 +1,21 @@
 import LegalDocumentPage, { legalMetadata } from "@/components/LegalDocumentPage";
+import { loadLegalDocument } from "@/lib/legal/load-document";
 
 export const metadata = legalMetadata({
-  title: "Политика конфиденциальности и обработки персональных данных",
+  title: "Политика обработки персональных данных",
   description:
-    "Политика конфиденциальности и обработки персональных данных юридического агентства Астерия.",
+    "Политика обработки персональных данных юридического агентства Астерия.",
 });
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const body = await loadLegalDocument("privacy.raw.txt");
+
   return (
     <LegalDocumentPage
-      title="Политика конфиденциальности и обработки персональных данных"
-      description="Полный текст документа будет опубликован на этой странице позже."
-      lead="Документ описывает порядок обработки персональных данных посетителей сайта и клиентов юридического агентства «Астерия»."
+      title="Политика обработки персональных данных"
+      description="Порядок обработки и меры по обеспечению безопасности персональных данных пользователей сайта и клиентов юридического агентства «Астерия»."
+      updatedAt="10 сентября 2026"
+      body={body}
     />
   );
 }

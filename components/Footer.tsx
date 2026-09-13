@@ -4,7 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { CONTACTS } from "@/lib/data";
-import { LEGAL_LINKS } from "@/lib/legal";
+import { LEGAL_ENTITY, LEGAL_LINKS } from "@/lib/legal";
+
+const FOOTER_DOCS = [
+  LEGAL_LINKS.privacy,
+  LEGAL_LINKS.terms,
+  LEGAL_LINKS.personalData,
+  LEGAL_LINKS.marketing,
+] as const;
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -46,6 +53,14 @@ export default function Footer() {
           <p className="mt-4 max-w-[28ch] text-sm leading-relaxed text-ink/50">
             Юридическое агентство. Защищаем в судах и сделках, сохраняем активы.
           </p>
+          <div className="type-body-sm mt-6 max-w-[40ch] space-y-1 text-ink/45">
+            <p>{LEGAL_ENTITY.name}</p>
+            <p>
+              ИНН {LEGAL_ENTITY.inn} · ОГРН {LEGAL_ENTITY.ogrn}
+            </p>
+            <p>Юр. адрес: {LEGAL_ENTITY.legalAddress}</p>
+            <p>Офис: {LEGAL_ENTITY.office}</p>
+          </div>
         </div>
 
         <div className="text-sm text-ink/50 md:text-right">
@@ -53,10 +68,10 @@ export default function Footer() {
             {CONTACTS.phone}
           </a>
           <a
-            href={`mailto:${CONTACTS.email}`}
+            href={`mailto:${LEGAL_ENTITY.email}`}
             className="link-underline mt-2 block"
           >
-            {CONTACTS.email}
+            {LEGAL_ENTITY.email}
           </a>
           <p className="type-label mt-4 font-mono uppercase text-ink/35">
             Москва · {msk}
@@ -69,15 +84,15 @@ export default function Footer() {
           aria-label="Юридические документы"
           className="flex flex-col gap-3 text-ink/45 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-2"
         >
-          <Link href={LEGAL_LINKS.privacy.href} className="link-underline hover:text-wine">
-            {LEGAL_LINKS.privacy.label}
-          </Link>
-          <Link href={LEGAL_LINKS.personalData.href} className="link-underline hover:text-wine">
-            {LEGAL_LINKS.personalData.label}
-          </Link>
-          <Link href={LEGAL_LINKS.marketing.href} className="link-underline hover:text-wine">
-            {LEGAL_LINKS.marketing.label}
-          </Link>
+          {FOOTER_DOCS.map((doc) => (
+            <Link
+              key={doc.href}
+              href={doc.href}
+              className="link-underline hover:text-wine"
+            >
+              {doc.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="mt-6 flex flex-col gap-2 text-ink/40 sm:flex-row sm:items-center sm:justify-between">

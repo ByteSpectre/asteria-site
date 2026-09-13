@@ -7,6 +7,7 @@ import {
   formatRuPhoneMask,
   type ContactFormMode,
 } from "@/lib/contact-form";
+import { LEGAL_LINKS } from "@/lib/legal";
 import {
   prepareContactFormAction,
   submitContactLeadAction,
@@ -34,11 +35,17 @@ export default function ContactFormModal({ open, mode, onClose }: Props) {
   const [nonce, setNonce] = useState("");
   const [captchaKey, setCaptchaKey] = useState(0);
   const [captchaFresh, setCaptchaFresh] = useState(false);
+  const [consentPersonalData, setConsentPersonalData] = useState(false);
+  const [consentMarketing, setConsentMarketing] = useState(false);
   const [done, setDone] = useState(false);
 
   const isService = mode.type === "service";
   const serviceName = isService ? mode.serviceName : "";
-  const canSubmit = email.trim().length > 3 && captcha.trim().length > 0 && !pending;
+  const canSubmit =
+    email.trim().length > 3 &&
+    captcha.trim().length > 0 &&
+    consentPersonalData &&
+    !pending;
 
   useEffect(() => {
     if (!open) return;
@@ -47,6 +54,8 @@ export default function ContactFormModal({ open, mode, onClose }: Props) {
     setEmail("");
     setPhone("");
     setCaptcha("");
+    setConsentPersonalData(false);
+    setConsentMarketing(false);
     setDone(false);
 
     void (async () => {
@@ -313,6 +322,75 @@ export default function ContactFormModal({ open, mode, onClose }: Props) {
               </div>
             </div>
 
+            <div className="mt-6 space-y-4">
+              <label className="flex cursor-pointer items-start gap-3">
+                <input
+                  type="checkbox"
+                  name="consentPersonalData"
+                  checked={consentPersonalData}
+                  onChange={(event) => setConsentPersonalData(event.target.checked)}
+                  className="mt-1 h-4 w-4 shrink-0 accent-[#431c26]"
+                  required
+                />
+                <span className="type-body-sm text-ink/60">
+                  Я ознакомлен(а) с{" "}
+                  <Link
+                    href={LEGAL_LINKS.privacy.href}
+                    className="text-ink/75 underline underline-offset-4 transition-colors hover:text-wine"
+                  >
+                    Политикой обработки персональных данных
+                  </Link>
+                  , с{" "}
+                  <Link
+                    href={LEGAL_LINKS.terms.href}
+                    className="text-ink/75 underline underline-offset-4 transition-colors hover:text-wine"
+                  >
+                    Пользовательским соглашением
+                  </Link>{" "}
+                  и даю согласие на{" "}
+                  <Link
+                    href={LEGAL_LINKS.personalData.href}
+                    className="text-ink/75 underline underline-offset-4 transition-colors hover:text-wine"
+                  >
+                    обработку моих персональных данных
+                  </Link>
+                </span>
+              </label>
+
+              <label className="flex cursor-pointer items-start gap-3">
+                <input
+                  type="checkbox"
+                  name="consentMarketing"
+                  checked={consentMarketing}
+                  onChange={(event) => setConsentMarketing(event.target.checked)}
+                  className="mt-1 h-4 w-4 shrink-0 accent-[#431c26]"
+                />
+                <span className="type-body-sm text-ink/60">
+                  Я ознакомлен(а) с{" "}
+                  <Link
+                    href={LEGAL_LINKS.privacy.href}
+                    className="text-ink/75 underline underline-offset-4 transition-colors hover:text-wine"
+                  >
+                    Политикой обработки персональных данных
+                  </Link>
+                  , с{" "}
+                  <Link
+                    href={LEGAL_LINKS.terms.href}
+                    className="text-ink/75 underline underline-offset-4 transition-colors hover:text-wine"
+                  >
+                    Пользовательским соглашением
+                  </Link>{" "}
+                  и даю согласие на получение{" "}
+                  <Link
+                    href={LEGAL_LINKS.marketing.href}
+                    className="text-ink/75 underline underline-offset-4 transition-colors hover:text-wine"
+                  >
+                    рекламных и новостных рассылок
+                  </Link>
+                </span>
+              </label>
+            </div>
+
             {state.error ? (
               <p role="alert" className="type-body-sm mt-5 border-l-2 border-wine pl-4 text-wine">
                 {state.error}
@@ -331,17 +409,6 @@ export default function ContactFormModal({ open, mode, onClose }: Props) {
                   : "Заказать консультацию"}
               {!pending ? <Arrow className="h-4 w-4" /> : null}
             </button>
-
-            <p className="type-body-sm mt-5 max-w-[42ch] text-ink/45">
-              Отправляя данные, вы соглашаетесь с{" "}
-              <Link
-                href="/privacy"
-                className="text-ink/70 underline underline-offset-4 transition-colors hover:text-wine"
-              >
-                политикой конфиденциальности
-              </Link>
-              .
-            </p>
           </form>
         )}
       </div>

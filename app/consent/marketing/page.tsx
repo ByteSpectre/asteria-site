@@ -1,17 +1,20 @@
 import LegalDocumentPage, { legalMetadata } from "@/components/LegalDocumentPage";
+import { loadLegalDocument } from "@/lib/legal/load-document";
 
 export const metadata = legalMetadata({
-  title: "Согласие на получение информационно-рекламных сообщений",
+  title: "Согласие на получение рекламных и новостных рассылок",
   description:
-    "Согласие на получение информационно-рекламных сообщений от юридического агентства Астерия.",
+    "Согласие субъекта персональных данных на получение рекламных и новостных материалов.",
 });
 
-export default function MarketingConsentPage() {
+export default async function MarketingConsentPage() {
+  const body = await loadLegalDocument("consent-marketing.raw.txt");
+
   return (
     <LegalDocumentPage
-      title="Согласие на получение информационно-рекламных сообщений"
-      description="Полный текст согласия будет опубликован на этой странице позже."
-      lead="Документ определяет условия получения информационных и рекламных сообщений от «Астерии»."
+      title="Согласие на обработку ПДн (реклама)"
+      description="Согласие субъекта персональных данных на получение рекламных и новостных материалов об услугах Оператора и его партнёров."
+      body={body}
     />
   );
 }

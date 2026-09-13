@@ -1,16 +1,19 @@
 import LegalDocumentPage, { legalMetadata } from "@/components/LegalDocumentPage";
+import { loadLegalDocument } from "@/lib/legal/load-document";
 
 export const metadata = legalMetadata({
   title: "Согласие на обработку персональных данных",
-  description: "Согласие на обработку персональных данных юридического агентства Астерия.",
+  description: "Согласие субъекта персональных данных на обработку ПДн.",
 });
 
-export default function PersonalDataConsentPage() {
+export default async function PersonalDataConsentPage() {
+  const body = await loadLegalDocument("consent-personal-data.raw.txt");
+
   return (
     <LegalDocumentPage
       title="Согласие на обработку персональных данных"
-      description="Полный текст согласия будет опубликован на этой странице позже."
-      lead="Документ определяет условия, на которых пользователь даёт согласие на обработку персональных данных."
+      description="Согласие субъекта персональных данных на обработку персональных данных при заполнении форм на сайте."
+      body={body}
     />
   );
 }

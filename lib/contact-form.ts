@@ -65,6 +65,10 @@ export const contactLeadSchema = z
     openedAt: z.coerce.number().int().positive(),
     // Bound to encrypted form cookie
     nonce: z.string().trim().min(8).max(64),
+    consentPersonalData: z.boolean().refine((value) => value, {
+      message: "Нужно согласие на обработку персональных данных",
+    }),
+    consentMarketing: z.boolean(),
   })
   .superRefine((data, ctx) => {
     if (data.mode === "service") {

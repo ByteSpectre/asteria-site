@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { COOKIE_DETAILS_TEXT, LEGAL_LINKS } from "@/lib/legal";
+import {
+  COOKIE_BANNER_TEXT,
+  COOKIE_DETAILS_TEXT,
+  LEGAL_LINKS,
+} from "@/lib/legal";
 
 const CONSENT_KEY = "asteria_cookie_consent";
 const SHOW_DELAY_MS = 3000;
@@ -74,22 +78,21 @@ export default function CookieConsent() {
       }`}
     >
       <p id="cookie-consent-title" className="type-label font-mono uppercase text-ink/40">
-        Уведомление о cookie
+        Мы используем cookie-файлы
       </p>
       <p id="cookie-consent-text" className="type-body-sm mt-3 text-ink/80">
-        На сайте используются cookie-файлы и системы аналитики для улучшения его работы.
-        Продолжая использовать наш сайт, Вы соглашаетесь с условиями обработки cookie-файлов (
+        {COOKIE_BANNER_TEXT} Условия обработки cookie-файлов в{" "}
         <Link href={LEGAL_LINKS.privacy.href} className="link-underline text-ink hover:text-wine">
           {LEGAL_LINKS.privacy.label}
         </Link>
-        ) и пользовательских данных с помощью Яндекс.Метрика (
+        . Также действует{" "}
         <Link
           href={LEGAL_LINKS.yandexMetrica.href}
           className="link-underline text-ink hover:text-wine"
         >
           {LEGAL_LINKS.yandexMetrica.shortLabel}
         </Link>
-        ), необходимых для аналитики и улучшения качества работы сайта и сервиса.
+        .
       </p>
 
       <button
@@ -111,14 +114,14 @@ export default function CookieConsent() {
           onClick={() => saveChoice(false)}
           className="type-label flex h-11 items-center justify-center border border-ink/20 bg-transparent font-mono uppercase text-ink/70 transition-colors hover:border-ink/40 hover:text-ink"
         >
-          Отклонить
+          Отказаться
         </button>
         <button
           type="button"
           onClick={() => saveChoice(true)}
           className="type-label flex h-11 items-center justify-center bg-wine font-mono uppercase text-white transition-colors hover:bg-wine-deep"
         >
-          Принять
+          Соглашаюсь
         </button>
       </div>
     </div>
