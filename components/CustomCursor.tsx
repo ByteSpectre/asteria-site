@@ -48,6 +48,9 @@ export default function CustomCursor() {
     let rx = x;
     let ry = y;
     let rafId = 0;
+    let running = false;
+    let scrolling = false;
+    let scrollStopTimer = 0;
 
     const setMode = (next: PointerMode) => {
       mode = next;
@@ -64,11 +67,28 @@ export default function CustomCursor() {
     };
 
     const tick = () => {
-      rx += (x - rx) * 0.18;
-      ry += (y - ry) * 0.18;
+      if (scrolling) {
+        running = false;
+        return;
+      }
+
+      rx += (x - rx) * 0.22;
+      ry += (y - ry) * 0.22;
 
       dot.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
       ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+
+      if (Math.abs(x - rx) < 0.15 && Math.abs(y - ry) < 0.15) {
+        running = false;
+        return;
+      }
+
+      rafId = requestAnimationFrame(tick);
+    };
+
+    const startTick = () => {
+      if (running || scrolling) return;
+      running = true;
       rafId = requestAnimationFrame(tick);
     };
 
@@ -76,6 +96,7 @@ export default function CustomCursor() {
       x = e.clientX;
       y = e.clientY;
       setMode(isInteractive(e.target) ? "interactive" : "default");
+      startTick();
     };
 
     const onDown = () => setMode("pressed");
@@ -90,21 +111,33 @@ export default function CustomCursor() {
       ring.style.opacity = "1";
     };
 
+    const onScroll = () => {
+      scrolling = true;
+      cancelAnimationFrame(rafId);
+      running = false;
+      window.clearTimeout(scrollStopTimer);
+      scrollStopTimer = window.setTimeout(() => {
+        scrolling = false;
+        startTick();
+      }, 120);
+    };
+
     document.addEventListener("mousemove", onMove, { passive: true });
     document.addEventListener("mousedown", onDown);
     document.addEventListener("mouseup", onUp);
     document.addEventListener("mouseleave", onLeave);
     document.addEventListener("mouseenter", onEnter);
-
-    rafId = requestAnimationFrame(tick);
+    window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
       cancelAnimationFrame(rafId);
+      window.clearTimeout(scrollStopTimer);
       document.removeEventListener("mousemove", onMove);
       document.removeEventListener("mousedown", onDown);
       document.removeEventListener("mouseup", onUp);
       document.removeEventListener("mouseleave", onLeave);
       document.removeEventListener("mouseenter", onEnter);
+      window.removeEventListener("scroll", onScroll);
       root.classList.remove("has-custom-cursor");
     };
   }, [enabled]);

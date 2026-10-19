@@ -169,7 +169,7 @@ export default function BankruptcyTurnkeyPage() {
       {/* 3. Manifesto */}
       <section className="relative overflow-hidden py-16 text-ivory sm:py-20 md:py-28">
         <Image
-          src="/images/bankruptcy-essence-bg.png"
+          src="/images/bankruptcy-essence-bg.jpg"
           alt=""
           fill
           sizes="100vw"

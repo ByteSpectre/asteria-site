@@ -14,10 +14,26 @@ const HERO_STATS = [STATS[0], STATS[1]] as [
 export default function Hero() {
   const root = useRef<HTMLElement>(null);
   const spot = useRef<HTMLDivElement>(null);
+  const spotRaf = useRef(0);
 
   useGSAP(
     () => {
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        // FOUC-prevention classes stay at opacity-0 unless we clear them.
+        gsap.set(
+          [
+            "[data-hero-stat]",
+            "[data-hero-cta]",
+            "[data-hero-sub]",
+            "[data-hero-scroll]",
+            "[data-hero-line]",
+            "[data-hero-image]",
+            "[data-hero-veil]",
+          ],
+          { clearProps: "all", autoAlpha: 1, y: 0, yPercent: 0, scale: 1 },
+        );
+        return;
+      }
 
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
       tl.fromTo(
@@ -63,24 +79,15 @@ export default function Hero() {
           1.35,
         );
 
-      gsap.to("[data-hero-image]", {
-        yPercent: 12,
-        ease: "none",
-        scrollTrigger: {
-          trigger: root.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-        },
-      });
-
+      // No scrub/parallax — continuous transform updates during scroll were janky.
       gsap.to("[data-hero-scroll]", {
         autoAlpha: 0,
+        duration: 0.35,
+        ease: "power2.out",
         scrollTrigger: {
           trigger: root.current,
-          start: "top top",
-          end: "30% top",
-          scrub: true,
+          start: "top -48",
+          toggleActions: "play none none reverse",
         },
       });
     },
@@ -93,12 +100,17 @@ export default function Hero() {
     const rect = root.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
-    spot.current.style.setProperty("--sx", `${x}%`);
-    spot.current.style.setProperty("--sy", `${y}%`);
-    spot.current.style.opacity = "1";
+    const el = spot.current;
+    cancelAnimationFrame(spotRaf.current);
+    spotRaf.current = requestAnimationFrame(() => {
+      el.style.setProperty("--sx", `${x}%`);
+      el.style.setProperty("--sy", `${y}%`);
+      el.style.opacity = "1";
+    });
   };
 
   const onLeave = () => {
+    cancelAnimationFrame(spotRaf.current);
     if (spot.current) spot.current.style.opacity = "0";
   };
 
@@ -111,9 +123,9 @@ export default function Hero() {
       className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden bg-ink text-ivory"
     >
       <div className="absolute inset-0">
-        <div data-hero-image className="absolute inset-0 will-change-transform">
+        <div data-hero-image className="absolute inset-0">
           <Image
-            src="/images/hero.png"
+            src="/images/hero.jpg"
             alt="Юрист в зале суда"
             fill
             priority
@@ -129,10 +141,10 @@ export default function Hero() {
         <div
           ref={spot}
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 mix-blend-soft-light"
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500"
           style={{
             background:
-              "radial-gradient(480px circle at var(--sx, 50%) var(--sy, 40%), rgba(251,248,241,0.28), transparent 55%)",
+              "radial-gradient(420px circle at var(--sx, 50%) var(--sy, 40%), rgba(251,248,241,0.18), transparent 55%)",
           }}
         />
       </div>

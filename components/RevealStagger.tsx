@@ -47,6 +47,7 @@ export default function RevealStagger({
         scrollTrigger: {
           trigger: root,
           start: "top 88%",
+          once: true,
           toggleActions: "play none none none",
         },
       });

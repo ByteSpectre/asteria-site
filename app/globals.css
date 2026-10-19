@@ -160,15 +160,6 @@ h6,
   --tw-ring-offset-shadow: 0 0 #0000 !important;
 }
 
-/* Lenis smooth scroll */
-html.lenis,
-html.lenis body {
-  height: auto;
-}
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-
 /* Page-wide horizontal rhythm */
 .container-x {
   padding-inline: 20px;
@@ -417,6 +408,14 @@ html.lenis body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+
+  /* Hero uses opacity-0 until GSAP runs; keep content visible without motion. */
+  [data-hero-stat],
+  [data-hero-cta],
+  [data-hero-sub],
+  [data-hero-scroll] {
+    opacity: 1 !important;
+  }
 }
 
 @keyframes marquee {
@@ -439,76 +438,6 @@ html.lenis body {
   100% {
     transform: translateY(200%);
   }
-}
-
-/* Custom cursor (desktop only) */
-.custom-cursor-dot,
-.custom-cursor-ring {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1200;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .has-custom-cursor,
-  .has-custom-cursor body,
-  .has-custom-cursor a,
-  .has-custom-cursor button,
-  .has-custom-cursor [role="button"],
-  .has-custom-cursor input,
-  .has-custom-cursor textarea,
-  .has-custom-cursor select,
-  .has-custom-cursor label,
-  .has-custom-cursor summary {
-    cursor: none !important;
-  }
-
-  .has-custom-cursor .custom-cursor-dot,
-  .has-custom-cursor .custom-cursor-ring {
-    display: block;
-    opacity: 1;
-  }
-}
-
-.custom-cursor-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--color-ivory);
-  mix-blend-mode: difference;
-}
-
-.custom-cursor-ring {
-  width: 30px;
-  height: 30px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--color-wine) 55%, transparent);
-  background: color-mix(in srgb, var(--color-ivory) 8%, transparent);
-  backdrop-filter: blur(1px);
-  transform: translate(-50%, -50%);
-  transition:
-    width 0.22s ease,
-    height 0.22s ease,
-    border-color 0.22s ease,
-    background-color 0.22s ease,
-    opacity 0.2s ease;
-}
-
-.custom-cursor-ring[data-mode="interactive"] {
-  width: 44px;
-  height: 44px;
-  border-color: color-mix(in srgb, var(--color-wine) 80%, transparent);
-  background: color-mix(in srgb, var(--color-wine) 10%, transparent);
-}
-
-.custom-cursor-ring[data-mode="pressed"] {
-  width: 26px;
-  height: 26px;
 }
 
 /* BlockNote CMS editor — Notion-like UX in Asteria's visual language */

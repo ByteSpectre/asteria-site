@@ -59,26 +59,40 @@ export default function Header({ services = [] }: { services?: ServiceNavItem[] 
   }, []);
 
   useEffect(() => {
-    const measure = () => {
-      setScrolled(window.scrollY > 24);
-      const hero = document.getElementById("hero");
-      if (!hero) {
-        setOverDark(false);
-        return;
-      }
-      setOverDark(hero.getBoundingClientRect().bottom > 80);
-    };
+    let lastScrolled = window.scrollY > 24;
+    setScrolled(lastScrolled);
 
     const onScroll = () => {
       cancelAnimationFrame(raf.current);
-      raf.current = requestAnimationFrame(measure);
+      raf.current = requestAnimationFrame(() => {
+        const next = window.scrollY > 24;
+        if (next !== lastScrolled) {
+          lastScrolled = next;
+          setScrolled(next);
+        }
+      });
     };
 
-    measure();
     window.addEventListener("scroll", onScroll, { passive: true });
+
+    const hero = document.getElementById("hero");
+    let io: IntersectionObserver | undefined;
+    if (hero) {
+      // Hero still occupies the band below the header → light-on-dark nav.
+      io = new IntersectionObserver(
+        ([entry]) => setOverDark(entry.isIntersecting),
+        { rootMargin: "-80px 0px 0px 0px", threshold: 0 },
+      );
+      io.observe(hero);
+      setOverDark(hero.getBoundingClientRect().bottom > 80);
+    } else {
+      setOverDark(false);
+    }
+
     return () => {
       cancelAnimationFrame(raf.current);
       window.removeEventListener("scroll", onScroll);
+      io?.disconnect();
     };
   }, []);
 
@@ -125,15 +139,15 @@ export default function Header({ services = [] }: { services?: ServiceNavItem[] 
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-[100] transition-[background-color,backdrop-filter,border-color,transform,opacity] duration-300 ${
+        className={`fixed inset-x-0 top-0 z-[100] transition-[background-color,border-color,transform,opacity] duration-300 ${
           casePopupOpen
             ? "pointer-events-none -translate-y-full opacity-0"
             : open
               ? "border-b border-ink/8 bg-cream"
               : scrolled
                 ? light
-                  ? "border-b border-ivory/10 bg-ink/55 backdrop-blur-md"
-                  : "border-b border-ink/8 bg-cream/90 backdrop-blur-md"
+                  ? "border-b border-ivory/10 bg-ink/92"
+                  : "border-b border-ink/8 bg-cream"
                 : "border-b border-transparent bg-transparent"
         }`}
       >

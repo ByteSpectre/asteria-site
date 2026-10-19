@@ -93,17 +93,13 @@ export default function ContactSky() {
         });
       };
 
-      // Рисуется при входе, стирается при обратном скролле
+      // Play once — scrubbing SVG strokeDashoffset every scroll frame is expensive.
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
           start: "top 78%",
-          end: "top 28%",
-          scrub: 1.15,
+          once: true,
           onEnter: startPulses,
-          onEnterBack: startPulses,
-          onLeave: killPulses,
-          onLeaveBack: killPulses,
         },
       });
 

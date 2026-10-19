@@ -42,6 +42,7 @@ export default function Reveal({
           scrollTrigger: {
             trigger: el,
             start: "top 88%",
+            once,
             toggleActions: once ? "play none none none" : "play none none reverse",
           },
         },

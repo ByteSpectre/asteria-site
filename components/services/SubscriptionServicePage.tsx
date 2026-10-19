@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
 import Reveal from "@/components/Reveal";
 import RevealStagger from "@/components/RevealStagger";
 import ContactSky from "@/components/ContactSky";
@@ -38,14 +38,12 @@ export default function SubscriptionServicePage() {
       if (!steps.length) return;
 
       steps.forEach((step, i) => {
-        gsap.to(step, {
-          scrollTrigger: {
-            trigger: step,
-            start: "top 55%",
-            end: "bottom 55%",
-            onEnter: () => setActiveStep(i),
-            onEnterBack: () => setActiveStep(i),
-          },
+        ScrollTrigger.create({
+          trigger: step,
+          start: "top 55%",
+          end: "bottom 55%",
+          onEnter: () => setActiveStep(i),
+          onEnterBack: () => setActiveStep(i),
         });
       });
     },

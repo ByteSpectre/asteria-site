@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
 import { PROCESS_STEPS } from "@/lib/data";
 import Reveal from "@/components/Reveal";
 import LeadButton from "@/components/contact/LeadButton";
@@ -19,14 +19,12 @@ export default function Process() {
       if (!steps.length) return;
 
       steps.forEach((step, i) => {
-        gsap.to(step, {
-          scrollTrigger: {
-            trigger: step,
-            start: "top 55%",
-            end: "bottom 55%",
-            onEnter: () => setActive(i),
-            onEnterBack: () => setActive(i),
-          },
+        ScrollTrigger.create({
+          trigger: step,
+          start: "top 55%",
+          end: "bottom 55%",
+          onEnter: () => setActive(i),
+          onEnterBack: () => setActive(i),
         });
       });
     },
@@ -81,7 +79,7 @@ export default function Process() {
             <Reveal>
               <div className="relative aspect-[3/4] overflow-hidden bg-ink">
                 <Image
-                  src="/images/columns.png"
+                  src="/images/columns.jpg"
                   alt="Классическая архитектура — символ устойчивости и права"
                   fill
                   sizes="(max-width: 1024px) 100vw, 42vw"

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { SERVICES } from "@/lib/data";
 import SectionConstellation from "@/components/SectionConstellation";
 
@@ -10,6 +11,21 @@ const ITEMS = [
 
 export default function PracticeMarquee() {
   const row = [...ITEMS, ...ITEMS];
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        el.style.animationPlayState = entry.isIntersecting ? "running" : "paused";
+      },
+      { rootMargin: "100px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
     <section
@@ -17,7 +33,10 @@ export default function PracticeMarquee() {
       className="relative overflow-hidden border-b border-ink/10 bg-wine py-4 text-ivory md:py-5"
     >
       <SectionConstellation tone="ivory" opacity={0.022} />
-      <div className="relative z-10 flex w-max animate-marquee will-change-transform hover:[animation-play-state:paused]">
+      <div
+        ref={trackRef}
+        className="relative z-10 flex w-max animate-marquee hover:[animation-play-state:paused]"
+      >
         {row.map((title, i) => (
           <span
             key={`${title}-${i}`}
