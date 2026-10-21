@@ -4,10 +4,7 @@ import {
   contactLeadSchema,
   sanitizeText,
 } from "@/lib/contact-form";
-import {
-  CONSENT_MARKETING_TEXT,
-  CONSENT_PERSONAL_DATA_TEXT,
-} from "@/lib/legal";
+import { CONSENT_PERSONAL_DATA_TEXT } from "@/lib/legal";
 import { getClientIp } from "@/lib/server/client-ip";
 import { sendContactLeadEmail } from "@/lib/server/contact-mail";
 import {
@@ -67,7 +64,6 @@ export async function submitContactLeadAction(
     openedAt: String(formData.get("openedAt") ?? ""),
     nonce: sanitizeText(String(formData.get("nonce") ?? ""), 64),
     consentPersonalData: formData.get("consentPersonalData") === "on",
-    consentMarketing: formData.get("consentMarketing") === "on",
   });
 
   if (!parsed.success) {
@@ -104,8 +100,6 @@ export async function submitContactLeadAction(
       at: consentAt,
       personalData: true,
       personalDataText: CONSENT_PERSONAL_DATA_TEXT,
-      marketing: parsed.data.consentMarketing,
-      marketingText: CONSENT_MARKETING_TEXT,
     },
   });
 

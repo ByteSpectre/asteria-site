@@ -1,6 +1,7 @@
 export const CONTACTS = {
-  phone: "+7 (995) 301-38-34",
-  phoneHref: "tel:+79953013834",
+  phone: "+7 (985) 823-33-49",
+  phoneDigits: "+79858233349",
+  phoneHref: "tel:+79858233349",
   email: "asteria.law@yandex.ru",
   address: ["Московская область,", "г. Одинцово, Жуковка 44а"],
 };
@@ -230,10 +231,10 @@ export const NAV_LINKS = [
 
 export const SOCIAL_LINKS = [
   { label: "Max", href: "max.ru", icon: "/images/icon-max.svg" },
-  { label: "Telegram", href: "https://t.me/+79953013834", icon: "/images/icon-msg-2.svg" },
+  { label: "Telegram", href: "https://t.me/+79858233349", icon: "/images/icon-msg-2.svg" },
   {
     label: "WhatsApp",
-    href: "https://wa.me/79953013834",
+    href: "https://wa.me/79858233349",
     icon: "/images/icon-msg-3.svg",
   },
 ] as const;

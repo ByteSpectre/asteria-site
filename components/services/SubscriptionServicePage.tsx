@@ -30,22 +30,36 @@ const content = SUBSCRIPTION_CONTENT;
 export default function SubscriptionServicePage() {
   const [openFaq, setOpenFaq] = useState(0);
   const processRoot = useRef<HTMLElement>(null);
-  const [activeStep, setActiveStep] = useState(0);
 
   useGSAP(
     () => {
       const steps = gsap.utils.toArray<HTMLElement>("[data-step]");
       if (!steps.length) return;
 
+      let active = 0;
+      const apply = (index: number) => {
+        if (index === active) return;
+        active = index;
+        steps.forEach((step, i) => {
+          const on = i === index;
+          const num = step.querySelector<HTMLElement>("[data-step-num]");
+          if (!num) return;
+          num.classList.toggle("text-ivory", on);
+          num.classList.toggle("text-stroke-ivory", !on);
+          num.classList.toggle("opacity-50", !on);
+        });
+      };
+
       steps.forEach((step, i) => {
         ScrollTrigger.create({
           trigger: step,
           start: "top 55%",
           end: "bottom 55%",
-          onEnter: () => setActiveStep(i),
-          onEnterBack: () => setActiveStep(i),
+          onEnter: () => apply(i),
+          onEnterBack: () => apply(i),
         });
       });
+      apply(0);
     },
     { scope: processRoot },
   );
@@ -605,8 +619,11 @@ export default function SubscriptionServicePage() {
                 className="grid gap-4 border-b border-ivory/15 py-7 md:grid-cols-3 md:items-center md:gap-10 md:py-9"
               >
                 <span
-                  className={`type-stat font-display transition-all duration-500 ${
-                    activeStep === index ? "text-ivory" : "text-stroke-ivory opacity-50"
+                  data-step-num
+                  className={`type-stat font-display ${
+                    index === 0
+                      ? "text-ivory"
+                      : "text-stroke-ivory opacity-50"
                   }`}
                 >
                   {pad(index)}

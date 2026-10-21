@@ -68,7 +68,6 @@ export const contactLeadSchema = z
     consentPersonalData: z.boolean().refine((value) => value, {
       message: "Нужно согласие на обработку персональных данных",
     }),
-    consentMarketing: z.boolean(),
   })
   .superRefine((data, ctx) => {
     if (data.mode === "service") {

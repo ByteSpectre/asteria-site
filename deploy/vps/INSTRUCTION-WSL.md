@@ -2,7 +2,7 @@
 
 Цель: прогнать тот же сценарий, что на VPS (Postgres + `npm run build` + `next start` / PM2), на вашем ПК в WSL — и убедиться, что всё работает **до** покупки/настройки сервера.
 
-Полный деплой на REG.RU: [INSTRUCTION.md](./INSTRUCTION.md).
+Полный деплой на VPS (чистый Ubuntu / Timeweb): [INSTRUCTION.md](./INSTRUCTION.md).
 
 ---
 
@@ -13,7 +13,7 @@
 | Ubuntu + Node 22 | Ubuntu в WSL + Node 22 |
 | PostgreSQL | Docker Compose или Postgres в WSL |
 | `.env` production | `.env` из `env.wsl.example` |
-| `deploy.sh` / PM2 | те же команды локально |
+| `npm ci` → `db:deploy` → `build` → PM2 | те же команды локально |
 | Nginx + HTTPS | пока не обязательны; сайт на `http://127.0.0.1:3000` |
 
 Если здесь всё ок — на VPS останутся домен, Nginx, SSL и тот же стек (см. [INSTRUCTION.md](./INSTRUCTION.md)).
@@ -50,10 +50,10 @@ git clone https://github.com/ByteSpectre/asteria-site.git asteria
 cd ~/projects/asteria
 ```
 
-Если клонировать не хотите — можно работать с Windows-диском:
+Если клонировать не хотите — можно работать с Windows-диском (подставьте свой путь):
 
 ```bash
-cd "/mnt/c/Users/Admin/Asteria Site"
+cd "/mnt/c/Users/$(whoami)/asteria-site"
 ```
 
 Минусы пути `/mnt/c/...`: медленнее установка зависимостей и сборка. Для проверки подойдёт; для комфорта лучше `~/projects/asteria`.
@@ -133,6 +133,7 @@ nano .env
 3. **`SITE_URL=http://127.0.0.1:3000`** — для локальной проверки без HTTPS.
 4. **`TRUST_PROXY=false`** — пока нет Nginx перед приложением.
 5. SMTP можно оставить пустым: сайт и админка заработают; форма заявок проверится после заполнения SMTP.
+6. `ADMIN_*` сеют первого админа только при пустой таблице `admins`.
 
 ```bash
 # Хэш пароля админки в base64 (запомните сам пароль)
@@ -153,26 +154,6 @@ ADMIN_PASSWORD_HASH_B64="вставьте_вывод_команды_выше"
 
 ## 6. Сборка и запуск «как на VPS»
 
-### Способ 1 — скрипт деплоя
-
-```bash
-cd ~/projects/asteria
-# если снова увидите «set: pipefail» — это CRLF:
-sed -i 's/\r$//' deploy/vps/deploy.sh
-chmod +x deploy/vps/deploy.sh
-bash deploy/vps/deploy.sh
-```
-
-Скрипт ждёт PM2. Если PM2 нет:
-
-```bash
-sudo npm i -g pm2
-```
-
-Вне `/var/www/asteria` скрипт сам поднимает приложение через PM2 из текущей папки.
-
-### Способ 2 — вручную (удобнее в WSL)
-
 ```bash
 cd ~/projects/asteria
 mkdir -p storage/uploads storage/logs
@@ -187,10 +168,13 @@ npm run start
 
 Остановка: `Ctrl+C`.
 
-Фоном через PM2 с текущей папки:
+Фоном через PM2 (как на VPS):
 
 ```bash
-pm2 start npm --name asteria -- start -- -H 127.0.0.1 -p 3000
+# если PM2 ещё нет: sudo npm i -g pm2
+pm2 start deploy/vps/ecosystem.config.cjs
+# или без ecosystem:
+# pm2 start npm --name asteria -- start -- -H 127.0.0.1 -p 3000
 pm2 status
 pm2 logs asteria
 ```
@@ -220,8 +204,6 @@ pm2 logs asteria
 | bcrypt / логин не работает | Хэш без `\$`, пароль совпадает с тем, что хешировали |
 | CSRF / загрузка картинок | `SITE_URL` должен совпадать с адресом в браузере (`http://127.0.0.1:3000`) |
 | Админка: «Неверный ввод» / не входит | 1) `SITE_URL=http://127.0.0.1:3000` (не https). 2) Хэш без `\$`. 3) После правки `.env`: пересобрать или `pm2 reload ... --update-env`. 4) Вводите капчу с картинки |
-| `deploy.sh` ищет `/var/www/asteria` | В WSL скрипт сам стартует через `pm2` из текущей папки; либо `npm run start` |
-| `: invalid option name` / `set: pipefail` | В скрипте были Windows CRLF. Обновите файл из репо или: `sed -i 's/\r$//' deploy/vps/deploy.sh` |
 | Порт 3000 занят | `npx next start -H 127.0.0.1 -p 3001` и обновите `SITE_URL` |
 
 ---

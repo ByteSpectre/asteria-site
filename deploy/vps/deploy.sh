@@ -19,6 +19,7 @@ echo "==> Dependencies"
 npm ci
 
 echo "==> PostgreSQL migrations"
+# Also runs again inside `npm run build` (migrate-if-direct) — safe / idempotent.
 npm run db:deploy
 
 echo "==> Next.js build"

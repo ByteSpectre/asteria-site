@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import Image from "next/image";
 import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
 import { PROCESS_STEPS } from "@/lib/data";
@@ -9,29 +9,82 @@ import LeadButton from "@/components/contact/LeadButton";
 import Star from "@/components/Star";
 import SectionConstellation from "@/components/SectionConstellation";
 
+/**
+ * Active step is updated via DOM (not React setState) so ScrollTrigger
+ * callbacks don't re-render the sticky Image tree while scrolling.
+ */
 export default function Process() {
   const root = useRef<HTMLElement>(null);
-  const [active, setActive] = useState(0);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLSpanElement>(null);
+  const titleRef = useRef<HTMLSpanElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
 
   useGSAP(
     () => {
       const steps = gsap.utils.toArray<HTMLElement>("[data-step]");
       if (!steps.length) return;
 
+      let active = 0;
+
+      const applyActive = (index: number) => {
+        if (index === active) return;
+        active = index;
+
+        steps.forEach((step, i) => {
+          const on = i === index;
+          step.dataset.active = on ? "true" : "false";
+          const num = step.querySelector<HTMLElement>("[data-step-num]");
+          const heading = step.querySelector<HTMLElement>("[data-step-title]");
+          if (num) {
+            num.classList.toggle("text-wine", on);
+            num.classList.toggle("text-stroke-wine", !on);
+            num.classList.toggle("opacity-50", !on);
+          }
+          if (heading) {
+            heading.classList.toggle("text-wine", on);
+            heading.classList.toggle("text-ink", !on);
+          }
+          const row = step.querySelector<HTMLElement>("[data-step-row]");
+          if (row) {
+            row.style.backgroundColor = on ? "rgba(67, 28, 38, 0.04)" : "";
+          }
+        });
+
+        const progress = ((index + 1) / PROCESS_STEPS.length) * 100;
+        if (progressRef.current) {
+          progressRef.current.style.width = `${progress}%`;
+        }
+        if (stageRef.current) {
+          stageRef.current.textContent = `Этап ${String(index + 1).padStart(2, "0")} / 0${PROCESS_STEPS.length}`;
+        }
+        if (titleRef.current) {
+          titleRef.current.textContent = PROCESS_STEPS[index]?.title ?? "";
+        }
+        const badge = root.current?.querySelector<HTMLElement>("[data-step-badge]");
+        if (badge) {
+          badge.textContent = String(index + 1).padStart(2, "0");
+        }
+        // Avoid CSS transition on large Image during scroll — set instantly.
+        if (imageRef.current) {
+          imageRef.current.style.transform = `scale(${1 + index * 0.015})`;
+        }
+      };
+
       steps.forEach((step, i) => {
         ScrollTrigger.create({
           trigger: step,
           start: "top 55%",
           end: "bottom 55%",
-          onEnter: () => setActive(i),
-          onEnterBack: () => setActive(i),
+          onEnter: () => applyActive(i),
+          onEnterBack: () => applyActive(i),
         });
       });
+
+      applyActive(0);
     },
     { scope: root },
   );
-
-  const progress = ((active + 1) / PROCESS_STEPS.length) * 100;
 
   return (
     <section
@@ -58,19 +111,25 @@ export default function Process() {
           </Reveal>
         </div>
 
-        {/* Фишка: прогресс дела */}
         <div className="mb-10 flex items-center gap-4 md:mb-12">
-          <span className="type-label font-mono uppercase text-ink/40">
-            Этап {String(active + 1).padStart(2, "0")} / 0{PROCESS_STEPS.length}
+          <span
+            ref={stageRef}
+            className="type-label font-mono uppercase text-ink/40"
+          >
+            Этап 01 / 0{PROCESS_STEPS.length}
           </span>
           <div className="h-px flex-1 bg-ink/10">
             <div
-              className="h-full bg-wine transition-[width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
-              style={{ width: `${progress}%` }}
+              ref={progressRef}
+              className="h-full bg-wine"
+              style={{ width: `${(1 / PROCESS_STEPS.length) * 100}%` }}
             />
           </div>
-          <span className="type-label font-mono uppercase text-wine">
-            {PROCESS_STEPS[active]?.title}
+          <span
+            ref={titleRef}
+            className="type-label font-mono uppercase text-wine"
+          >
+            {PROCESS_STEPS[0]?.title}
           </span>
         </div>
 
@@ -79,19 +138,21 @@ export default function Process() {
             <Reveal>
               <div className="relative aspect-[3/4] overflow-hidden bg-ink">
                 <Image
+                  ref={imageRef}
                   src="/images/columns.jpg"
                   alt="Классическая архитектура — символ устойчивости и права"
                   fill
                   sizes="(max-width: 1024px) 100vw, 42vw"
-                  className="object-cover transition-transform duration-[1.4s] ease-out"
-                  style={{
-                    transform: `scale(${1 + active * 0.015})`,
-                  }}
+                  className="object-cover will-change-transform"
+                  style={{ transform: "scale(1)" }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
-                  <p className="type-stat-step mb-4 font-display text-ivory/90">
-                    {String(active + 1).padStart(2, "0")}
+                  <p
+                    data-step-badge
+                    className="type-stat-step mb-4 font-display text-ivory/90"
+                  >
+                    01
                   </p>
                   <LeadButton className="type-label h-12 w-full bg-ivory px-6 font-mono uppercase text-ink sm:w-auto">
                     Консультация
@@ -102,44 +163,43 @@ export default function Process() {
           </div>
 
           <ol className="flex flex-col border-t border-ink/12">
-            {PROCESS_STEPS.map((step, i) => {
-              const isActive = active === i;
-              return (
-                <li
-                  key={step.title}
-                  data-step
-                  className="border-b border-ink/12"
+            {PROCESS_STEPS.map((step, i) => (
+              <li
+                key={step.title}
+                data-step
+                data-active={i === 0 ? "true" : "false"}
+                className="border-b border-ink/12"
+              >
+                <div
+                  data-step-row
+                  className={`grid grid-cols-[auto_1fr] items-start gap-5 py-6 md:grid-cols-[120px_1fr] md:gap-8 md:py-8 ${
+                    i === 0 ? "bg-wine/[0.04]" : ""
+                  }`}
                 >
-                  <div
-                    className={`grid grid-cols-[auto_1fr] items-start gap-5 py-6 transition-colors duration-500 md:grid-cols-[120px_1fr] md:gap-8 md:py-8 ${
-                      isActive ? "bg-wine/[0.04]" : ""
+                  <span
+                    data-step-num
+                    className={`type-stat-step font-display ${
+                      i === 0 ? "text-wine" : "text-stroke-wine opacity-50"
                     }`}
                   >
-                    <span
-                      className={`type-stat-step font-display transition-all duration-500 ${
-                        isActive
-                          ? "text-wine"
-                          : "text-stroke-wine opacity-50"
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <div className="pt-1 md:pt-3">
+                    <h3
+                      data-step-title
+                      className={`type-card-title font-display font-medium ${
+                        i === 0 ? "text-wine" : "text-ink"
                       }`}
                     >
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <div className="pt-1 md:pt-3">
-                      <h3
-                        className={`type-card-title font-display font-medium transition-colors duration-300 ${
-                          isActive ? "text-wine" : "text-ink"
-                        }`}
-                      >
-                        {step.title}
-                      </h3>
-                      <p className="type-body-sm mt-2 max-w-[38ch] text-ink/60">
-                        {step.text}
-                      </p>
-                    </div>
+                      {step.title}
+                    </h3>
+                    <p className="type-body-sm mt-2 max-w-[38ch] text-ink/60">
+                      {step.text}
+                    </p>
                   </div>
-                </li>
-              );
-            })}
+                </div>
+              </li>
+            ))}
           </ol>
         </div>
       </div>

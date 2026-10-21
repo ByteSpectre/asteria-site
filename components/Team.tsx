@@ -4,6 +4,7 @@ import { useRef, type MouseEvent } from "react";
 import Image from "next/image";
 import { FEATURED_PARTNER, TEAM } from "@/lib/data";
 import Reveal from "@/components/Reveal";
+import RevealStagger from "@/components/RevealStagger";
 import Star from "@/components/Star";
 import SectionConstellation from "@/components/SectionConstellation";
 
@@ -188,20 +189,20 @@ export default function Team() {
             </div>
           </Reveal>
 
-          <ul className="grid items-stretch gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-            {TEAM.map((member, i) => (
-              <li key={member.name} className="h-full">
-                <Reveal delay={Math.min(i * 0.05, 0.2)} className="h-full">
+          <RevealStagger>
+            <ul className="grid items-stretch gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+              {TEAM.map((member) => (
+                <li key={member.name} data-reveal-item className="h-full">
                   <MemberCard
                     name={member.name}
                     role={member.role}
                     focus={member.focus}
                     photo={member.photo}
                   />
-                </Reveal>
-              </li>
-            ))}
-          </ul>
+                </li>
+              ))}
+            </ul>
+          </RevealStagger>
         </div>
       </div>
     </section>

@@ -131,8 +131,10 @@ Next:
 2. nano ${APP_DIR}/.env  → SITE_URL=https://your-domain.ru  and SMTP
 3. certbot --nginx -d your-domain.ru -d www.your-domain.ru
 4. pm2 reload ${APP_DIR}/deploy/vps/ecosystem.config.cjs --update-env
+5. Before GitHub Actions auto-deploy: create user deploy and
+   chown -R deploy:deploy ${APP_DIR}  (see deploy/vps/INSTRUCTION.md §10.1)
 
-Change the admin password after first login.
+Change the admin password after first login (ADMIN_* env seeds only an empty admins table).
 Log: ${LOG}
 INFO
 chmod 600 /root/asteria-bootstrap.txt

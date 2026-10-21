@@ -9,6 +9,7 @@
 | Деплой | Push в `main` → Vercel | Push в `main` → GitHub Actions (если настроены Secrets) |
 | `SITE_URL` | `https://ваш-проект.vercel.app` или свой домен | `https://hekl.ru` |
 | `TRUST_PROXY` | `false` | `true` |
+| `TRUST_CLOUDFLARE` | `false` (если не весь трафик через CF) | обычно `false` |
 
 ---
 
@@ -52,6 +53,7 @@ AUTH_SECRET=...                 # openssl rand -hex 32
 
 SITE_URL=https://ваш-домен.vercel.app
 TRUST_PROXY=false
+TRUST_CLOUDFLARE=false
 
 CONTACT_TO_EMAIL=...
 SMTP_HOST=smtp.gmail.com
@@ -66,6 +68,8 @@ SMTP_PASS=...
 ```bash
 node -e "require('bcryptjs').hash('ваш_пароль',12).then(h=>console.log(Buffer.from(h).toString('base64')))"
 ```
+
+**Первый админ:** `ADMIN_LOGIN` + `ADMIN_PASSWORD_HASH_B64` создают запись в БД **только пока таблица `admins` пустая**. После первого входа / появления админов в панели переменные env для логина больше не используются — управляйте учётками в **Администраторы**.
 
 `UPLOAD_DIR` на Vercel **не нужен**, если есть Blob.
 
@@ -97,11 +101,12 @@ BLOB_READ_WRITE_TOKEN=          # пусто
 UPLOAD_DIR=/var/www/asteria/storage/uploads
 SITE_URL=https://hekl.ru
 TRUST_PROXY=true
+TRUST_CLOUDFLARE=false
 ```
 
 Автодеплой: GitHub Secrets `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` → см. раздел 10 в `INSTRUCTION.md`.
 
-Быстрый первый запуск: [`deploy/vps/cloud-init.sh`](vps/cloud-init.sh) в Timeweb Cloud-init.
+Первый запуск на сервере — вручную: клон → `.env` → `npm ci` → `db:deploy` → `build` → PM2 → Nginx/SSL (разделы 3–7 в `INSTRUCTION.md`).
 
 ---
 
@@ -112,5 +117,5 @@ TRUST_PROXY=true
 | Build висит на migrate | `DIRECT_URL` на :5432, не :6543 | Postgres доступен |
 | Нет таблиц | Задайте `DIRECT_URL`, redeploy | `npm run db:deploy` |
 | Картинки 503 | Подключите Blob | `UPLOAD_DIR` + права |
-| Админ не входит | `ADMIN_PASSWORD_HASH_B64`, `SITE_URL=https://...` | то же + `TRUST_PROXY` |
-| GitHub Actions красный | Норма без VPS Secrets | Заполните Secrets |
+| Админ не входит | `ADMIN_PASSWORD_HASH_B64`, `SITE_URL=https://...`; если админы уже в БД — пароль из панели, не из env | то же + `TRUST_PROXY` |
+| GitHub Actions красный | Норма без VPS Secrets | Secrets + права `deploy` на `/var/www/asteria` |

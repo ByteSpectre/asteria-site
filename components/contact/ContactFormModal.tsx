@@ -36,7 +36,6 @@ export default function ContactFormModal({ open, mode, onClose }: Props) {
   const [captchaKey, setCaptchaKey] = useState(0);
   const [captchaFresh, setCaptchaFresh] = useState(false);
   const [consentPersonalData, setConsentPersonalData] = useState(false);
-  const [consentMarketing, setConsentMarketing] = useState(false);
   const [done, setDone] = useState(false);
 
   const isService = mode.type === "service";
@@ -55,7 +54,6 @@ export default function ContactFormModal({ open, mode, onClose }: Props) {
     setPhone("");
     setCaptcha("");
     setConsentPersonalData(false);
-    setConsentMarketing(false);
     setDone(false);
 
     void (async () => {
@@ -322,7 +320,7 @@ export default function ContactFormModal({ open, mode, onClose }: Props) {
               </div>
             </div>
 
-            <div className="mt-6 space-y-4">
+            <div className="mt-6">
               <label className="flex cursor-pointer items-start gap-3">
                 <input
                   type="checkbox"
@@ -353,39 +351,6 @@ export default function ContactFormModal({ open, mode, onClose }: Props) {
                     className="text-ink/75 underline underline-offset-4 transition-colors hover:text-wine"
                   >
                     обработку моих персональных данных
-                  </Link>
-                </span>
-              </label>
-
-              <label className="flex cursor-pointer items-start gap-3">
-                <input
-                  type="checkbox"
-                  name="consentMarketing"
-                  checked={consentMarketing}
-                  onChange={(event) => setConsentMarketing(event.target.checked)}
-                  className="mt-1 h-4 w-4 shrink-0 accent-[#431c26]"
-                />
-                <span className="type-body-sm text-ink/60">
-                  Я ознакомлен(а) с{" "}
-                  <Link
-                    href={LEGAL_LINKS.privacy.href}
-                    className="text-ink/75 underline underline-offset-4 transition-colors hover:text-wine"
-                  >
-                    Политикой обработки персональных данных
-                  </Link>
-                  , с{" "}
-                  <Link
-                    href={LEGAL_LINKS.terms.href}
-                    className="text-ink/75 underline underline-offset-4 transition-colors hover:text-wine"
-                  >
-                    Пользовательским соглашением
-                  </Link>{" "}
-                  и даю согласие на получение{" "}
-                  <Link
-                    href={LEGAL_LINKS.marketing.href}
-                    className="text-ink/75 underline underline-offset-4 transition-colors hover:text-wine"
-                  >
-                    рекламных и новостных рассылок
                   </Link>
                 </span>
               </label>

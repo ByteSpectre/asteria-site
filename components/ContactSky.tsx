@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useRef } from "react";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
 
 type StarPt = { x: number; y: number; r: number; label?: string };
 
@@ -93,13 +93,18 @@ export default function ContactSky() {
         });
       };
 
-      // Play once — scrubbing SVG strokeDashoffset every scroll frame is expensive.
+      let drawn = false;
+
+      // Draw once — scrubbing SVG every scroll frame was expensive.
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
           start: "top 78%",
           once: true,
-          onEnter: startPulses,
+        },
+        onComplete: () => {
+          drawn = true;
+          startPulses();
         },
       });
 
@@ -120,36 +125,61 @@ export default function ContactSky() {
         0.12,
       );
 
+      // Pause infinite SVG tweens when Contacts leaves the viewport.
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top bottom",
+        end: "bottom top",
+        onEnter: () => {
+          if (drawn) startPulses();
+        },
+        onEnterBack: () => {
+          if (drawn) startPulses();
+        },
+        onLeave: killPulses,
+        onLeaveBack: killPulses,
+      });
+
       if (!layer.current) return;
       if (window.matchMedia("(pointer: coarse)").matches) return;
+
+      let moveRaf = 0;
+      let pendingX = 0;
+      let pendingY = 0;
 
       const onMove = (e: Event) => {
         const me = e as MouseEvent;
         const rect = section.getBoundingClientRect();
-        const nx = (me.clientX - rect.left) / rect.width - 0.5;
-        const ny = (me.clientY - rect.top) / rect.height - 0.5;
-        gsap.to(layer.current, {
-          xPercent: nx * 4,
-          yPercent: ny * 3,
-          duration: 1.1,
-          ease: "power3.out",
-          overwrite: "auto",
+        pendingX = (me.clientX - rect.left) / rect.width - 0.5;
+        pendingY = (me.clientY - rect.top) / rect.height - 0.5;
+        if (moveRaf) return;
+        moveRaf = requestAnimationFrame(() => {
+          moveRaf = 0;
+          gsap.set(layer.current, {
+            xPercent: pendingX * 4,
+            yPercent: pendingY * 3,
+          });
         });
       };
 
       const onLeave = () => {
+        cancelAnimationFrame(moveRaf);
+        moveRaf = 0;
         gsap.to(layer.current, {
           xPercent: 0,
           yPercent: 0,
-          duration: 1.2,
+          duration: 0.8,
           ease: "power3.out",
+          overwrite: true,
         });
       };
 
-      section.addEventListener("mousemove", onMove);
+      section.addEventListener("mousemove", onMove, { passive: true });
       section.addEventListener("mouseleave", onLeave);
 
       return () => {
+        killPulses();
+        cancelAnimationFrame(moveRaf);
         section.removeEventListener("mousemove", onMove);
         section.removeEventListener("mouseleave", onLeave);
       };

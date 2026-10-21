@@ -6,6 +6,8 @@
 Стек: **Nginx → PM2 → Next.js (127.0.0.1:3000)**, **PostgreSQL** на том же сервере, файлы в `UPLOAD_DIR`.  
 Supabase и Vercel Blob не нужны.
 
+Все шаги — вручную (без cloud-init и скриптов автоустановки).
+
 Локальная проверка перед VPS: [INSTRUCTION-WSL.md](./INSTRUCTION-WSL.md).
 
 ---
@@ -20,36 +22,6 @@ Supabase и Vercel Blob не нужны.
 | ПО | Node.js 22, Nginx, PostgreSQL 15+, Certbot, PM2 |
 
 Обычный shared-хостинг (только PHP) **не подойдёт**.
-
----
-
-## Быстрый старт: Cloud-init (Timeweb)
-
-При создании сервера вставьте содержимое [`cloud-init.sh`](./cloud-init.sh) в поле **Cloud-init**. Скрипт ставит Node 22, Postgres, Nginx, PM2, клонирует репозиторий, собирает сайт и пишет пароль админки.
-
-1. ОС: **Ubuntu 24.04** (или 22.04), **2 vCPU / 4 ГБ**, публичный IPv4, **без панели**.
-2. Cloud-init: весь файл `deploy/vps/cloud-init.sh` (при другом GitHub-репо поправьте `REPO_URL` в начале).
-3. Дождитесь статуса сервера **Running** + 5–10 минут на сборку.
-4. SSH:
-
-```bash
-cat /root/asteria-bootstrap.txt
-```
-
-Там URL по IP, логин и пароль админки.
-
-5. DNS: A `@` и `www` → IP сервера.
-6. Домен и SSL:
-
-```bash
-nano /var/www/asteria/.env   # SITE_URL=https://hekl.ru и SMTP
-certbot --nginx -d hekl.ru -d www.hekl.ru
-pm2 reload /var/www/asteria/deploy/vps/ecosystem.config.cjs --update-env
-```
-
-Если репозиторий **приватный**, cloud-init с HTTPS-клоном не сработает — либо сделайте репо публичным на время установки, либо после создания сервера клонируйте по SSH вручную (разделы 3–6 ниже).
-
-Лог установки: `/var/log/asteria-cloud-init.log`.
 
 ---
 
@@ -109,7 +81,11 @@ ALTER SCHEMA public OWNER TO asteria;
 SQL
 ```
 
-Или после клона репозитория отредактируйте и выполните `deploy/vps/postgres-init.sql`.
+Или после клона репозитория отредактируйте пароль в `deploy/vps/postgres-init.sql` (**тот же**, что в `.env`) и выполните:
+
+```bash
+sudo -u postgres psql -f deploy/vps/postgres-init.sql
+```
 
 Опционально Postgres в Docker: `deploy/vps/docker-compose.postgres.yml`.
 
@@ -159,14 +135,17 @@ nano .env
 | Переменная | Значение |
 |------------|----------|
 | `DATABASE_URL` / `DIRECT_URL` | один URL к Postgres на `127.0.0.1:5432` |
-| `ADMIN_LOGIN` | логин админки |
+| `ADMIN_LOGIN` | логин первого админа (bootstrap) |
 | `ADMIN_PASSWORD_HASH_B64` | bcrypt в **base64** (см. ниже) |
 | `AUTH_SECRET` | ≥ 32 символа |
 | `SITE_URL` | `https://ваш-домен.ru` (без `/` в конце) |
 | `TRUST_PROXY` | `true` (сайт за Nginx) |
+| `TRUST_CLOUDFLARE` | `false`, если не весь трафик через Cloudflare |
 | `UPLOAD_DIR` | `/var/www/asteria/storage/uploads` |
 | `BLOB_READ_WRITE_TOKEN` | пусто |
 | SMTP_* | почта формы заявок |
+
+`ADMIN_*` создают первого админа **только при пустой таблице**. Дальше — панель «Администраторы»; смена пароля в env уже не поможет.
 
 ```bash
 # Хэш пароля админки (base64). Сырой bcrypt с $ Next.js dotenv ломает.
@@ -185,16 +164,26 @@ openssl rand -hex 32   # AUTH_SECRET
 
 ```bash
 cd /var/www/asteria
-chmod +x deploy/vps/deploy.sh
-bash deploy/vps/deploy.sh
+
+mkdir -p storage/uploads storage/logs
+chmod -R u+rwX storage
+
+npm ci
+npm run db:deploy
+npm run build
+
+pm2 start deploy/vps/ecosystem.config.cjs
+pm2 save
 ```
 
-Скрипт создаёт `storage/`, ставит зависимости, миграции, сборку и PM2 на `127.0.0.1:3000`.
+Проверка:
 
 ```bash
 pm2 status
 curl -I http://127.0.0.1:3000
 ```
+
+Сайт слушает только `127.0.0.1:3000`. Снаружи его отдаст Nginx (раздел 7).
 
 ---
 
@@ -263,14 +252,17 @@ chmod -R u+rwX /var/www/asteria/storage
 ```bash
 cd /var/www/asteria
 git pull origin main
-bash deploy/vps/deploy.sh
+
+npm ci
+npm run db:deploy
+npm run build
+pm2 reload deploy/vps/ecosystem.config.cjs --update-env
+pm2 save
 ```
 
 ### Автодеплой с GitHub (как Vercel)
 
-При каждом **push в `main`** GitHub Actions подключается по SSH и запускает `deploy/vps/deploy.sh`.
-
-Workflow: `.github/workflows/deploy-vps.yml`
+При каждом **push в `main`** GitHub Actions подключается по SSH и выполняет те же шаги сборки и `pm2 reload` (см. `.github/workflows/deploy-vps.yml`).
 
 #### 10.1. Пользователь для деплоя на VPS
 
@@ -280,6 +272,15 @@ Workflow: `.github/workflows/deploy-vps.yml`
 sudo adduser --disabled-password --gecos "" deploy
 sudo usermod -aG sudo deploy   # опционально; для деплоя sudo не нужен
 sudo chown -R deploy:deploy /var/www/asteria
+sudo chmod 600 /var/www/asteria/.env
+```
+
+Если PM2 уже запущен от другого пользователя, перезапустите процесс от `deploy`:
+
+```bash
+sudo pm2 delete asteria 2>/dev/null || true
+sudo -u deploy bash -lc 'cd /var/www/asteria && pm2 start deploy/vps/ecosystem.config.cjs && pm2 save'
+sudo env PATH="$PATH" pm2 startup systemd -u deploy --hp /home/deploy | tail -n 1 | bash
 ```
 
 #### 10.2. Git на сервере (read-only deploy key)
@@ -366,8 +367,6 @@ pg_dump -U asteria -h 127.0.0.1 asteria > backup-$(date +%F).sql
 | `nginx.asteria.conf` | Nginx |
 | `postgres-init.sql` | создание БД |
 | `docker-compose.postgres.yml` | Postgres в Docker (опционально) |
-| `deploy.sh` | установка / обновление |
-| `cloud-init.sh` | автоустановка при создании VPS (Timeweb) |
 | `.github/workflows/deploy-vps.yml` | автодеплой при push в `main` |
 
 ---
@@ -380,13 +379,15 @@ pg_dump -U asteria -h 127.0.0.1 asteria > backup-$(date +%F).sql
 | Certbot: DNS / SERVFAIL | A-записи домена на IP VPS; подождать DNS |
 | `Missing .env` | `.env` должен лежать в корне проекта (`/var/www/asteria/.env`) |
 | Ошибка БД | `DATABASE_URL`, пароль, `systemctl status postgresql` |
-| Админ не входит | `ADMIN_PASSWORD_HASH_B64` (не сырой hash), `SITE_URL=https://...` |
+| Админ не входит | `ADMIN_PASSWORD_HASH_B64` (не сырой hash), `SITE_URL=https://...`; если админы уже в БД — пароль из панели |
 | Картинки не грузятся | права на `UPLOAD_DIR`, пустой `BLOB_READ_WRITE_TOKEN` |
 | CSRF / загрузки | точный `SITE_URL`, `TRUST_PROXY=true` |
 | Письма не уходят | SMTP app-password, порт 465 |
 | Actions: Permission denied (publickey) | `VPS_SSH_KEY`, `authorized_keys`, пользователь `deploy` |
+| Actions: Permission denied на файлы | `chown -R deploy:deploy /var/www/asteria` |
 | Actions: git fetch failed | Deploy key на GitHub, `git remote` на SSH |
 | Actions: Missing .env | `.env` только на сервере, не в репозитории |
+| Ошибка БД после postgres-init.sql | пароль в SQL и в `.env` должен совпадать (`CHANGE_ME_DB_PASSWORD`) |
 
 ---
 

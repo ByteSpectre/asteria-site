@@ -10,8 +10,6 @@ type LeadMailPayload = {
     at: string;
     personalData: boolean;
     personalDataText: string;
-    marketing: boolean;
-    marketingText: string;
   };
 };
 
@@ -65,7 +63,6 @@ function buildLeadEmailHtml(payload: {
   serviceName: string;
   mode: string;
   time: string;
-  consentMarketing: string;
   consentIp: string;
   consentAt: string;
 }) {
@@ -76,7 +73,6 @@ function buildLeadEmailHtml(payload: {
   const serviceName = escapeHtml(payload.serviceName);
   const mode = escapeHtml(payload.mode);
   const time = escapeHtml(payload.time);
-  const consentMarketing = escapeHtml(payload.consentMarketing);
   const consentIp = escapeHtml(payload.consentIp);
   const consentAt = escapeHtml(payload.consentAt);
 
@@ -141,7 +137,7 @@ function buildLeadEmailHtml(payload: {
                 <tr>
                   <td style="padding:16px 0;border-bottom:1px solid rgba(22,19,16,0.08);">
                     <p style="margin:0 0 6px;font-family:ui-monospace,Consolas,monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(22,19,16,0.40);">Согласия</p>
-                    <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#161310;">ПДн: да · Рассылка: ${consentMarketing}</p>
+                    <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#161310;">ПДн: да</p>
                     <p style="margin:8px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.45;color:rgba(22,19,16,0.55);">IP: ${consentIp}<br/>Время: ${consentAt}</p>
                   </td>
                 </tr>
@@ -201,17 +197,11 @@ export async function sendContactLeadEmail(payload: LeadMailPayload) {
     "",
     `Согласие на обработку ПДн: да`,
     `Текст: ${payload.consents.personalDataText}`,
-    `Согласие на рассылку: ${payload.consents.marketing ? "да" : "нет"}`,
-    payload.consents.marketing
-      ? `Текст рассылки: ${payload.consents.marketingText}`
-      : null,
     `IP: ${payload.consents.ip}`,
     `Время согласия: ${payload.consents.at}`,
     "",
     `Время заявки: ${time}`,
-  ]
-    .filter((line): line is string => line !== null)
-    .join("\n");
+  ].join("\n");
 
   const html = buildLeadEmailHtml({
     kind: kindLabel,
@@ -221,7 +211,6 @@ export async function sendContactLeadEmail(payload: LeadMailPayload) {
     serviceName,
     mode: payload.mode,
     time,
-    consentMarketing: payload.consents.marketing ? "да" : "нет",
     consentIp: payload.consents.ip,
     consentAt: payload.consents.at,
   });

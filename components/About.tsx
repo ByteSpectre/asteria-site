@@ -27,6 +27,7 @@ function StatValue({
       }
 
       const obj = { n: 0 };
+      let last = -1;
       gsap.to(obj, {
         n: value,
         duration: 1.6,
@@ -34,11 +35,13 @@ function StatValue({
         scrollTrigger: {
           trigger: ref.current,
           start: "top 90%",
+          once: true,
         },
         onUpdate: () => {
-          if (ref.current) {
-            ref.current.textContent = `${Math.round(obj.n)}${suffix ?? ""}`;
-          }
+          const next = Math.round(obj.n);
+          if (next === last || !ref.current) return;
+          last = next;
+          ref.current.textContent = `${next}${suffix ?? ""}`;
         },
       });
     },

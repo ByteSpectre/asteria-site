@@ -1,23 +1,56 @@
-﻿"use client";
+"use client";
 
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import Image from "next/image";
 import { CONTACTS } from "@/lib/data";
 import Reveal from "@/components/Reveal";
-import MagneticButton from "@/components/MagneticButton";
 import Arrow from "@/components/Arrow";
 import Star from "@/components/Star";
 import ContactSky from "@/components/ContactSky";
 
 const MESSENGERS = [
-  { label: "Telegram", href: "https://t.me/+79953013834", icon: "/images/icon-msg-2.svg" },
+  { label: "Telegram", href: "https://t.me/+79858233349", icon: "/images/icon-msg-2.svg" },
   {
     label: "WhatsApp",
-    href: "https://wa.me/79953013834",
+    href: "https://wa.me/79858233349",
     icon: "/images/icon-msg-3.svg",
   },
   { label: "Max", href: "#", icon: "/images/icon-max.svg" },
 ];
+
+function isLikelyMobileDevice() {
+  if (typeof navigator === "undefined") return false;
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+}
+
+function CallButton() {
+  const [feedback, setFeedback] = useState<"idle" | "copied">("idle");
+
+  const onClick = async (event: MouseEvent<HTMLAnchorElement>) => {
+    // Desktop browsers often ignore tel: — copy number so the click does something useful.
+    if (isLikelyMobileDevice()) return;
+
+    event.preventDefault();
+    try {
+      await navigator.clipboard.writeText(CONTACTS.phoneDigits);
+      setFeedback("copied");
+      window.setTimeout(() => setFeedback("idle"), 2000);
+    } catch {
+      window.location.href = CONTACTS.phoneHref;
+    }
+  };
+
+  return (
+    <a
+      href={CONTACTS.phoneHref}
+      onClick={onClick}
+      className="group type-label mt-8 inline-flex h-12 min-w-[240px] cursor-pointer items-center justify-center gap-3 bg-ivory px-7 font-mono uppercase text-ink transition-colors duration-300 hover:bg-cream"
+    >
+      {feedback === "copied" ? "Номер скопирован" : "Позвонить"}
+      <Arrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+    </a>
+  );
+}
 
 function CopyRow({
   label,
@@ -86,20 +119,14 @@ export default function Contacts() {
               формат работы.
             </p>
 
-            <MagneticButton
-              href={CONTACTS.phoneHref}
-              className="type-label mt-8 h-12 min-w-[240px] bg-ivory px-7 font-mono uppercase text-ink transition-colors duration-300 hover:bg-cream"
-            >
-              Позвонить
-              <Arrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </MagneticButton>
+            <CallButton />
           </Reveal>
 
           <Reveal delay={0.1}>
             <dl className="grid gap-8 border-t border-ivory/15 pt-8 sm:grid-cols-2 lg:border-t-0 lg:pt-2">
               <CopyRow
                 label="Телефон"
-                value="+79953013834"
+                value={CONTACTS.phoneDigits}
                 href={CONTACTS.phoneHref}
                 display={CONTACTS.phone}
               />
