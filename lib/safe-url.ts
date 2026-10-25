@@ -60,8 +60,25 @@ const URL_KEYS = new Set([
 ]);
 
 function sanitizeNode(node: unknown): unknown {
+  // BlockNote can emit non-JSON values (e.g. columnWidths: [undefined]).
+  // Prisma JSON columns reject undefined inside arrays, so normalize to
+  // strict JSON here: null inside arrays, dropped keys inside objects.
+  if (
+    node === undefined ||
+    typeof node === "function" ||
+    typeof node === "symbol" ||
+    typeof node === "bigint"
+  ) {
+    return undefined;
+  }
+  if (typeof node === "number" && !Number.isFinite(node)) {
+    return null;
+  }
   if (Array.isArray(node)) {
-    return node.map(sanitizeNode);
+    return node.map((item) => {
+      const sanitized = sanitizeNode(item);
+      return sanitized === undefined ? null : sanitized;
+    });
   }
   if (!node || typeof node !== "object") {
     return node;
@@ -75,17 +92,15 @@ function sanitizeNode(node: unknown): unknown {
       next[key] = isSafeContentUrl(value) ? value : "";
       continue;
     }
-    if (key === "props" && value && typeof value === "object") {
-      next[key] = sanitizeNode(value);
-      continue;
-    }
-    next[key] = sanitizeNode(value);
+    const sanitized = sanitizeNode(value);
+    // Same as JSON.stringify: properties with undefined values are omitted.
+    if (sanitized !== undefined) next[key] = sanitized;
   }
 
   return next;
 }
 
-/** Walk BlockNote-like JSON and neutralize unsafe URLs. */
+/** Walk BlockNote-like JSON, neutralize unsafe URLs and normalize to strict JSON. */
 export function sanitizeContentUrls(content: unknown) {
   return sanitizeNode(content);
 }
