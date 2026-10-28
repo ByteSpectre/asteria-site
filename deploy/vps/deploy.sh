@@ -16,7 +16,9 @@ if [[ ! -f .env ]]; then
 fi
 
 echo "==> Dependencies"
-npm ci
+# With NODE_ENV=production in .env, plain npm ci skips devDependencies
+# (Tailwind/PostCSS needed for next build).
+npm ci --include=dev
 
 echo "==> PostgreSQL migrations"
 # Also runs again inside `npm run build` (migrate-if-direct) — safe / idempotent.

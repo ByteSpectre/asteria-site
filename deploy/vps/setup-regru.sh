@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 #
 # Астерия — полная установка на VPS Рег.ру (Ubuntu 24.04, без Vercel/Supabase)
-# Запуск от root:  sudo bash deploy/vps/setup-regru.sh
+# Запуск от root:
+#   sudo bash deploy/vps/setup-regru.sh
+# Не используй `sh setup-regru.sh` — нужен bash (не dash).
 #
 # Что делает:
 #   1) Основа: обновления, часовой пояс, firewall (ufw)
@@ -12,8 +14,13 @@
 #   6) Запуск через PM2 + автозапуск при старте
 #   7) Nginx + Let's Encrypt (если DNS уже указывает на сервер)
 #
-# Требование: файлы проекта уже лежат в /var/www/asteria
-# (git clone или распакованный архив). Пароли/secret берутся из .env.
+# Требование: проект в /var/www/asteria.
+# Если клон лежит в ~/asteria-site — скрипт сам перенесёт его туда.
+
+# Если запустили через `sh` (dash) — перезапуск в bash до set -u.
+if [ -z "${BASH_VERSION:-}" ]; then
+  exec /usr/bin/env bash "$0" "$@"
+fi
 
 set -euo pipefail
 
@@ -21,38 +28,108 @@ set -euo pipefail
 # Пути и переменные
 # ----------------------------------------------------------------------------
 APP_DIR="/var/www/asteria"
+# Корень репозитория относительно этого файла: deploy/vps/setup-regru.sh → ../..
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SOURCE_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 ENV_FILE="$APP_DIR/.env"
-ENV_TEMPLATE="$APP_DIR/deploy/vps/.env.asteria-law.ru"
+# Секретный шаблон может лежать только локально (в .gitignore). В репо — example.
+ENV_TEMPLATES=(
+  "$APP_DIR/deploy/vps/.env.asteria-law.ru"
+  "$APP_DIR/deploy/vps/env.asteria-law.ru.example"
+  "$APP_DIR/deploy/vps/env.production.example"
+)
 
 log()  { echo -e "\e[1;32m[+]\e[0m $*"; }
 warn() { echo -e "\e[1;33m[!]\e[0m $*"; }
 err()  { echo -e "\e[1;31m[x]\e[0m $*" >&2; }
 
-if [[ $EUID -ne 0 ]]; then
+if [ "$(id -u)" -ne 0 ]; then
   err "Запускай от root: sudo bash $0"
   exit 1
 fi
 
+# Проект должен жить в /var/www/asteria (Nginx/PM2/.env рассчитаны на этот путь).
 if [[ ! -d "$APP_DIR" ]]; then
-  err "Не найден каталог $APP_DIR. Сначала положи туда проект (git clone или архив)."
+  if [[ -f "$SOURCE_DIR/package.json" && -d "$SOURCE_DIR/deploy/vps" ]]; then
+    log "Нет $APP_DIR — переношу проект из $SOURCE_DIR"
+    mkdir -p /var/www
+    if [[ "$SOURCE_DIR" == "$APP_DIR" ]]; then
+      : # already there
+    elif command -v rsync >/dev/null 2>&1; then
+      mkdir -p "$APP_DIR"
+      rsync -a --delete \
+        --exclude node_modules \
+        --exclude .next \
+        "$SOURCE_DIR"/ "$APP_DIR"/
+    else
+      # mv, если клон не внутри /var/www/asteria
+      mv "$SOURCE_DIR" "$APP_DIR"
+    fi
+    log "Проект: $APP_DIR"
+  else
+    err "Не найден каталог $APP_DIR."
+    err "Сделай одно из двух:"
+    err "  mkdir -p /var/www && mv ~/asteria-site /var/www/asteria"
+    err "  или: git clone <repo> /var/www/asteria"
+    exit 1
+  fi
+fi
+
+if [[ ! -f "$APP_DIR/package.json" ]]; then
+  err "В $APP_DIR нет package.json — это не корень проекта Астерии."
   exit 1
 fi
 
 # Кладём .env
 if [[ ! -f "$ENV_FILE" ]]; then
-  if [[ -f "$ENV_TEMPLATE" ]]; then
-    cp "$ENV_TEMPLATE" "$ENV_FILE"
-    log "Скопирован .env из $ENV_TEMPLATE -> $ENV_FILE"
-  else
-    err "Нет .env и нет шаблона $ENV_TEMPLATE. Добавь .env вручную."
+  ENV_TEMPLATE=""
+  for candidate in "${ENV_TEMPLATES[@]}"; do
+    if [[ -f "$candidate" ]]; then
+      ENV_TEMPLATE="$candidate"
+      break
+    fi
+  done
+  if [[ -z "$ENV_TEMPLATE" ]]; then
+    err "Нет .env и нет шаблона. Создай /var/www/asteria/.env вручную"
+    err "  (скопируй deploy/vps/env.production.example или залей .env.asteria-law.ru с ПК)."
     exit 1
   fi
+  cp "$ENV_TEMPLATE" "$ENV_FILE"
+  chmod 600 "$ENV_FILE"
+  log "Скопирован .env из $ENV_TEMPLATE -> $ENV_FILE"
 else
   log ".env уже существует: $ENV_FILE"
+  chmod 600 "$ENV_FILE" 2>/dev/null || true
+fi
+
+# Подставить секреты, если в шаблоне оставлены плейсхолдеры
+if grep -qE 'CHANGE_ME_DB_PASSWORD|replace-with-at-least-32' "$ENV_FILE"; then
+  GEN_DB_PASS="$(openssl rand -hex 16)"
+  GEN_AUTH="$(openssl rand -hex 32)"
+  sed -i \
+    -e "s/CHANGE_ME_DB_PASSWORD/${GEN_DB_PASS}/g" \
+    -e "s/replace-with-at-least-32-random-characters/${GEN_AUTH}/g" \
+    "$ENV_FILE"
+  log "Сгенерированы пароль БД и AUTH_SECRET в .env"
+fi
+
+if grep -q 'replace-with-base64-of-bcrypt-hash' "$ENV_FILE"; then
+  warn "В .env ещё плейсхолдер ADMIN_PASSWORD_HASH_B64 — после npm ci сгенерируй хэш:"
+  warn "  cd $APP_DIR && node -e \"require('bcryptjs').hash('ВАШ_ПАРОЛЬ',12).then(h=>console.log(Buffer.from(h).toString('base64')))\""
+  warn "  затем впиши в .env и: pm2 reload deploy/vps/ecosystem.config.cjs --update-env"
 fi
 
 # shellcheck disable=SC1091
 set -a; source "$ENV_FILE"; set +a
+
+if [[ -z "${DATABASE_URL:-}" || -z "${SITE_URL:-}" || -z "${AUTH_SECRET:-}" ]]; then
+  err ".env неполный: нужны DATABASE_URL, SITE_URL, AUTH_SECRET"
+  exit 1
+fi
+
+if [[ "$SITE_URL" == *"example.ru"* ]]; then
+  warn "SITE_URL=$SITE_URL — замени на боевой домен в $ENV_FILE до Certbot"
+fi
 
 # ----------------------------------------------------------------------------
 # Разбор DATABASE_URL (user:pass@host:port/db)
@@ -150,8 +227,10 @@ cd "$APP_DIR"
 mkdir -p storage/uploads storage/logs
 chmod -R u+rwX storage
 
-log "npm ci"
-npm ci
+# NODE_ENV=production в .env иначе выкидывает devDependencies
+# (нужны @tailwindcss/postcss, typescript, prisma для next build).
+log "npm ci (с devDependencies для сборки)"
+npm ci --include=dev
 
 log "Миграции БД"
 npm run db:deploy

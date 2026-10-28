@@ -15,6 +15,7 @@
     "db:deploy": "node scripts/migrate-if-direct.mjs",
     "db:studio": "prisma studio",
     "db:seed-services": "tsx scripts/seed-featured-services.ts",
+    "mail:check": "node scripts/check-smtp.mjs",
     "postinstall": "prisma generate"
   },
   "dependencies": {

@@ -168,7 +168,8 @@ cd /var/www/asteria
 mkdir -p storage/uploads storage/logs
 chmod -R u+rwX storage
 
-npm ci
+# --include=dev: иначе при NODE_ENV=production не ставится Tailwind/PostCSS
+npm ci --include=dev
 npm run db:deploy
 npm run build
 
@@ -253,7 +254,7 @@ chmod -R u+rwX /var/www/asteria/storage
 cd /var/www/asteria
 git pull origin main
 
-npm ci
+npm ci --include=dev
 npm run db:deploy
 npm run build
 pm2 reload deploy/vps/ecosystem.config.cjs --update-env

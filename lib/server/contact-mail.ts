@@ -257,10 +257,25 @@ export async function sendContactLeadEmail(payload: LeadMailPayload) {
 
     return { ok: true as const, mocked: false as const };
   } catch (error) {
-    console.error(
-      "[contact-lead] smtp failed",
-      error instanceof Error ? error.message : "unknown",
-    );
+    const detail = error as {
+      code?: string;
+      command?: string;
+      responseCode?: number;
+      response?: string;
+      message?: string;
+    };
+    // Enough to tell a blocked port from bad credentials in pm2 logs;
+    // never includes the SMTP password or the letter body.
+    console.error("[contact-lead] smtp failed", {
+      host: smtp.host,
+      port: smtp.port,
+      secure: smtp.secure,
+      code: detail.code,
+      command: detail.command,
+      responseCode: detail.responseCode,
+      response: detail.response,
+      message: detail.message ?? "unknown",
+    });
     return {
       ok: false as const,
       error: "Не удалось отправить заявку. Попробуйте позже.",

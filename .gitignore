@@ -24,6 +24,7 @@ next-env.d.ts
 # Environment & secrets
 .env*
 !.env.example
+!deploy/vps/env.*.example
 *.pem
 *.key
 credentials.json
