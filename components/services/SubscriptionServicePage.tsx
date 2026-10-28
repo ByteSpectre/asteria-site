@@ -411,8 +411,26 @@ export default function SubscriptionServicePage() {
                             featured ? "text-ink/65" : "text-ivory/65"
                           }`}
                         >
-                          {pack.examples}
+                          {pack.examples.lead}
                         </p>
+                        <ul
+                          className={`mt-4 max-w-[46ch] border-t ${
+                            featured ? "border-ink/10" : "border-ivory/12"
+                          }`}
+                        >
+                          {pack.examples.items.map((item) => (
+                            <li
+                              key={item}
+                              className={`type-body-sm border-b py-2.5 ${
+                                featured
+                                  ? "border-ink/10 text-ink/65"
+                                  : "border-ivory/12 text-ivory/65"
+                              }`}
+                            >
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
                       </div>
                     </div>
                   </article>
