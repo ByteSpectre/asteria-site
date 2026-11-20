@@ -230,7 +230,11 @@ export const NAV_LINKS = [
 ];
 
 export const SOCIAL_LINKS = [
-  { label: "Max", href: "max.ru", icon: "/images/icon-max.svg" },
+  {
+    label: "Max",
+    href: "https://max.ru/u/f9LHodD0cOIej8nTUPS-a6EnVYCBqwFteGeHPS9Lt3dyeWKlGS8-RjsKX90",
+    icon: "/images/icon-max.svg",
+  },
   { label: "Telegram", href: "https://t.me/+79858233349", icon: "/images/icon-msg-2.svg" },
   {
     label: "WhatsApp",

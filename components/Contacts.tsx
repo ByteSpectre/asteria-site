@@ -15,7 +15,11 @@ const MESSENGERS = [
     href: "https://wa.me/79858233349",
     icon: "/images/icon-msg-3.svg",
   },
-  { label: "Max", href: "#", icon: "/images/icon-max.svg" },
+  {
+    label: "Max",
+    href: "https://max.ru/u/f9LHodD0cOIej8nTUPS-a6EnVYCBqwFteGeHPS9Lt3dyeWKlGS8-RjsKX90",
+    icon: "/images/icon-max.svg",
+  },
 ];
 
 function isLikelyMobileDevice() {
